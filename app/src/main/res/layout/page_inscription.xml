@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.38" />
+        app:layout_constraintGuide_percent="0.31" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.31" />
+        app:layout_constraintGuide_percent="0.26" />
 
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -68,29 +68,59 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="64dp">
+            android:layout_marginBottom="54dp">
 
             <TextView
-                android:id="@+id/tv_connexion"
+                android:id="@+id/tv_inscription"
                 style="@style/loginTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/connexion"
+                android:text="@string/inscription"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
                 style="@style/loginEditText"
-                android:id="@+id/et_email"
+                android:id="@+id/et_nom"
                 android:layout_width="match_parent"
 
                 android:layout_marginTop="19dp"
 
                 android:paddingStart="8dp"
+                android:drawableStart="@drawable/iconuser"
+
+                app:layout_constraintTop_toBottomOf="@+id/tv_inscription"
+                android:background="@drawable/border_input"
+                android:hint="@string/nom"
+                />
+
+            <EditText
+                style="@style/loginEditText"
+                android:id="@+id/et_prenom"
+                android:layout_width="match_parent"
+
+                android:layout_marginTop="8dp"
+
+                android:paddingStart="8dp"
+                android:drawableStart="@drawable/iconuser"
+
+                app:layout_constraintTop_toBottomOf="@+id/et_nom"
+                android:background="@drawable/border_input"
+                android:hint="@string/prenom"
+                />
+
+            <EditText
+                style="@style/loginEditText"
+                android:id="@+id/et_courriel"
+                android:layout_width="match_parent"
+
+                android:layout_marginTop="8dp"
+
+                android:paddingStart="8dp"
                 android:drawableStart="@drawable/mail"
 
-                app:layout_constraintTop_toBottomOf="@+id/tv_connexion"
+                app:layout_constraintTop_toBottomOf="@+id/et_prenom"
                 android:background="@drawable/border_input"
                 android:hint="@string/courriel"
                 />
@@ -98,19 +128,32 @@
             <EditText
                 style="@style/loginEditText"
                 android:id="@+id/et_mot_de_passe"
-
                 android:layout_width="match_parent"
 
-                android:layout_marginTop="9dp"
+                android:layout_marginTop="8dp"
 
-                android:drawableStart="@drawable/iconlock"
                 android:paddingStart="8dp"
+                android:drawableStart="@drawable/iconlock"
 
-                app:layout_constraintTop_toBottomOf="@+id/et_email"
+                app:layout_constraintTop_toBottomOf="@+id/et_courriel"
                 android:background="@drawable/border_input"
                 android:hint="@string/mot_de_passe"
                 />
 
+            <EditText
+                style="@style/loginEditText"
+                android:id="@+id/et_repeter_mot_de_passe"
+                android:layout_width="match_parent"
+
+                android:layout_marginTop="8dp"
+
+                android:paddingStart="8dp"
+                android:drawableStart="@drawable/iconlock"
+
+                app:layout_constraintTop_toBottomOf="@+id/et_mot_de_passe"
+                android:background="@drawable/border_input"
+                android:hint="Répéter le mot de passe"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
@@ -133,29 +176,41 @@
             android:layout_height="48dp"
             android:background="@color/transparent"
             android:fontFamily="@font/inter_regular"
-            android:text="@string/se_connecter"
+            android:text="@string/s_inscrire"
             android:textColor="@color/white"
             android:textSize="15sp"
-
             />
 
     </androidx.cardview.widget.CardView>
 
-    <Button
+    <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:text="@string/creer_un_nouveau_compte"
-        android:textColor="@color/black"
-        android:padding="0dp"
         android:layout_marginTop="24dp"
+        android:text="@string/deja_inscrit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView"
         android:fontFamily="@font/inter_regular"
         android:textSize="14sp"
-        android:minHeight="0dp"
         />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:background="@color/transparent"
+        android:fontFamily="@font/inter_regular"
+        android:minHeight="0dp"
+        android:padding="0dp"
+        android:text="@string/se_connecter_underline"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
 
 
