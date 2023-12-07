@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">BetterStravaDroid</string>
+    <string name="connexion">CONNEXION</string>
+    <string name="icone_de_l_application">Icône de l\'application</string>
+    <string name="se_connecter">Se connecter</string>
+    <string name="creer_un_nouveau_compte"><u>Créer un nouveau compte</u></string>
+    <string name="courriel">Courriel</string>
+    <string name="mot_de_passe">Mot de passe</string>
 </resources>
