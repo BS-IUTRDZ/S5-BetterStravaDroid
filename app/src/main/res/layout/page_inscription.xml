@@ -93,6 +93,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_inscription"
                 android:background="@drawable/border_input"
                 android:hint="@string/nom"
+                android:autofillHints="name"
+                android:inputType="text"
                 />
 
             <EditText
@@ -108,6 +110,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_nom"
                 android:background="@drawable/border_input"
                 android:hint="@string/prenom"
+                android:autofillHints="name"
+                android:inputType="text"
                 />
 
             <EditText
@@ -123,6 +127,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_prenom"
                 android:background="@drawable/border_input"
                 android:hint="@string/courriel"
+                android:autofillHints="emailAddress"
+                android:inputType="textEmailAddress"
                 />
 
             <EditText
@@ -138,7 +144,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_courriel"
                 android:background="@drawable/border_input"
                 android:hint="@string/mot_de_passe"
-                />
+                android:autofillHints="password"
+                android:inputType="textPassword" />
 
             <EditText
                 style="@style/loginEditText"
@@ -152,7 +159,9 @@
 
                 app:layout_constraintTop_toBottomOf="@+id/et_mot_de_passe"
                 android:background="@drawable/border_input"
-                android:hint="Répéter le mot de passe"
+                android:hint="@string/repeter_le_mot_de_passe"
+                android:autofillHints="password"
+                android:inputType="textPassword"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -93,6 +93,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_connexion"
                 android:background="@drawable/border_input"
                 android:hint="@string/courriel"
+                android:autofillHints="emailAddress"
+                android:inputType="textEmailAddress"
                 />
 
             <EditText
@@ -109,6 +111,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_email"
                 android:background="@drawable/border_input"
                 android:hint="@string/mot_de_passe"
+                android:autofillHints="password"
+                android:inputType="textPassword"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
