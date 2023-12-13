@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".PageConnexion">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineGradient"
@@ -159,6 +159,7 @@
         android:fontFamily="@font/inter_regular"
         android:textSize="14sp"
         android:minHeight="0dp"
+        android:onClick="goToInscription"
         />
 
 
