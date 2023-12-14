@@ -188,6 +188,7 @@
             android:text="@string/s_inscrire"
             android:textColor="@color/white"
             android:textSize="15sp"
+            android:onClick="boutonInscription"
             />
 
     </androidx.cardview.widget.CardView>
