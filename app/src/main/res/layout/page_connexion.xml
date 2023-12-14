@@ -140,7 +140,7 @@
             android:text="@string/se_connecter"
             android:textColor="@color/white"
             android:textSize="15sp"
-
+            android:onClick="boutonConnexion"
             />
 
     </androidx.cardview.widget.CardView>

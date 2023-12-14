@@ -77,7 +77,7 @@ public class PageInscription extends AppCompatActivity {
 
                 // On envoie la requête
                 RequestHelper.simpleJSONObjectRequest(
-                        UserApi.USER_API_BASE_URL,
+                        UserApi.USER_API_CREATE_ACCOUNT,
                         null,
                         body,
                         Request.Method.POST,
