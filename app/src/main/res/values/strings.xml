@@ -13,4 +13,7 @@
     <string name="se_connecter_underline"><u>Se connecter</u></string>
     <string name="deja_inscrit">Déjà inscrit ?</string>
     <string name="repeter_le_mot_de_passe">Répéter le mot de passe</string>
+    <string name="iconne_de_l_utilisateur">Iconne de l\'utilisateur</string>
+    <string name="date_du_jour">Lundi 4 décembre 2023</string>
+    <string name="tv_bonjour_utilisateur">Bonjour, Clément !</string>
 </resources>
