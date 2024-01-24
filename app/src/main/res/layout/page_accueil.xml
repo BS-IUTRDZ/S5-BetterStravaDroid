@@ -7,6 +7,7 @@
     <!-- - - - - - - - - - - - Haut de page - - - - - - - - - - - -->
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
@@ -18,42 +19,42 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/rounded_iconuser"
-            android:adjustViewBounds="true"
             android:layout_marginHorizontal="7dp"
             android:layout_marginVertical="5dp"
+            android:adjustViewBounds="true"
             android:background="@drawable/simple_rounded_background"
+            android:contentDescription="@string/iconne_de_l_utilisateur"
             android:elevation="20dp"
-            android:contentDescription="@string/iconne_de_l_utilisateur"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/rounded_iconuser" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/tv_date_du_jour"
-                android:text="@string/date_du_jour"
                 style="@style/fontDefault"
-                android:textColor="#808080"
-                />
-
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/date_du_jour"
+                android:textColor="#808080" />
+
+            <TextView
                 android:id="@+id/tv_bonjour_utilisateur"
-                android:text="@string/tv_bonjour_utilisateur"
-                style="@style/fontTitle"/>
+                style="@style/fontTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tv_bonjour_utilisateur" />
 
         </LinearLayout>
 
     </LinearLayout>
 
     <View
+        android:id="@+id/view2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#000000"
@@ -62,12 +63,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <View
+        android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:background="@drawable/shadow"
-        app:layout_constraintTop_toBottomOf="@+id/guidelineGradient"
+        android:background="@drawable/shadow_down"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/guidelineGradient" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineGradient"
@@ -75,6 +77,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.10" />
+
+    <include
+        layout="@layout/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
