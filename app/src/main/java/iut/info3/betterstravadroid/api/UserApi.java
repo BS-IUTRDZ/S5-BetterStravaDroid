@@ -61,6 +61,12 @@ public class UserApi {
         if (password.length() < 8) {
             throw new IllegalArgumentException(ERROR_MESSAGE_NOT_STRONG_PASSWORD);
         }
+
+        this.prenom = prenom;
+        this.nom = nom;
+        this.confirmPassword = confirmPassword;
+        this.password = password;
+        this.courriel = courriel;
     }
 
     public JSONObject toJson() throws JSONException {

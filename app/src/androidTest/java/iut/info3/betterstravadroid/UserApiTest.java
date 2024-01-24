@@ -11,11 +11,16 @@ import android.widget.EditText;
 
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.HashMap;
+
 import iut.info3.betterstravadroid.api.UserApi;
 @RunWith(MockitoJUnitRunner.class)
 public class UserApiTest {
@@ -89,6 +94,22 @@ public class UserApiTest {
         EditText confirmPassword = setUpMock("password");
 
         assertDoesNotThrow(() -> new UserApi(nom, prenom, courriel, password, confirmPassword));
+    }
+
+    @Test
+    public void toJson() throws JSONException {
+        EditText nom = setUpMock("nom");
+        EditText prenom = setUpMock("prenom");
+        EditText courriel = setUpMock("guillaume.medard@iut-rodez.fr");
+        EditText password = setUpMock("password");
+        EditText confirmPassword = setUpMock("password");
+        UserApi userApi = new UserApi(nom, prenom, courriel, password, confirmPassword);
+        JSONObject get = userApi.toJson();
+
+        assertEquals("nom", get.get("nom"));
+        assertEquals("prenom", get.get("prenom"));
+        assertEquals("guillaume.medard@iut-rodez.fr", get.get("email"));
+        assertEquals("password", get.get("motDePasse"));
     }
 
 

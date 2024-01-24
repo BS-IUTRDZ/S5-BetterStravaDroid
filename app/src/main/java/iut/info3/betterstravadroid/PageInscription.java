@@ -20,7 +20,6 @@ public class PageInscription extends AppCompatActivity {
 
     private PageInscriptionBinding binding;
 
-    private ToastMaker toastMaker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
