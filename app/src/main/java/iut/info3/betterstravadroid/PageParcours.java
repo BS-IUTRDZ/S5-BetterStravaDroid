@@ -43,22 +43,26 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import android.location.Criteria;
+
 
 public class PageParcours extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
+    LocationManager locationManager = null;
 
     ArrayList<GeoPoint> trajet;
     Polyline line = new Polyline(map);
     Polygon polygon = new Polygon();
+
+    private String fournisseur;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.page_parcours);
 
-        //polygon.setFillColor(Color.argb(75, 255,0,0));
         trajet = new ArrayList<>();
 
         checkLocationPermission();
@@ -73,6 +77,8 @@ public class PageParcours extends AppCompatActivity {
         map.setMultiTouchControls(true);
 
         centerMapOnUser();
+
+        initialiserLocalisation();
 
         CompassOverlay compassOverlay = new CompassOverlay(this, map);
         compassOverlay.enableCompass();
@@ -131,16 +137,6 @@ public class PageParcours extends AppCompatActivity {
                     map.getController().setCenter(userLocation);
                     map.getController().setZoom(18.0);
 
-
-                    //polygon.setPoints(trajet);
-                    //map.getOverlayManager().add(polygon);
-
-
-                    //line.setPoints(trajet);
-                    //map.getOverlayManager().add(line);
-
-
-
                 } else {
                     // La dernière position connue n'est pas disponible, vous pouvez gérer cela en affichant un message par exemple
                 }
@@ -197,7 +193,6 @@ public class PageParcours extends AppCompatActivity {
 
             trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
 
-            line.setTitle("Un trajet");
             line.setSubDescription(Polyline.class.getCanonicalName());
             line.setWidth(10f);
             line.setColor(Color.RED);
@@ -206,10 +201,56 @@ public class PageParcours extends AppCompatActivity {
             line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
             map.getOverlayManager().add(line);
 
-            map.invalidate();
-            Log.i("MAP_TRAJET", "NOUVEAU POINT : " + trajet.size());
+            //map.invalidate();
         }
     };
+
+    private void initialiserLocalisation()
+    {
+        if (locationManager == null)
+        {
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            Criteria criteres = new Criteria();
+
+            /*// la précision  : (ACCURACY_FINE pour une haute précision ou ACCURACY_COARSE pour une moins bonne précision)
+            criteres.setAccuracy(Criteria.ACCURACY_FINE);
+
+            // l'altitude
+            criteres.setAltitudeRequired(true);
+
+            // la direction
+            criteres.setBearingRequired(true);
+
+            // la vitesse
+            criteres.setSpeedRequired(true);
+
+            // la consommation d'énergie demandée
+            criteres.setCostAllowed(true);
+            //criteres.setPowerRequirement(Criteria.POWER_HIGH);
+            criteres.setPowerRequirement(Criteria.POWER_MEDIUM);*/
+
+            fournisseur = locationManager.getBestProvider(criteres, true);
+        }
+
+        if (fournisseur != null)
+        {
+            // dernière position connue
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                return;
+            }
+
+            Location localisation = locationManager.getLastKnownLocation(fournisseur);
+            if(localisation != null)
+            {
+                // on notifie la localisation
+                ecouteurGPS.onLocationChanged(localisation);
+            }
+
+            // on configure la mise à jour automatique : au moins 10 mètres et 15 secondes
+            locationManager.requestLocationUpdates(fournisseur, 5000, 5, ecouteurGPS);
+        }
+    }
 
 
 
