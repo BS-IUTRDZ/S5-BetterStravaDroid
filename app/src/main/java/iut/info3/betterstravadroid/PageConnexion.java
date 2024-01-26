@@ -40,7 +40,6 @@ public class PageConnexion extends AppCompatActivity {
         startActivity(intent);
     }
 
-
     public void boutonConnexion(View view) {
         String email = courriel.getText().toString();
         String mdp = motDePasse.getText().toString();
