@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="75dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="@id/HSep"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="#FFFFFF"/>
+
+    <View
+        android:id="@+id/HSep"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#757575"
+        app:layout_constraintTop_toTopOf="@id/pauseButton"
+        app:layout_constraintBottom_toBottomOf="@id/pauseButton"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@drawable/shadow_up"
+        app:layout_constraintBottom_toTopOf="@id/HSep"/>
+
+    <ImageView
+        android:id="@+id/playButton"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/playbutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:contentDescription="@string/play_button"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/pauseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/pausebutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:contentDescription="@string/play_button"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.172"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelinePath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.761"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/homeButtonActive"
+        android:src="@drawable/home_active"
+        app:layout_constraintStart_toStartOf="@id/guidelineHome"
+        app:layout_constraintTop_toTopOf="@id/HSep"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription='@string/active_home_button' />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/homeButtonInactive"
+        android:src="@drawable/home_inactive"
+        app:layout_constraintStart_toStartOf="@id/guidelineHome"
+        app:layout_constraintTop_toTopOf="@id/HSep"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription='@string/home_button' />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pathButtonActive"
+        android:src="@drawable/path_active"
+        app:layout_constraintStart_toStartOf="@id/guidelinePath"
+        app:layout_constraintTop_toTopOf="@id/HSep"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription='@string/path_button_active' />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pathButtonInactive"
+        android:src="@drawable/path_inactive"
+        app:layout_constraintStart_toStartOf="@id/guidelinePath"
+        app:layout_constraintTop_toTopOf="@id/HSep"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription='@string/path_button' />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
