@@ -7,7 +7,7 @@
     tools:context=".PageInscription">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineGradient"
+        android:id="@+id/guidelineHSepUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -28,7 +28,7 @@
         android:layout_height="0dp"
         android:scaleType="fitXY"
         android:src="@drawable/gradient_login"
-        app:layout_constraintBottom_toTopOf="@+id/guidelineGradient"
+        app:layout_constraintBottom_toTopOf="@+id/guidelineHSepUser"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +45,7 @@
         android:scaleType="centerInside"
         android:src="@drawable/betterstrava_logo"
         android:layout_marginBottom="40dp"
-        app:layout_constraintBottom_toTopOf="@+id/guidelineGradient"
+        app:layout_constraintBottom_toTopOf="@+id/guidelineHSepUser"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

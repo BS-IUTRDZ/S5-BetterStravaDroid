@@ -25,4 +25,10 @@
     <string name="dernier_parcour_effectu">Dernier parcour effectué</string>
     <string name="titre_du_parcours">Titre du parcours</string>
     <string name="description_du_parcours">Description du parcours</string>
+    <string name="statistiques_des_30_derniers_jours">Statistiques des 30 derniers jours</string>
+    <string name="distance_parcourue">Distance parcourue</string>
+    <string name="km">KM</string>
+    <string name="temps_de_parcours">Temps de parcours</string>
+    <string name="parcours_crees">Parcours crées</string>
+    <string name="statistiques_globales">Statistiques globales</string>
 </resources>

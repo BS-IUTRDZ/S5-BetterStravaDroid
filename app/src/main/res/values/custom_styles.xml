@@ -31,4 +31,9 @@
         <item name="android:textSize">15sp</item>
     </style>
 
+    <style name="fontSegmentDigit" parent="">
+        <item name="android:fontFamily">@font/digitalnumber_regular</item>
+        <item name="android:textSize">9sp</item>
+    </style>
+
 </resources>
