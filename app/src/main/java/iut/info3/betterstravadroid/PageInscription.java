@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,11 +21,30 @@ import iut.info3.betterstravadroid.databinding.PageInscriptionBinding;
 public class PageInscription extends AppCompatActivity {
 
     private PageInscriptionBinding binding;
+    private EditText nom, prenom, courriel, password, confirmPassword;
+    private ToastMaker toastMaker;
+
+
+    public PageInscription() {
+
+    }
+
+
+    public PageInscription(EditText nom,
+                           EditText prenom,
+                           EditText courriel,
+                           EditText password,
+                           EditText confirmPassword) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.courriel = courriel;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = PageInscriptionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         toastMaker = new ToastMaker();
@@ -48,20 +69,28 @@ public class PageInscription extends AppCompatActivity {
                     null,
                     userApi.toJson(),
                     Request.Method.POST,
-                    response -> {
-                        Toast.makeText(this, "Inscription réussie", Toast.LENGTH_LONG).show();
-                        this.finish();
-                    },
-                    error -> {
-                        Toast.makeText(this, "Erreur lors de l'inscription", Toast.LENGTH_SHORT).show();
-                        Log.e("PageInscription", error.toString());
-                    }
+                    this::handleResponse,
+                    this::handleError
             );
         } catch (IllegalArgumentException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+            toast.show();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public void handleResponse(JSONObject object) {
+        toastMaker.makeText(this, "Inscription réussie", Toast.LENGTH_LONG).show();
+        this.finish();
+    }
+
+    public void handleError(VolleyError error) {
+        toastMaker.makeText(this, "Erreur lors de l'inscription", Toast.LENGTH_SHORT).show();
+        Log.e("PageInscription", error.toString());
+    }
+
+    public void setToastMaker(ToastMaker toastMaker) {
+        this.toastMaker = toastMaker;
     }
 }

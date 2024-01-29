@@ -8,15 +8,10 @@ import static org.mockito.Mockito.when;
 
 import android.text.Editable;
 import android.widget.EditText;
-
-import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
