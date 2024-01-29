@@ -20,6 +20,7 @@ import iut.info3.betterstravadroid.databinding.PageInscriptionBinding;
 public class PageInscription extends AppCompatActivity {
 
     private PageInscriptionBinding binding;
+
     private EditText nom, prenom, courriel, password, confirmPassword;
     private ToastMaker toastMaker;
 
@@ -48,9 +49,11 @@ public class PageInscription extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = PageInscriptionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         toastMaker = new ToastMaker();
+
     }
 
     public void backToConnexion(View view) {

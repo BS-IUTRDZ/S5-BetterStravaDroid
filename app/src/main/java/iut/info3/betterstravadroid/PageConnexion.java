@@ -19,6 +19,7 @@ import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
+
 public class PageConnexion extends AppCompatActivity {
 
 
@@ -43,6 +44,7 @@ public class PageConnexion extends AppCompatActivity {
     }
 
     private PageConnexionBinding binding;
+
     public PageConnexion(EditText courriel, EditText motDePasse) {
         this.courriel = courriel;
         this.motDePasse = motDePasse;
