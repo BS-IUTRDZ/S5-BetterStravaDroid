@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,21 +13,18 @@ import com.android.volley.Request;
 import org.json.JSONObject;
 
 import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.databinding.PageInscriptionBinding;
 
 public class PageInscription extends AppCompatActivity {
 
-    private EditText nom, prenom, courriel, password, confirmPassword;
+    private PageInscriptionBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_inscription);
 
-        nom = findViewById(R.id.et_nom);
-        prenom = findViewById(R.id.et_prenom);
-        courriel = findViewById(R.id.et_courriel);
-        password = findViewById(R.id.et_description);
-        confirmPassword = findViewById(R.id.et_repeter_mot_de_passe);
+        binding = PageInscriptionBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
     }
 
     public void backToConnexion(View view) {
@@ -36,11 +32,11 @@ public class PageInscription extends AppCompatActivity {
     }
 
     public void boutonInscription(View view) {
-        String nom = this.nom.getText().toString();
-        String prenom = this.prenom.getText().toString();
-        String courriel = this.courriel.getText().toString();
-        String password = this.password.getText().toString();
-        String confirmPassword = this.confirmPassword.getText().toString();
+        String nom = binding.etNom.getText().toString();
+        String prenom = binding.etPrenom.getText().toString();
+        String courriel = binding.etCourriel.getText().toString();
+        String password = binding.etMotDePasse.getText().toString();
+        String confirmPassword = binding.etRepeterMotDePasse.getText().toString();
 
         boolean formulaireOk = true;
 

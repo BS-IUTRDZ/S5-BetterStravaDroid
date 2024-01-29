@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -14,6 +13,7 @@ import com.android.volley.Request;
 import org.json.JSONObject;
 
 import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 
 public class PageConnexion extends AppCompatActivity {
 
@@ -23,16 +23,15 @@ public class PageConnexion extends AppCompatActivity {
         return instance;
     }
 
-    EditText courriel, motDePasse;
+    private PageConnexionBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        setContentView(R.layout.page_connexion);
 
-        courriel = findViewById(R.id.et_titre);
-        motDePasse = findViewById(R.id.et_description);
+        binding = PageConnexionBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
     }
 
     public void goToInscription(View view) {
@@ -41,8 +40,8 @@ public class PageConnexion extends AppCompatActivity {
     }
 
     public void boutonConnexion(View view) {
-        String email = courriel.getText().toString();
-        String mdp = motDePasse.getText().toString();
+        String email = binding.etEmail.getText().toString();
+        String mdp = binding.etMotDePasse.getText().toString();
 
         if (email.isEmpty() || mdp.isEmpty()) {
             Toast.makeText(instance, "Veuillez saisir votre courriel et votre mot de passe", Toast.LENGTH_LONG).show();

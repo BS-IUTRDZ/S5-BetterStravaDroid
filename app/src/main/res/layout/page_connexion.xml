@@ -82,7 +82,7 @@
 
             <EditText
                 style="@style/loginEditText"
-                android:id="@+id/et_titre"
+                android:id="@+id/et_email"
                 android:layout_width="match_parent"
 
                 android:layout_marginTop="19dp"
@@ -99,7 +99,7 @@
 
             <EditText
                 style="@style/loginEditText"
-                android:id="@+id/et_description"
+                android:id="@+id/et_mot_de_passe"
 
                 android:layout_width="match_parent"
 
@@ -108,7 +108,7 @@
                 android:drawableStart="@drawable/iconlock"
                 android:paddingStart="8dp"
 
-                app:layout_constraintTop_toBottomOf="@+id/et_titre"
+                app:layout_constraintTop_toBottomOf="@+id/et_email"
                 android:background="@drawable/border_input"
                 android:hint="@string/mot_de_passe"
                 android:autofillHints="password"
