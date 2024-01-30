@@ -81,6 +81,7 @@ public class PageConnexion extends AppCompatActivity {
         editor.putString("token", token);
         editor.apply();
         toastMaker.makeText(this, "Utilisateur connecté", Toast.LENGTH_SHORT).show();
+        goToHome();
     }
 
 
@@ -104,6 +105,11 @@ public class PageConnexion extends AppCompatActivity {
 
     public void setEditor(SharedPreferences.Editor editor) {
         this.editor = editor;
+    }
+
+    private void goToHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
 }
