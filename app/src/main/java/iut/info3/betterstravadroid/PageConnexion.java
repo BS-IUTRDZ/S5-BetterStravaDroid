@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
+import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 public class PageConnexion extends AppCompatActivity {
 
@@ -55,11 +56,11 @@ public class PageConnexion extends AppCompatActivity {
                     Request.Method.GET,
                     (reponse) -> {
                         // L'utilisateur est connecté, on enregistre le token dans les préférences
-                        String token = reponse.optString("token");
+                        String token = reponse.optString(UserPreferences.USER_KEY_TOKEN);
                         SharedPreferences.Editor editor = getSharedPreferences("BetterStrava", MODE_PRIVATE).edit();
-                        editor.putString("token", token);
+                        editor.putString(UserPreferences.USER_KEY_TOKEN, token);
                         editor.apply();
-                        Toast.makeText(instance, "Utilisateur connecté", Toast.LENGTH_SHORT).show();
+                        goToHome();
                     },
                     error -> {
                         // L'utilisateur n'est pas connecté, on affiche un message d'erreur
@@ -73,6 +74,11 @@ public class PageConnexion extends AppCompatActivity {
                     }
             );
         }
+    }
+
+    private void goToHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
 }

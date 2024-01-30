@@ -79,12 +79,12 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.10" />
 
-    <include
-        android:id="@+id/navbar"
-        layout="@layout/navbar"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        app:layout_constraintBottom_toBottomOf="parent" />
+<!--    <include-->
+<!--        android:id="@+id/navbar"-->
+<!--        layout="@layout/navbar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="75dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent" />-->
 
     <ScrollView
         android:layout_width="match_parent"
@@ -602,8 +602,6 @@
 
 
     </ScrollView>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
