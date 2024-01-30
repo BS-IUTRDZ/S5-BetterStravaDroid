@@ -133,7 +133,7 @@
 
             <EditText
                 style="@style/loginEditText"
-                android:id="@+id/et_mot_de_passe"
+                android:id="@+id/et_description"
                 android:layout_width="match_parent"
 
                 android:layout_marginTop="8dp"
@@ -157,7 +157,7 @@
                 android:paddingStart="8dp"
                 android:drawableStart="@drawable/iconlock"
 
-                app:layout_constraintTop_toBottomOf="@+id/et_mot_de_passe"
+                app:layout_constraintTop_toBottomOf="@+id/et_description"
                 android:background="@drawable/border_input"
                 android:hint="@string/repeter_le_mot_de_passe"
                 android:autofillHints="password"

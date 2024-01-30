@@ -31,4 +31,14 @@
     <string name="temps_de_parcours">Temps de parcours</string>
     <string name="parcours_crees">Parcours crées</string>
     <string name="statistiques_globales">Statistiques globales</string>
+    <string name="vitesse_moyenne">Vitesse Moyenne</string>
+    <string name="kmh">km/h</string>
+    <string name="duree_du_parcours">Durée du parcours</string>
+    <string name="ajouter_point">Ajout point</string>
+    <string name="stop">STOP</string>
+    <string name="start">Start</string>
+    <string name="title">Title</string>
+    <string name="Description">Description</string>
+    <string name="Confirm">Confirmer</string>
+    <string name="Cancel">Annuler</string>
 </resources>

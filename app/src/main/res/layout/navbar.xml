@@ -35,6 +35,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:contentDescription="@string/play_button"
         app:layout_constraintTop_toTopOf="parent"
+        android:onClick="playButton"
         />
 
     <ImageView
@@ -46,7 +47,10 @@
         app:layout_constraintStart_toStartOf="parent"
         android:contentDescription="@string/play_button"
         app:layout_constraintTop_toTopOf="parent"
+        android:onClick="pauseButton"
+        android:visibility="visible"
         />
+
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineHome"
