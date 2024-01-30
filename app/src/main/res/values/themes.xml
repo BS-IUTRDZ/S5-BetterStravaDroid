@@ -3,6 +3,13 @@
     <style name="Base.Theme.BetterStravaDroid" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Status bar = responsible for the background color. -->
+        <item name="android:statusBarColor">@color/transparent</item>
+        <!-- Status bar text colors handle from here -->
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+
+        <!-- Customize your theme here. -->
     </style>
 
     <style name="Theme.BetterStravaDroid" parent="Base.Theme.BetterStravaDroid" />

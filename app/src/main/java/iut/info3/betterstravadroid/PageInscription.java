@@ -27,7 +27,7 @@ public class PageInscription extends AppCompatActivity {
         nom = findViewById(R.id.et_nom);
         prenom = findViewById(R.id.et_prenom);
         courriel = findViewById(R.id.et_courriel);
-        password = findViewById(R.id.et_mot_de_passe);
+        password = findViewById(R.id.et_description);
         confirmPassword = findViewById(R.id.et_repeter_mot_de_passe);
     }
 

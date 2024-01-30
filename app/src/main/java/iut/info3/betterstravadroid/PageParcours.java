@@ -19,12 +19,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -33,6 +35,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
+import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
@@ -55,9 +60,17 @@ public class PageParcours extends AppCompatActivity {
 
     ArrayList<GeoPoint> trajet;
     Polyline line = new Polyline(map);
-    Polygon polygon = new Polygon();
+
+    private Boolean play = true;
 
     private String fournisseur;
+    ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+    private double gLatitute;
+    private double gLongitude;
+    TextView title;
+    TextView description;
+    private AlertDialog popup;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,17 +204,22 @@ public class PageParcours extends AppCompatActivity {
         @Override
         public void onLocationChanged(Location localisation) {
 
-            trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
+            if (play) {
+                trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
 
-            line.setSubDescription(Polyline.class.getCanonicalName());
-            line.setWidth(10f);
-            line.setColor(Color.RED);
-            line.setPoints(trajet);
-            line.setGeodesic(true);
-            line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
-            map.getOverlayManager().add(line);
+                gLatitute = localisation.getLatitude();
+                gLongitude = localisation.getLongitude();
 
-            //map.invalidate();
+                //line.setSubDescription(Polyline.class.getCanonicalName());
+                line.setWidth(10f);
+                line.setColor(Color.RED);
+                line.setPoints(trajet);
+                line.setGeodesic(true);
+                //line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
+                map.getOverlayManager().add(line);
+
+                //map.invalidate();
+            }
         }
     };
 
@@ -252,6 +270,80 @@ public class PageParcours extends AppCompatActivity {
         }
     }
 
+    public void pauseButton(View view){
+
+        play = false;
+        view.setVisibility(View.INVISIBLE);
+        findViewById(R.id.playButton).setVisibility(View.VISIBLE);
+
+    }
+
+    public void playButton(View view){
+
+        play = true;
+        view.setVisibility(View.INVISIBLE);
+        findViewById(R.id.pauseButton).setVisibility(View.VISIBLE);
+
+    }
+
+    public void addPoint(View view){
+        showAboutPopup();
+    }
+
+    private void showAboutPopup() {
+
+        AlertDialog.Builder popup_builder = new AlertDialog.Builder(this);
+
+
+        View customLayout = getLayoutInflater().inflate(R.layout.popup_interest_point, null);
+        title = customLayout.findViewById(R.id.et_titre);
+        description = customLayout.findViewById(R.id.et_description);
+
+
+        popup_builder.setView(customLayout);
+
+        popup = popup_builder.create();
+        popup.show();
+
+    }
+
+    public void confirmTitleDescription(View view){
+
+        items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitute, gLongitude)));
+
+        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(getApplicationContext(), items,
+                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                    @Override
+                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                        Toast.makeText( getApplicationContext(),
+                                item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+                    @Override
+                    public boolean onItemLongPress(final int index, final OverlayItem item) {
+                        return false;
+                    }
+                });
+        //mOverlay.setFocusItemsOnTap(true);
+        map.getOverlays().add(mOverlay);
+        popup.dismiss();
+    }
+
+    public void cancelTitleDescription(View view){
+        popup.dismiss();
+    }
+
+    public void start(View view){
+        view.setVisibility(View.INVISIBLE);
+        findViewById(R.id.btn_stop).setVisibility(View.VISIBLE);
+        ((CardView) findViewById(R.id.cardViewStop)).setCardBackgroundColor(0xFFC3363E);
+    }
+
+    public void stop(View view){
+        view.setVisibility(View.INVISIBLE);
+        findViewById(R.id.btn_start).setVisibility(View.VISIBLE);
+        ((CardView) findViewById(R.id.cardViewStop)).setCardBackgroundColor(0xFF4478c2);
+    }
 
 
 }

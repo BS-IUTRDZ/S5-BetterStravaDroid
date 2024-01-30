@@ -31,8 +31,8 @@ public class PageConnexion extends AppCompatActivity {
         instance = this;
         setContentView(R.layout.page_connexion);
 
-        courriel = findViewById(R.id.et_email);
-        motDePasse = findViewById(R.id.et_mot_de_passe);
+        courriel = findViewById(R.id.et_titre);
+        motDePasse = findViewById(R.id.et_description);
     }
 
     public void goToInscription(View view) {
