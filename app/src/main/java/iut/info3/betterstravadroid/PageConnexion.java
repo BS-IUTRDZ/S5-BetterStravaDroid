@@ -19,7 +19,6 @@ import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-
 public class PageConnexion extends AppCompatActivity {
 
 
