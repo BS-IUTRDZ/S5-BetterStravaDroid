@@ -133,7 +133,7 @@
 
             <EditText
                 style="@style/loginEditText"
-                android:id="@+id/et_description"
+                android:id="@+id/et_mot_de_passe"
                 android:layout_width="match_parent"
 
                 android:layout_marginTop="8dp"

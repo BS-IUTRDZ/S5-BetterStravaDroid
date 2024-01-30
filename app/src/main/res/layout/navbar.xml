@@ -104,7 +104,8 @@
         app:layout_constraintStart_toStartOf="@id/guidelinePath"
         app:layout_constraintTop_toTopOf="@id/HSep"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:contentDescription='@string/path_button' />
+        android:contentDescription='@string/path_button'
+        android:onClick="goToPathList"/>
 
 
 
