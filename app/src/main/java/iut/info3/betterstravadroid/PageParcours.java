@@ -49,7 +49,7 @@ public class PageParcours extends Fragment implements View.OnClickListener{
     ArrayList<GeoPoint> trajet;
     Polyline line;
 
-    private Boolean play = true;
+    public static Boolean play = false;
 
     private String fournisseur;
     ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
@@ -119,6 +119,7 @@ public class PageParcours extends Fragment implements View.OnClickListener{
         //Dezoome avec doigt et pas avec boutons
         binding.mapview.setBuiltInZoomControls(false);
         binding.mapview.setMultiTouchControls(true);
+        binding.mapview.setDestroyMode(false);
 
         centerMapOnUser();
 
@@ -282,22 +283,6 @@ public class PageParcours extends Fragment implements View.OnClickListener{
             // on configure la mise à jour automatique : au moins 10 mètres et 15 secondes
             locationManager.requestLocationUpdates(fournisseur, 10000, 10, ecouteurGPS);
         }
-    }
-
-    public void pauseButton(View view){
-
-        play = false;
-        view.setVisibility(View.INVISIBLE);
-//        findViewById(R.id.playButton).setVisibility(View.VISIBLE); //BOUTON Navbar de merde TODO
-
-    }
-
-    public void playButton(View view){
-
-        play = true;
-        view.setVisibility(View.INVISIBLE);
-//        findViewById(R.id.pauseButton).setVisibility(View.VISIBLE); //BOUTON Navbar de merde TODO
-
     }
 
     @Override

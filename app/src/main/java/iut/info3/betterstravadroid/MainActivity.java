@@ -1,6 +1,7 @@
 package iut.info3.betterstravadroid;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,14 +35,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNavbarIcon(int position) {
+        Log.i("NavBar", "position: " + position);
+        Log.i("PlayParcours", "play: " + PageParcours.play);
+
+
         switch(position) {
             case 0 :
                 // Gestion des boutons sur la page d'accueil
                 binding.navbar.homeButtonInactive.setVisibility(View.INVISIBLE);
                 binding.navbar.homeButtonActive.setVisibility(View.VISIBLE);
 
-                binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
-                binding.navbar.playButton.setVisibility(View.VISIBLE);
+                setParcoursButton();
 
                 binding.navbar.pathButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.pathButtonActive.setVisibility(View.INVISIBLE);
@@ -53,8 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.navbar.homeButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.homeButtonActive.setVisibility(View.INVISIBLE);
 
-                binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
-                binding.navbar.playButton.setVisibility(View.VISIBLE);
+                setParcoursButton();
 
                 binding.navbar.pathButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.pathButtonActive.setVisibility(View.INVISIBLE);
@@ -66,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.navbar.homeButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.homeButtonActive.setVisibility(View.INVISIBLE);
 
-                binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
-                binding.navbar.playButton.setVisibility(View.VISIBLE);
+                setParcoursButton();
 
                 binding.navbar.pathButtonInactive.setVisibility(View.INVISIBLE);
                 binding.navbar.pathButtonActive.setVisibility(View.VISIBLE);
@@ -79,6 +81,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setParcoursButton() {
+        if (!PageParcours.play) {
+            binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+            binding.navbar.playButton.setVisibility(View.VISIBLE);
+        } else {
+            binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+            binding.navbar.playButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
     /* Appui sur le bouton accueil de la navbar */
     public void goToHome(View view) {
         binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_ACCUEIL);
@@ -87,5 +99,19 @@ public class MainActivity extends AppCompatActivity {
     /* Appui sur le bouton parcours de la navbar */
     public void goToPathList(View view) {
         binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_LISTE_PARCOURS);
+    }
+
+    public void pauseButton(View view){
+        PageParcours.play = false;
+        view.setVisibility(View.INVISIBLE);
+        binding.navbar.playButton.setVisibility(View.VISIBLE);
+
+    }
+
+    public void playButton(View view){
+        PageParcours.play = true;
+        view.setVisibility(View.INVISIBLE);
+        binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+        binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_PARCOURS);
     }
 }
