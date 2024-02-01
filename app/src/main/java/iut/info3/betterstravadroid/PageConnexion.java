@@ -6,10 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import iut.info3.betterstravadroid.api.UserApi;
@@ -18,21 +21,36 @@ import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 public class PageConnexion extends AppCompatActivity {
 
-    public static PageConnexion instance;
 
-    public static PageConnexion getInstance() {
-        return instance;
+
+
+    private RequestBuilder helper;
+
+    private ToastMaker toastMaker;
+    private EditText courriel, motDePasse;
+
+    private SharedPreferences.Editor editor;
+
+    public PageConnexion() {
+
     }
 
     private PageConnexionBinding binding;
+    public PageConnexion(EditText courriel, EditText motDePasse) {
+        this.courriel = courriel;
+        this.motDePasse = motDePasse;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        instance = this;
 
         binding = PageConnexionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        setHelper(new RequestBuilder(this));
+        toastMaker = new ToastMaker();
+        editor = getSharedPreferences("BetterStrava", MODE_PRIVATE).edit();
     }
 
     public void goToInscription(View view) {
@@ -45,40 +63,47 @@ public class PageConnexion extends AppCompatActivity {
         String mdp = binding.etMotDePasse.getText().toString();
 
         if (email.isEmpty() || mdp.isEmpty()) {
-            Toast.makeText(instance, "Veuillez saisir votre courriel et votre mot de passe", Toast.LENGTH_LONG).show();
+            toastMaker.makeText(this, "Veuillez saisir votre courriel et votre mot de passe", Toast.LENGTH_LONG).show();
         } else {
 
             // On envoie la requête de connexion au serveur
-            RequestHelper.simpleJSONObjectRequest(
-                    UserApi.USER_API_LOGIN + "?email=" + email + "&password=" + mdp,
-                    null,
-                    null,
-                    Request.Method.GET,
-                    (reponse) -> {
-                        // L'utilisateur est connecté, on enregistre le token dans les préférences
-                        String token = reponse.optString(UserPreferences.USER_KEY_TOKEN);
-                        SharedPreferences.Editor editor = getSharedPreferences("BetterStrava", MODE_PRIVATE).edit();
-                        editor.putString(UserPreferences.USER_KEY_TOKEN, token);
-                        editor.apply();
-                        goToHome();
-                    },
-                    error -> {
-                        // L'utilisateur n'est pas connecté, on affiche un message d'erreur
-                        try {
-                            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-                            String message = reponse.optString("erreur");
-                            Toast.makeText(instance, message, Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            Toast.makeText(instance, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
-                        }
-                    }
-            );
+            helper.onSucces(this::handleResponse)
+                    .onError(this::handleError)
+                    .newJSONObjectRequest(UserApi.USER_API_LOGIN
+                            + "?email=" + email + "&password=" + mdp)
+                    .send();
         }
     }
 
-    private void goToHome() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    public void handleResponse(Object object) {
+        JSONObject response = (JSONObject) object;
+        String token = response.optString("token");
+        editor.putString("token", token);
+        editor.apply();
+        toastMaker.makeText(this, "Utilisateur connecté", Toast.LENGTH_SHORT).show();
+    }
+
+
+    public void handleError(VolleyError error) {
+        try {
+            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+            String message = reponse.optString("erreur");
+            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
+        } catch (JSONException e) {
+            toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void setHelper(RequestBuilder helper) {
+        this.helper = helper;
+    }
+
+    public void setToastMaker(ToastMaker toastMaker) {
+        this.toastMaker = toastMaker;
+    }
+
+    public void setEditor(SharedPreferences.Editor editor) {
+        this.editor = editor;
     }
 
 }
