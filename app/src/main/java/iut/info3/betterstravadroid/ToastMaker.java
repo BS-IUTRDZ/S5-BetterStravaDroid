@@ -9,4 +9,5 @@ public class ToastMaker {
     public Toast makeText(Context context, CharSequence text, int duration) {
         return Toast.makeText(context, text , duration);
     }
+
 }

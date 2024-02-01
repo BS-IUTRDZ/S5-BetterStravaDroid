@@ -2,7 +2,6 @@ package iut.info3.betterstravadroid;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -23,6 +22,10 @@ public class PageInscription extends AppCompatActivity {
     private PageInscriptionBinding binding;
     private EditText nom, prenom, courriel, password, confirmPassword;
     private ToastMaker toastMaker;
+
+    private RequestBuilder helper;
+
+
 
 
     public PageInscription() {
@@ -64,14 +67,11 @@ public class PageInscription extends AppCompatActivity {
 
         try {
             UserApi userApi = new UserApi(nom, prenom, courriel, password, confirmPassword);
-            RequestHelper.simpleJSONObjectRequest(
-                    UserApi.USER_API_CREATE_ACCOUNT,
-                    null,
-                    userApi.toJson(),
-                    Request.Method.POST,
-                    this::handleResponse,
-                    this::handleError
-            );
+
+            helper.withBody(userApi.toJson())
+                    .onError(this::handleError)
+                    .onSucces(this::handleResponse)
+                    .newJSONObjectRequest(UserApi.USER_API_CREATE_ACCOUNT).send();
         } catch (IllegalArgumentException e) {
             Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
             toast.show();
@@ -80,7 +80,7 @@ public class PageInscription extends AppCompatActivity {
         }
     }
 
-    public void handleResponse(JSONObject object) {
+    public void handleResponse(Object object) {
         toastMaker.makeText(this, "Inscription réussie", Toast.LENGTH_LONG).show();
         this.finish();
     }
@@ -93,4 +93,6 @@ public class PageInscription extends AppCompatActivity {
     public void setToastMaker(ToastMaker toastMaker) {
         this.toastMaker = toastMaker;
     }
+
+    public void setRequestHelper(RequestBuilder helper) {this.helper = helper;}
 }
