@@ -9,10 +9,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +45,7 @@ import android.location.Criteria;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 
 
-public class PageParcours extends Fragment implements View.OnClickListener{
+public class PageParcours extends Fragment implements View.OnClickListener, View.OnTouchListener {
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
@@ -50,6 +55,8 @@ public class PageParcours extends Fragment implements View.OnClickListener{
     Polyline line;
 
     public static Boolean play = false;
+
+    public static Boolean parcours = false;
 
     private String fournisseur;
     ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
@@ -143,7 +150,7 @@ public class PageParcours extends Fragment implements View.OnClickListener{
         /* Listener bouton page */
         binding.btnAjout.setOnClickListener(this);
         binding.btnStart.setOnClickListener(this);
-        binding.btnStop.setOnClickListener(this);
+        binding.btnStop.setOnTouchListener((View.OnTouchListener) this);
 
         return vue;
     }
@@ -281,7 +288,7 @@ public class PageParcours extends Fragment implements View.OnClickListener{
             }
 
             // on configure la mise à jour automatique : au moins 10 mètres et 15 secondes
-            locationManager.requestLocationUpdates(fournisseur, 10000, 10, ecouteurGPS);
+            locationManager.requestLocationUpdates(fournisseur, 5000, 2, ecouteurGPS);
         }
     }
 
@@ -291,18 +298,46 @@ public class PageParcours extends Fragment implements View.OnClickListener{
         if (view.getId() == R.id.btn_ajout) {
             showAboutPopup();
         } else if (view.getId() == R.id.btn_start) {
-            view.setVisibility(View.INVISIBLE);
-            binding.btnStop.setVisibility(View.VISIBLE);
-            binding.cardViewStop.setCardBackgroundColor(0xFFC3363E);
-        } else if (view.getId() == R.id.btn_stop) {
-            view.setVisibility(View.INVISIBLE);
-            binding.btnStart.setVisibility(View.VISIBLE);
-            binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
+            buttonStartPressed();
         } else if (view.getId() == R.id.btn_confirm) {
             confirmTitleDescription(view);
         } else if (view.getId() == R.id.btn_cancel) {
             popup.dismiss();
         }
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        if (view.getId() == R.id.btn_stop) {
+            if (view.isPressed() && event.getAction() == MotionEvent.ACTION_UP) {
+                long eventDuration = event.getEventTime() - event.getDownTime();
+                if (eventDuration > ViewConfiguration.getLongPressTimeout()) {
+                    buttonStopPressed();
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    private void buttonStartPressed() {
+        parcours = true;
+        play = true;
+        binding.btnStart.setVisibility(View.INVISIBLE);
+        binding.btnStop.setVisibility(View.VISIBLE);
+        binding.cardViewStop.setCardBackgroundColor(0xFFC3363E);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
+    }
+
+    private void buttonStopPressed() {
+        parcours = false;
+        binding.btnStop.setVisibility(View.INVISIBLE);
+        binding.btnStart.setVisibility(View.VISIBLE);
+        binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
     }
 
     private void showAboutPopup() {
@@ -341,6 +376,7 @@ public class PageParcours extends Fragment implements View.OnClickListener{
                     @Override
                     public boolean onItemLongPress(final int index, final OverlayItem item) {
                         return false;
+                        //TODO si le temps suppression du point
                     }
                 });
         //mOverlay.setFocusItemsOnTap(true);

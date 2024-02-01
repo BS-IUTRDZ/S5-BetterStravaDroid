@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void pauseButton(View view){
+
+        //Si parcours pause du parcours
         PageParcours.play = false;
         view.setVisibility(View.INVISIBLE);
         binding.navbar.playButton.setVisibility(View.VISIBLE);
@@ -109,9 +111,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void playButton(View view){
-        PageParcours.play = true;
-        view.setVisibility(View.INVISIBLE);
-        binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+        //Si pas de parcours tp sur page parcours
+        //Si parcours reprise du parcours
+
+        if (PageParcours.parcours) {
+            view.setVisibility(View.INVISIBLE);
+            binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+            PageParcours.play = true;
+        }
+
         binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_PARCOURS);
     }
 }
