@@ -102,6 +102,7 @@
             <!-- - - - - Dernier parcour effectué - - - - -->
 
             <include
+                android:id="@+id/card_last_run"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 layout="@layout/last_run"
