@@ -35,9 +35,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNavbarIcon(int position) {
-        Log.i("NavBar", "position: " + position);
-        Log.i("PlayParcours", "play: " + PageParcours.play);
-
 
         switch(position) {
             case 0 :
@@ -75,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.navbar.pathButtonActive.setVisibility(View.VISIBLE);
 
                 binding.activityMainViewpager.setUserInputEnabled(true);
+
                 break;
             default :
                 break;

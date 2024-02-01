@@ -15,7 +15,6 @@ public class PageAdaptateur extends FragmentStateAdapter {
     public static final int PAGE_ACCUEIL = 0;
     public static final int PAGE_PARCOURS = 1;
     public static final int PAGE_LISTE_PARCOURS = 2;
-
     private final MainActivity activity;
 
 

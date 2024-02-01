@@ -31,6 +31,13 @@ public class PageConnexion extends AppCompatActivity {
 
     private SharedPreferences.Editor editor;
 
+
+    public static PageConnexion instance;
+
+    public static PageConnexion getInstance() {
+        return instance;
+    }
+
     public PageConnexion() {
 
     }
