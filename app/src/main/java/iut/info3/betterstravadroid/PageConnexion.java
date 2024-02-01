@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.VolleyError;
 
 import org.json.JSONException;
@@ -31,11 +30,19 @@ public class PageConnexion extends AppCompatActivity {
 
     private SharedPreferences.Editor editor;
 
+
+    public static PageConnexion instance;
+
+    public static PageConnexion getInstance() {
+        return instance;
+    }
+
     public PageConnexion() {
 
     }
 
     private PageConnexionBinding binding;
+
     public PageConnexion(EditText courriel, EditText motDePasse) {
         this.courriel = courriel;
         this.motDePasse = motDePasse;
@@ -81,6 +88,7 @@ public class PageConnexion extends AppCompatActivity {
         editor.putString("token", token);
         editor.apply();
         toastMaker.makeText(this, "Utilisateur connecté", Toast.LENGTH_SHORT).show();
+        goToHome();
     }
 
 
@@ -104,6 +112,11 @@ public class PageConnexion extends AppCompatActivity {
 
     public void setEditor(SharedPreferences.Editor editor) {
         this.editor = editor;
+    }
+
+    private void goToHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
 }

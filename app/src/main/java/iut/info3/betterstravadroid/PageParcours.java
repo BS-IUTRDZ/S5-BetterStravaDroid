@@ -3,65 +3,61 @@ package iut.info3.betterstravadroid;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
-import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import android.location.Criteria;
 
+import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 
-public class PageParcours extends AppCompatActivity {
+
+public class PageParcours extends Fragment implements View.OnClickListener, View.OnTouchListener {
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
-    private MapView map = null;
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
     LocationManager locationManager = null;
 
     ArrayList<GeoPoint> trajet;
-    Polyline line = new Polyline(map);
+    Polyline line;
 
-    private Boolean play = true;
+    public static Boolean play = false;
+
+    public static Boolean parcours = false;
 
     private String fournisseur;
     ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
@@ -71,62 +67,113 @@ public class PageParcours extends AppCompatActivity {
     TextView description;
     private AlertDialog popup;
 
+    private PageParcoursBinding binding;
+
+    private Context context;
+
+    LocationListener ecouteurGPS = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location localisation) {
+
+            if (play) {
+                trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
+
+                gLatitute = localisation.getLatitude();
+                gLongitude = localisation.getLongitude();
+
+                //line.setSubDescription(Polyline.class.getCanonicalName());
+                line.setWidth(10f);
+                line.setColor(Color.RED);
+                line.setPoints(trajet);
+                line.setGeodesic(true);
+                //line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
+                binding.mapview.getOverlayManager().add(line);
+
+                //map.invalidate();
+            }
+        }
+    };
+
+    public PageParcours() {
+        //Require empty public constructor
+    }
+
+    public static PageParcours newInstance() {
+        PageParcours pageParcours = new PageParcours();
+        return pageParcours;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_parcours);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        binding = PageParcoursBinding.inflate(inflater, container, false);
+        View vue = binding.getRoot();
+        context = vue.getContext();
 
         trajet = new ArrayList<>();
+        line = new Polyline(binding.mapview);
+        checkLocationPermission(((MainActivity) inflater.getContext()));
 
-        checkLocationPermission();
+        Configuration.getInstance().load(context,
+                PreferenceManager.getDefaultSharedPreferences(context));
 
-        Configuration.getInstance().load(getApplicationContext(),
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-
-        map = findViewById(R.id.mapview);
 
         //Dezoome avec doigt et pas avec boutons
-        map.setBuiltInZoomControls(false);
-        map.setMultiTouchControls(true);
+        binding.mapview.setBuiltInZoomControls(false);
+        binding.mapview.setMultiTouchControls(true);
+        binding.mapview.setDestroyMode(false);
 
         centerMapOnUser();
 
         initialiserLocalisation();
 
-        CompassOverlay compassOverlay = new CompassOverlay(this, map);
+        CompassOverlay compassOverlay = new CompassOverlay(context, binding.mapview);
         compassOverlay.enableCompass();
-        map.getOverlays().add(compassOverlay);
+        binding.mapview.getOverlays().add(compassOverlay);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             // Configuration de la couche de localisation de l'utilisateur
-            GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(this);
-            myLocationOverlay = new MyLocationNewOverlay(locationProvider, map);
+            GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
+            myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
             myLocationOverlay.enableFollowLocation();
 
             myLocationOverlay.enableMyLocation();
-            map.getOverlays().add(myLocationOverlay);
+            binding.mapview.getOverlays().add(myLocationOverlay);
         }
+
+        /* Listener bouton page */
+        binding.btnAjout.setOnClickListener(this);
+        binding.btnStart.setOnClickListener(this);
+        binding.btnStop.setOnTouchListener((View.OnTouchListener) this);
+
+        return vue;
     }
 
     // Vérifier la permission d'accès à la localisation
-    private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+    private void checkLocationPermission(MainActivity activity) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
+            ActivityCompat.requestPermissions(activity,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         }
     }
 
     private void centerMapOnUser() {
-        if (map != null && map.getController() != null) {
+        if (binding.mapview != null && binding.mapview.getController() != null) {
             // Vérifier si la permission d'accès à la localisation est accordée
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
                 // Obtenir la position actuelle de l'utilisateur
-                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
                 if (lastKnownLocation != null) {
@@ -139,16 +186,16 @@ public class PageParcours extends AppCompatActivity {
                     trajet.add(userLocation);
 
                     // Créer MyLocationNewOverlay
-                    GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(this);
-                    myLocationOverlay = new MyLocationNewOverlay(locationProvider, map);
+                    GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
+                    myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
                     myLocationOverlay.enableMyLocation();
 
                     // Ajouter MyLocationNewOverlay à la carte
-                    map.getOverlays().add(myLocationOverlay);
+                    binding.mapview.getOverlays().add(myLocationOverlay);
 
                     // Centrer la carte sur la position de l'utilisateur
-                    map.getController().setCenter(userLocation);
-                    map.getController().setZoom(18.0);
+                    binding.mapview.getController().setCenter(userLocation);
+                    binding.mapview.getController().setZoom(18.0);
 
                 } else {
                     // La dernière position connue n'est pas disponible, vous pouvez gérer cela en affichant un message par exemple
@@ -160,10 +207,10 @@ public class PageParcours extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Configuration.getInstance().load(getApplicationContext(),
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-        if (map != null) {
-            map.onResume();
+        Configuration.getInstance().load(context,
+                PreferenceManager.getDefaultSharedPreferences(context));
+        if (binding.mapview != null) {
+            binding.mapview.onResume();
             isOnMap = true;
         }
     }
@@ -171,10 +218,10 @@ public class PageParcours extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        Configuration.getInstance().save(getApplicationContext(),
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-        if (map != null) {
-            map.onPause();
+        Configuration.getInstance().save(context,
+                PreferenceManager.getDefaultSharedPreferences(context));
+        if (binding.mapview != null) {
+            binding.mapview.onPause();
             isOnMap = false; // L'utilisateur n'est plus sur la carte, désactive le suivi
         }
 
@@ -199,35 +246,11 @@ public class PageParcours extends AppCompatActivity {
         }
     }
 
-
-    LocationListener ecouteurGPS = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location localisation) {
-
-            if (play) {
-                trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
-
-                gLatitute = localisation.getLatitude();
-                gLongitude = localisation.getLongitude();
-
-                //line.setSubDescription(Polyline.class.getCanonicalName());
-                line.setWidth(10f);
-                line.setColor(Color.RED);
-                line.setPoints(trajet);
-                line.setGeodesic(true);
-                //line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
-                map.getOverlayManager().add(line);
-
-                //map.invalidate();
-            }
-        }
-    };
-
     private void initialiserLocalisation()
     {
         if (locationManager == null)
         {
-            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             Criteria criteres = new Criteria();
 
             /*// la précision  : (ACCURACY_FINE pour une haute précision ou ACCURACY_COARSE pour une moins bonne précision)
@@ -253,7 +276,7 @@ public class PageParcours extends AppCompatActivity {
         if (fournisseur != null)
         {
             // dernière position connue
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             {
                 return;
             }
@@ -266,38 +289,70 @@ public class PageParcours extends AppCompatActivity {
             }
 
             // on configure la mise à jour automatique : au moins 10 mètres et 15 secondes
-            locationManager.requestLocationUpdates(fournisseur, 5000, 5, ecouteurGPS);
+            locationManager.requestLocationUpdates(fournisseur, 5000, 2, ecouteurGPS);
         }
     }
 
-    public void pauseButton(View view){
+    @Override
+    public void onClick(View view) {
 
-        play = false;
-        view.setVisibility(View.INVISIBLE);
-        findViewById(R.id.playButton).setVisibility(View.VISIBLE);
-
+        if (view.getId() == R.id.btn_ajout) {
+            showAboutPopup();
+        } else if (view.getId() == R.id.btn_start) {
+            buttonStartPressed();
+        } else if (view.getId() == R.id.btn_confirm) {
+            confirmTitleDescription(view);
+        } else if (view.getId() == R.id.btn_cancel) {
+            popup.dismiss();
+        }
     }
 
-    public void playButton(View view){
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        if (view.getId() == R.id.btn_stop) {
+            if (view.isPressed() && event.getAction() == MotionEvent.ACTION_UP) {
+                long eventDuration = event.getEventTime() - event.getDownTime();
+                if (eventDuration > ViewConfiguration.getLongPressTimeout()) {
+                    buttonStopPressed();
+                }
+            }
+        }
 
+        return false;
+    }
+
+
+    private void buttonStartPressed() {
+        parcours = true;
         play = true;
-        view.setVisibility(View.INVISIBLE);
-        findViewById(R.id.pauseButton).setVisibility(View.VISIBLE);
-
+        binding.btnStart.setVisibility(View.INVISIBLE);
+        binding.btnStop.setVisibility(View.VISIBLE);
+        binding.cardViewStop.setCardBackgroundColor(0xFFC3363E);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
     }
 
-    public void addPoint(View view){
-        showAboutPopup();
+    private void buttonStopPressed() {
+        parcours = false;
+        binding.btnStop.setVisibility(View.INVISIBLE);
+        binding.btnStart.setVisibility(View.VISIBLE);
+        binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
     }
 
     private void showAboutPopup() {
 
-        AlertDialog.Builder popup_builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
 
 
         View customLayout = getLayoutInflater().inflate(R.layout.popup_interest_point, null);
         title = customLayout.findViewById(R.id.et_titre);
         description = customLayout.findViewById(R.id.et_description);
+
+        /* Listener boutons popup*/
+        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(this);
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(this);
 
 
         popup_builder.setView(customLayout);
@@ -311,39 +366,23 @@ public class PageParcours extends AppCompatActivity {
 
         items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitute, gLongitude)));
 
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(getApplicationContext(), items,
+        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(context, items,
                 new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
                     @Override
                     public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        Toast.makeText( getApplicationContext(),
+                        Toast.makeText( context,
                                 item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
                         return true;
                     }
                     @Override
                     public boolean onItemLongPress(final int index, final OverlayItem item) {
                         return false;
+                        //TODO si le temps suppression du point
                     }
                 });
         //mOverlay.setFocusItemsOnTap(true);
-        map.getOverlays().add(mOverlay);
+        binding.mapview.getOverlays().add(mOverlay);
         popup.dismiss();
     }
-
-    public void cancelTitleDescription(View view){
-        popup.dismiss();
-    }
-
-    public void start(View view){
-        view.setVisibility(View.INVISIBLE);
-        findViewById(R.id.btn_stop).setVisibility(View.VISIBLE);
-        ((CardView) findViewById(R.id.cardViewStop)).setCardBackgroundColor(0xFFC3363E);
-    }
-
-    public void stop(View view){
-        view.setVisibility(View.INVISIBLE);
-        findViewById(R.id.btn_start).setVisibility(View.VISIBLE);
-        ((CardView) findViewById(R.id.cardViewStop)).setCardBackgroundColor(0xFF4478c2);
-    }
-
 
 }

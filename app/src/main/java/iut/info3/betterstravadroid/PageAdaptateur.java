@@ -9,7 +9,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 public class PageAdaptateur extends FragmentStateAdapter {
 
     /** Nombre de fragments gérés par cet adaptateur */
-    private static final int NB_FRAGMENT = 2;
+    private static final int NB_FRAGMENT = 3;
+
+    /* Position des différentes pages dans l'application */
+    public static final int PAGE_ACCUEIL = 0;
+    public static final int PAGE_PARCOURS = 1;
+    public static final int PAGE_LISTE_PARCOURS = 2;
     private final MainActivity activity;
 
 
@@ -22,11 +27,11 @@ public class PageAdaptateur extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
 
         switch(position) {
-            case 0 :
+            case PAGE_ACCUEIL:
                 return PageAccueil.newInstance();
-//            case 1 :
-//                return .newInstance();
-            case 1 :
+            case PAGE_PARCOURS:
+                return PageParcours.newInstance();
+            case PAGE_LISTE_PARCOURS:
                 return PageListeParcours.newInstance();
             default :
                 return null;

@@ -157,7 +157,7 @@
                 android:paddingStart="8dp"
                 android:drawableStart="@drawable/iconlock"
 
-                app:layout_constraintTop_toBottomOf="@+id/et_description"
+                app:layout_constraintTop_toBottomOf="@+id/et_mot_de_passe"
                 android:background="@drawable/border_input"
                 android:hint="@string/repeter_le_mot_de_passe"
                 android:autofillHints="password"
