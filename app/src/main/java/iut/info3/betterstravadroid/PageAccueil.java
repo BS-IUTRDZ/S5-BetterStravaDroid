@@ -67,6 +67,7 @@ public class PageAccueil extends Fragment {
         GeoPoint centre;
 
         // Création du trajet
+        // BOUCHON
         trajet.add(new GeoPoint(44.36336875796618, 2.5737746730180295));
         trajet.add(new GeoPoint(44.36164391301725, 2.5703912027612827));
 
@@ -75,24 +76,20 @@ public class PageAccueil extends Fragment {
         line.setPoints(trajet);
         line.setGeodesic(true);
 
+        map.zoomToBoundingBox(line.getBounds(), false);
+
         // Ajout de l'overlay du trajet sur la carte
         map.getOverlayManager().add(line);
 
-        // Recherche du centre du trajet
-        centre = new GeoPoint(
-                (trajet.get(0).getLatitude() + trajet.get(trajet.size() - 1).getLatitude()) / 2,
-                (trajet.get(0).getLongitude() + trajet.get(trajet.size() - 1).getLongitude()) / 2
-        );
+        map.addOnFirstLayoutListener((v, left, top, right, bottom) -> {
+            map.zoomToBoundingBox(line.getBounds(), false, 200);
+            map.getController().setCenter(line.getBounds().getCenterWithDateLine());
 
-        // On desaxe le centre pour gagner de la place vers le bas de la carte
-        centre.setLatitude(centre.getLatitude() - 0.015);
-
-        map.getController().setCenter(centre);
-
-        // On zoome sur le trajet
-        BoundingBox bBox = BoundingBox.fromGeoPoints(trajet);
-
-        map.getController().zoomToSpan(bBox.getLongitudeSpan(), bBox.getLatitudeSpan());
+            // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
+            // cardview qui contient les infos du trajet
+            map.scrollBy(0, 100);
+            map.invalidate();
+        });
     }
 
     @Override
