@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import iut.info3.betterstravadroid.databinding.PageAccueilBinding;
 public class PageAccueil extends Fragment {
 
     private PageAccueilBinding binding;
-    private MapView map;
 
     public PageAccueil() {
         //Require empty public constructor
@@ -47,8 +45,7 @@ public class PageAccueil extends Fragment {
         binding = PageAccueilBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
 
-        map = vue.findViewById(R.id.map);
-        map.setDestroyMode(false);
+        binding.cardLastRun.map.setDestroyMode(false);
 
         afficherParcour();
 
@@ -57,12 +54,8 @@ public class PageAccueil extends Fragment {
 
     }
 
-    public void goToPathList(View view) {
-
-    }
-
     public void afficherParcour() {
-        Polyline line = new Polyline(map);
+        Polyline line = new Polyline(binding.cardLastRun.map);
         List<GeoPoint> trajet = new ArrayList<>();
         GeoPoint centre;
 
@@ -76,19 +69,19 @@ public class PageAccueil extends Fragment {
         line.setPoints(trajet);
         line.setGeodesic(true);
 
-        map.zoomToBoundingBox(line.getBounds(), false);
+        binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false);
 
         // Ajout de l'overlay du trajet sur la carte
-        map.getOverlayManager().add(line);
+        binding.cardLastRun.map.getOverlayManager().add(line);
 
-        map.addOnFirstLayoutListener((v, left, top, right, bottom) -> {
-            map.zoomToBoundingBox(line.getBounds(), false, 200);
-            map.getController().setCenter(line.getBounds().getCenterWithDateLine());
+        binding.cardLastRun.map.addOnFirstLayoutListener((v, left, top, right, bottom) -> {
+            binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false, 200);
+            binding.cardLastRun.map.getController().setCenter(line.getBounds().getCenterWithDateLine());
 
             // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
             // cardview qui contient les infos du trajet
-            map.scrollBy(0, 100);
-            map.invalidate();
+            binding.cardLastRun.map.scrollBy(0, 100);
+            binding.cardLastRun.map.invalidate();
         });
     }
 
