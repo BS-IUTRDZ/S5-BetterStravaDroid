@@ -198,7 +198,7 @@ public class PageAccueil extends Fragment {
             List<GeoPoint> trajet = new ArrayList<>();
 
             // Création du trajet
-            JSONObject points = response.getJSONObject("point");
+            JSONObject points = response.getJSONObject("points");
             for (int i = 0; i < points.length(); i++) {
                 double latitude = (double) points.getJSONObject("point" + i).get("latitude");
                 double longitude = (double) points.getJSONObject("point" + i).get("longitude");
