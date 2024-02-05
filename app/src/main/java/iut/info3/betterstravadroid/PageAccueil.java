@@ -3,6 +3,7 @@ package iut.info3.betterstravadroid;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -26,9 +27,11 @@ import org.osmdroid.views.overlay.Polyline;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import iut.info3.betterstravadroid.api.PathApi;
 import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageAccueilBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
@@ -36,9 +39,10 @@ import iut.info3.betterstravadroid.preferences.UserPreferences;
 public class PageAccueil extends Fragment {
 
     private PageAccueilBinding binding;
-
+    private Context context;
     private SharedPreferences preferences;
     private RequestBuilder helper;
+    private ToastMaker toastMaker;
 
     public PageAccueil() {
         //Require empty public constructor
@@ -60,6 +64,7 @@ public class PageAccueil extends Fragment {
 
         binding = PageAccueilBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
+        context = vue.getContext();
 
         binding.cardLastRun.map.setDestroyMode(false);
 
@@ -76,55 +81,55 @@ public class PageAccueil extends Fragment {
 
     }
 
+    /**
+     * Accès au serveur API pour récupérer et mettre à jour
+     * le dernier parcours de l'utilisateur
+     */
     public void afficherParcours() {
-        Polyline line = new Polyline(binding.cardLastRun.map);
-        List<GeoPoint> trajet = new ArrayList<>();
-        GeoPoint centre;
-
-        // Création du trajet
-        // BOUCHON
-        trajet.add(new GeoPoint(44.36336875796618, 2.5737746730180295));
-        trajet.add(new GeoPoint(44.36164391301725, 2.5703912027612827));
-
-        line.getOutlinePaint().setColor(Color.RED);
-        line.getOutlinePaint().setStrokeWidth(10);
-        line.setPoints(trajet);
-        line.setGeodesic(true);
-
-        binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false);
-
-        // Ajout de l'overlay du trajet sur la carte
-        binding.cardLastRun.map.getOverlayManager().add(line);
-
-        binding.cardLastRun.map.addOnFirstLayoutListener((v, left, top, right, bottom) -> {
-            binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false, 200);
-            binding.cardLastRun.map.getController().setCenter(line.getBounds().getCenterWithDateLine());
-
-            // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
-            // cardview qui contient les infos du trajet
-            binding.cardLastRun.map.scrollBy(0, 100);
-            binding.cardLastRun.map.invalidate();
-        });
+        JSONObject body = new JSONObject();
+        try {
+            body.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        // On envoie la requête de recupération du dernier parcours de l'utilisateur
+        helper.onSucces(this::setViewParcours)
+                .onError(this::handleError)
+                .withBody(body)
+                .newJSONObjectRequest(PathApi.PATH_API_LAST)
+                .send();
     }
 
+    /**
+     * Accès au serveur API pour récupérer et mettre à jour
+     * les informations de l'utilisateur
+     */
     private void afficherUserInfos() {
         JSONObject body = new JSONObject();
         try {
             body.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
-            Log.i("BODYJson", body.toString());
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
-        // On envoie la requête de connexion au serveur
-        helper.onSucces(this::handleResponse)
+        // On envoie la requête de recupération des infos de l'utilisateur
+        helper.onSucces(this::setViewContent)
                 .onError(this::handleError)
                 .withBody(body)
                 .newJSONObjectRequest(UserApi.USER_API_INFOS)
                 .send();
     }
 
-    public void handleResponse(Object object) {
+    /**
+     * En cas de réponse positive de la route "/user/getInfo"
+     * Positionne sur l'UI:
+     * <ul>
+     *     <li>le dernier parcours de l'utilisateur</li>
+     *     <li>stats de l'utilisateur sur 30 jours</li>
+     *     <li>stats de l'utilisateur depuis la création de son compte</li>
+     * </ul>
+     * @param object réponse de l'API
+     */
+    public void setViewContent(Object object) {
         JSONObject response = (JSONObject) object;
         try {
             // Date du jour
@@ -135,17 +140,7 @@ public class PageAccueil extends Fragment {
             JSONObject infoUser = (JSONObject) response.get("user");
 
             binding.tvBonjourUtilisateur.setText(
-                    String.format(getString(R.string.tv_bonjour_utilisateur), infoUser.getString(UserPreferences.USER_KEY_NAME)));
-
-            // Dernier parcours
-            JSONObject infoDernierParcours = (JSONObject) response.get("parcours");
-            binding.cardLastRun.titreDernierParcours.setText(
-                    infoDernierParcours.getString(UserPreferences.PATH_KEY_NAME)
-            );
-            binding.cardLastRun.descriptionDernierParcours.setText(
-                    infoDernierParcours.getString(UserPreferences.PATH_KEY_DESCRIPTION)
-            );
-
+                    String.format(getString(R.string.tv_bonjour_utilisateur), infoUser.getString(UserPreferences.USER_KEY_SURNAME)));
 
             // Stats 30 derniers jours
             JSONObject stats30Jours = (JSONObject) response.get("30jours");
@@ -177,16 +172,77 @@ public class PageAccueil extends Fragment {
         }
     }
 
+    /**
+     * En cas de réponse positive de la route "/path/lastPath"
+     * Positionne sur l'UI:
+     * <ul>
+     *     <li>la carte du dernier parcours</li>
+     *     <li>le titre du dernier parcours</li>
+     *     <li>la description du dernier parcours</li>
+     * </ul>
+     * @param object réponse de l'API
+     */
+    public void setViewParcours(Object object) {
+        JSONObject response = (JSONObject) object;
+        try {
+            // Dernier parcours
+            binding.cardLastRun.titreDernierParcours.setText(
+                    response.getString(UserPreferences.PATH_KEY_NAME)
+            );
+            binding.cardLastRun.descriptionDernierParcours.setText(
+                    response.getString(UserPreferences.PATH_KEY_DESCRIPTION)
+            );
 
+            // Gestion de la carte en arrière plan
+            Polyline line = new Polyline(binding.cardLastRun.map);
+            List<GeoPoint> trajet = new ArrayList<>();
+
+            // Création du trajet
+            JSONObject points = response.getJSONObject("point");
+            for (int i = 0; i < points.length(); i++) {
+                double latitude = (double) points.getJSONObject("point" + i).get("latitude");
+                double longitude = (double) points.getJSONObject("point" + i).get("longitude");
+                trajet.add(new GeoPoint(latitude, longitude));
+            }
+
+            line.getOutlinePaint().setColor(Color.RED);
+            line.getOutlinePaint().setStrokeWidth(10);
+            line.setPoints(trajet);
+            line.setGeodesic(true);
+
+            binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false);
+
+            // Ajout de l'overlay du trajet sur la carte
+            binding.cardLastRun.map.getOverlayManager().add(line);
+
+            binding.cardLastRun.map.addOnFirstLayoutListener((v, left, top, right, bottom) -> {
+                binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false, 200);
+                binding.cardLastRun.map.getController().setCenter(line.getBounds().getCenterWithDateLine());
+
+                // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
+                // cardview qui contient les infos du trajet
+                binding.cardLastRun.map.scrollBy(0, 100);
+                binding.cardLastRun.map.invalidate();
+            });
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Affichage d'un toast en cas d'erreur de l'API
+     * @param error erreur envoyée par l'API
+     */
     public void handleError(VolleyError error) {
-        Log.i("ReponseKo", "Requete Ko");
-        //TODO toast d'erreur
         try {
             JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-//            String message = reponse.optString("erreur");
-//            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
+            String message = reponse.optString("erreur");
+            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
         } catch (JSONException e) {
-//            toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
+            toastMaker.makeText(context,
+                                "Erreur lors de la récupération des informations",
+                                Toast.LENGTH_LONG)
+                                .show();
         }
     }
 
