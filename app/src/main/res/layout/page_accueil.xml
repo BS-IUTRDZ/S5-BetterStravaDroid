@@ -317,6 +317,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/tv_parcours_crees_30J"
                             style="@style/fontSegmentDigit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -558,6 +559,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/tv_parcours_crees_glob"
                             style="@style/fontSegmentDigit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

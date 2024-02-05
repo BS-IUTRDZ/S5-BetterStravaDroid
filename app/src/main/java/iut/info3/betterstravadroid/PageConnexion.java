@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,9 +20,6 @@ import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 public class PageConnexion extends AppCompatActivity {
-
-
-
 
     private RequestBuilder helper;
 
@@ -57,7 +55,9 @@ public class PageConnexion extends AppCompatActivity {
 
         setHelper(new RequestBuilder(this));
         toastMaker = new ToastMaker();
-        editor = getSharedPreferences("BetterStrava", MODE_PRIVATE).edit();
+        editor = getSharedPreferences(UserPreferences.PREFERENCES_FILE, MODE_PRIVATE).edit();
+
+        helper = new RequestBuilder(this);
     }
 
     public void goToInscription(View view) {
