@@ -17,10 +17,13 @@ public class PageAdaptateur extends FragmentStateAdapter {
     public static final int PAGE_LISTE_PARCOURS = 2;
     private final MainActivity activity;
 
+    private RequestBuilder builder;
+
 
     public PageAdaptateur(MainActivity activity) {
         super(activity);
         this.activity = activity;
+        builder = new RequestBuilder(activity);
     }
 
     @Override
@@ -32,7 +35,7 @@ public class PageAdaptateur extends FragmentStateAdapter {
             case PAGE_PARCOURS:
                 return PageParcours.newInstance();
             case PAGE_LISTE_PARCOURS:
-                return PageListeParcours.newInstance();
+                return PageListeParcours.newInstance(activity);
             default :
                 return null;
         }

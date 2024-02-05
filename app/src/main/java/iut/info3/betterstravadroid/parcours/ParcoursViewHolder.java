@@ -1,19 +1,29 @@
 package iut.info3.betterstravadroid.parcours;
 
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import iut.info3.betterstravadroid.R;
+
 public class ParcoursViewHolder extends RecyclerView.ViewHolder {
+
+    TextView dateTextView;
+    TextView titreTextView;
+    TextView descriptionTextView;
 
     public ParcoursViewHolder(@NonNull View itemView) {
         super(itemView);
-
-        //TODO
+        dateTextView = itemView.findViewById(R.id.parcour_date);
+        titreTextView = itemView.findViewById(R.id.parcour_titre);
+        descriptionTextView = itemView.findViewById(R.id.parcour_description);
     }
 
-    public void bind(ParcoursItem imgDept) {
-        //TODO
+    public void bind(ParcoursItem parcoursItem) {
+        dateTextView.setText(parcoursItem.getDate());
+        titreTextView.setText(parcoursItem.getTitre());
+        descriptionTextView.setText(parcoursItem.getDescription());
     }
 }
