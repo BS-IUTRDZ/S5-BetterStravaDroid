@@ -51,7 +51,7 @@ public class PageInscription extends AppCompatActivity {
         binding = PageInscriptionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         toastMaker = new ToastMaker();
-
+        helper = new RequestBuilder(this);
     }
 
     public void backToConnexion(View view) {
