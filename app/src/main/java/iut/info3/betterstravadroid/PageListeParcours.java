@@ -18,8 +18,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
@@ -96,8 +99,11 @@ public class PageListeParcours extends Fragment {
         try {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jsonObject = array.getJSONObject(i);
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(jsonObject.getLong("date"));
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
                 ParcoursItem item = new ParcoursItem(
-                        jsonObject.getString("date"),
+                        sdf.format(c.getTime()),
                         jsonObject.getString("nom"),
                         jsonObject.getString("description")
                 );
