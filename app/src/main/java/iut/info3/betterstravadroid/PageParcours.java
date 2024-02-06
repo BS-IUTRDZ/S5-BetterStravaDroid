@@ -2,6 +2,7 @@ package iut.info3.betterstravadroid;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import android.graphics.Color;
@@ -11,6 +12,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +32,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
@@ -40,9 +46,15 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import android.location.Criteria;
 
+import com.android.volley.VolleyError;
+
+import iut.info3.betterstravadroid.api.ApiConfiguration;
+import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 
 
@@ -70,6 +82,12 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     private PageParcoursBinding binding;
 
     private Context context;
+    private RequestBuilder helper;
+    private ToastMaker toastMaker;
+    private SharedPreferences.Editor editor;
+    public static final String API_REQUEST_CREATE_PATH = ApiConfiguration.API_BASE_URL + "path/createPath";
+    public static final String API_REQUEST_ADD_POINT = ApiConfiguration.API_BASE_URL + "path/addPoint";
+    private String parcoursId;
 
     LocationListener ecouteurGPS = new LocationListener() {
         @Override
@@ -90,6 +108,26 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
                 binding.mapview.getOverlayManager().add(line);
 
                 //map.invalidate();
+
+                /*helper.newJSONObjectRequest(API_REQUEST_ADD_POINT
+                                + "?longitude=" + gLongitude + "&latitude=" + gLatitute)
+                        .send();*/
+
+                try {//TODO
+                    JSONObject object = new JSONObject();
+                    object.put("id", parcoursId);
+                    object.put("longitude", gLongitude);
+                    object.put("latitude", gLatitute);
+
+                    new RequestBuilder(context).withBody(object)
+                            .newJSONObjectRequest(API_REQUEST_ADD_POINT)
+                            .send();
+                } catch (IllegalArgumentException e) {
+                    //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+                    //toast.show();
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     };
@@ -115,6 +153,8 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         binding = PageParcoursBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
         context = vue.getContext();
+
+        helper = new RequestBuilder(context);
 
         trajet = new ArrayList<>();
         line = new Polyline(binding.mapview);
@@ -330,10 +370,37 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         binding.cardViewStop.setCardBackgroundColor(0xFFC3363E);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
+
+        try {//TODO
+            JSONObject object = new JSONObject();
+            object.put("idUtilisateur", 1);
+            object.put("description", "TODO");
+            object.put("nom", "TODO");
+            object.put("points", new JSONArray(new double[]{trajet.get(0).getLatitude(), trajet.get(0).getLongitude()}));//TODO
+            object.put("pointsInterets", new JSONArray(new double[]{trajet.get(0).getLatitude(), trajet.get(0).getLongitude()}));
+            Log.i("PageParcours", object.toString());
+
+            helper.withBody(object)
+                    .onError(this::handleError)
+                    .onSucces(this::handleResponse)
+                    .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
+                    .send();
+        } catch (IllegalArgumentException e) {
+            //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+            //toast.show();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        /*helper.onSucces(this::handleResponse)
+                .onError(this::handleError)
+                .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
+                .send();*/
     }
 
     private void buttonStopPressed() {
         parcours = false;
+        play = false;
         binding.btnStop.setVisibility(View.INVISIBLE);
         binding.btnStart.setVisibility(View.VISIBLE);
         binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
@@ -384,5 +451,28 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         binding.mapview.getOverlays().add(mOverlay);
         popup.dismiss();
     }
+
+    public void handleResponse(Object object) {
+        try {
+            JSONObject response = (JSONObject) object;
+            parcoursId = response.getString("id");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void handleError(VolleyError error) {
+        Log.i("ReponseKo", "Requete Ko");
+        //TODO toast d'erreur
+        try {
+            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+//            String message = reponse.optString("erreur");
+//            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
+        } catch (JSONException e) {
+//            toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
+        }
+    }
+
 
 }
