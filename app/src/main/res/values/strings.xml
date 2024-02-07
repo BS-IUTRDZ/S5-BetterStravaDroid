@@ -41,4 +41,6 @@
     <string name="Description">Description</string>
     <string name="Confirm">Confirmer</string>
     <string name="Cancel">Annuler</string>
+    <string name="filtre_parcour_date_depuis">de</string>
+    <string name="filtre_parcour_date_jusqua">à</string>
 </resources>
