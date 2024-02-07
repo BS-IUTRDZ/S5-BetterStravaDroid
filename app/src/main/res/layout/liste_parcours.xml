@@ -2,8 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 <!--    <include-->
 <!--        android:id="@+id/navbar"-->
@@ -11,6 +13,32 @@
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="75dp"-->
 <!--        app:layout_constraintBottom_toBottomOf="parent"/>-->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:orientation="horizontal"
+        tools:ignore="MissingConstraints">
+
+        <androidx.appcompat.widget.SearchView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            tools:ignore="MissingConstraints" />
+
+        <Button
+            android:id="@+id/btn_depuis"
+            android:text="@string/filtre_parcour_date_depuis"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:onClick="showDatePickerFrom"/>
+        <Button
+            android:id="@+id/btn_jusqua"
+            android:text="@string/filtre_parcour_date_jusqua"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:onClick="showDatePickerTo"/>
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"

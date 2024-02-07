@@ -1,12 +1,14 @@
 package iut.info3.betterstravadroid;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -18,10 +20,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
+import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
 import iut.info3.betterstravadroid.parcours.ParcoursItem;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
@@ -36,6 +45,9 @@ public class PageListeParcours extends Fragment {
 
     private RequestBuilder builder;
 
+    private DatePickerDialog datePickerFrom;
+    private DatePickerDialog datePickerTo;
+
 
 
     public void setBuilder(RequestBuilder builder) {
@@ -46,11 +58,24 @@ public class PageListeParcours extends Fragment {
         //Require empty public constructor
     }
 
+    interface OnDateSelectedListener {
+        void onDateSelected(Date date);
+    }
+
     public static PageListeParcours newInstance(Activity activity) {
         PageListeParcours pageListeParcours = new PageListeParcours();
         pageListeParcours.builder = new RequestBuilder(activity);
         pageListeParcours.preferences =
                 activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
+        pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
+        DatePickerDialog datePickerFrom = new DatePickerDialog(activity) {
+            @Override
+            public void onDateChanged(@androidx.annotation.NonNull DatePicker view, int year, int month, int dayOfMonth) {
+
+            }
+        };
+
+
         return pageListeParcours;
     }
 
@@ -77,6 +102,8 @@ public class PageListeParcours extends Fragment {
 
     }
 
+
+
     private void initialiseListeParcours() {
         parcoursItemList = new ArrayList<>();//Stub
         builder.onError(this::handleError)
@@ -96,12 +123,7 @@ public class PageListeParcours extends Fragment {
         try {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jsonObject = array.getJSONObject(i);
-                ParcoursItem item = new ParcoursItem(
-                        jsonObject.getString("date"),
-                        jsonObject.getString("nom"),
-                        jsonObject.getString("description")
-                );
-                parcoursItemList.add(item);
+                parcoursItemList.add(new ParcoursItem(jsonObject));
             }
             parcoursAdaptateur = new ParcoursAdaptateur(parcoursItemList);
             binding.recyclerView.setAdapter(parcoursAdaptateur);
@@ -110,4 +132,19 @@ public class PageListeParcours extends Fragment {
         }
 
     }
+
+    public void showDatePickerFrom(View view) {
+
+    }
+
+
+    public void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this.getActivity());
+        datePickerDialog.show();
+
+    }
+
+
+
 }
