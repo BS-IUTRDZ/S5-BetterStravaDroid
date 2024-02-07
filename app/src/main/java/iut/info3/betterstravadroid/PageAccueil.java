@@ -149,7 +149,7 @@ public class PageAccueil extends Fragment {
 
             float dureeParcours30Jours = Float.parseFloat(stats30Jours.getString(UserPreferences.STAT_KEY_TIME));
             float heureParcours30Jours = dureeParcours30Jours / 3600;
-            float minParcours30Jours = dureeParcours30Jours % 60;
+            float minParcours30Jours = dureeParcours30Jours  % 3600 / 60;
             binding.tvTpsParcoursHeure30J.setText(Integer.toString(Math.round(heureParcours30Jours)));
             binding.tvTpsParcoursMinute30J.setText(Integer.toString(Math.round(minParcours30Jours)));
 
@@ -161,7 +161,7 @@ public class PageAccueil extends Fragment {
 
             float dureeParcoursGlobal = Float.parseFloat(statsGlobales.getString(UserPreferences.STAT_KEY_TIME));
             float heureParcoursGlobal = dureeParcoursGlobal / 3600;
-            float minParcoursGlobal = dureeParcoursGlobal % 60;
+            float minParcoursGlobal = dureeParcoursGlobal % 3600 / 60;
             binding.tvTpsParcoursHeureGlob.setText(Integer.toString(Math.round(heureParcoursGlobal)));
             binding.tvTpsParcoursMinuteGlob.setText(Integer.toString(Math.round(minParcoursGlobal)));
 
