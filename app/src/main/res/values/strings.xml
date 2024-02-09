@@ -67,27 +67,6 @@
     <string name="tv_bonjour_utilisateur">Bonjour, %1$s !</string>
     <string name="titre_du_parcours">Titre du parcours</string>
     <string name="description_du_parcours">Description du parcours</string>
-<<<<<<< HEAD
-    <string name="numeric_value">000</string>
 
-=======
-    <string name="statistiques_des_30_derniers_jours">Statistiques des 30 derniers jours</string>
-    <string name="distance_parcourue">Distance parcourue</string>
-    <string name="km">KM</string>
-    <string name="temps_de_parcours">Temps de parcours</string>
-    <string name="parcours_crees">Parcours crées</string>
-    <string name="statistiques_globales">Statistiques globales</string>
-    <string name="vitesse_moyenne">Vitesse Moyenne</string>
-    <string name="kmh">km/h</string>
-    <string name="duree_du_parcours">Durée du parcours</string>
-    <string name="ajouter_point">Ajout point</string>
-    <string name="stop">STOP</string>
-    <string name="start">Start</string>
-    <string name="title">Title</string>
-    <string name="Description">Description</string>
-    <string name="Confirm">Confirmer</string>
-    <string name="Cancel">Annuler</string>
-    <string name="filtre_parcour_date_depuis">de</string>
-    <string name="filtre_parcour_date_jusqua">à</string>
->>>>>>> ed6cb88 (Modification layout parcour liste)
+    <string name="placeBeforeTextSearchBarParcour">Nom du parcour</string>
 </resources>

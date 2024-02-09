@@ -39,10 +39,7 @@ public class RequestBuilder {
 
     public RequestBuilder(RequestQueue fileRequetes) {
         this.fileRequetes = fileRequetes;
-        method(Request.Method.GET);
-        withHeader(new HashMap<>());
-        onError(System.out::println);
-        onSucces(System.out::println);
+        reset();
     }
 
 
@@ -67,7 +64,7 @@ public class RequestBuilder {
             }
         };
 
-        return new RequestFinaliser(fileRequetes, request);
+        return new RequestFinaliser(this, request);
 
     }
 
@@ -90,7 +87,7 @@ public class RequestBuilder {
             }
         };
 
-        return new RequestFinaliser<>(fileRequetes, request);
+        return new RequestFinaliser<>(this, request);
 
     }
 
@@ -173,23 +170,31 @@ public class RequestBuilder {
      * @param <T> le type de la requête a envoyer.
      */
     public static class RequestFinaliser<T extends JsonRequest> {
-        private RequestQueue fileRequetes;
+        private RequestBuilder builder;
         private T request;
-        private RequestFinaliser(RequestQueue fileRequetes, T request) {
-            this.fileRequetes = fileRequetes;
+        private RequestFinaliser(RequestBuilder builder, T request) {
+            this.builder = builder;
             this.request = request;
         }
 
         public void send() {
-            fileRequetes.add(request);
+            builder.fileRequetes.add(request);
+            builder.reset();
         }
 
-        public T getRequest() {
+        public T get() {
             return request;
         }
 
     }
 
+
+    private void reset() {
+        method(Request.Method.GET);
+        withHeader(new HashMap<>());
+        onError(Throwable::printStackTrace);
+        onSucces(System.out::println);
+    }
 
 
 
