@@ -48,6 +48,7 @@ public class PageModifParcours extends AppCompatActivity {
 
         Intent intention = getIntent();
         idParcours = intention.getStringExtra("id");
+
         String titre = intention.getStringExtra("titre");
         String description = intention.getStringExtra("description");
         binding.editTitre.setText(titre);
@@ -67,7 +68,6 @@ public class PageModifParcours extends AppCompatActivity {
         context = binding.getRoot().getContext();
 
         helper = new RequestBuilder(this);
-
     }
 
     public void onClickAnnuler() {
@@ -106,6 +106,7 @@ public class PageModifParcours extends AppCompatActivity {
         intentionRetour.putExtra("description", description);
         intentionRetour.putExtra("id", idParcours);
         setResult(Activity.RESULT_OK, intentionRetour);
+
         this.finish();
     }
 
