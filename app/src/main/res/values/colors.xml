@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="blue_card">#c0d6ea</color>
+    <color name="grisClair">#EFEFEF</color>
+    <color name="grisFonce">#A9A9A9</color>
 </resources>

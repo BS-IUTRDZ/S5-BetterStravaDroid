@@ -22,7 +22,7 @@
     <string name="Cancel">Annuler</string>
     <string name="filtre_parcours_date_depuis">Depuis</string>
     <string name="filtre_parcours_date_jusqua">Jusqu\'a</string>
-
+    <string name="valider">Valider</string>
     <!--                Synthèse titre                              -->
 
     <string name="distance_parcourue">Distance parcourue</string>
