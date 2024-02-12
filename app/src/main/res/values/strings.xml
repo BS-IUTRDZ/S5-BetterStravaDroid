@@ -26,6 +26,9 @@
     <string name="distance_parcourue">Distance parcourue</string>
     <string name="temps_de_parcours">Temps de parcours</string>
     <string name="parcours_crees">Parcours crées</string>
+    <string name="points_interets">Points d\'intérêts</string>
+    <string name="denivele_positif">Dénivelé Positif</string>
+    <string name="denivele_negatif">Dénivelé Négatif</string>
 
     <string name="vitesse_moyenne">Vitesse Moyenne</string>
     <string name="duree_du_parcours">Durée du parcours</string>
@@ -35,7 +38,7 @@
     <!--                Stat unité                                  -->
     <string name="km">Km</string>
     <string name="kmh">Km/h</string>
-    <string name="metres">metres</string>
+    <string name="m">m</string>
     <string name="h">H</string>
 
     <!--                ImageView contentDescription                -->
