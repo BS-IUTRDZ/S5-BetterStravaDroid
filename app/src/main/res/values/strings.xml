@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">BetterStravaDroid</string>
     <string name="connexion">CONNEXION</string>
-    <string name="icone_de_l_application">Icône de l\'application</string>
     <string name="se_connecter">Se connecter</string>
     <string name="creer_un_nouveau_compte"><u>Créer un nouveau compte</u></string>
     <string name="courriel">Courriel</string>
@@ -13,25 +12,7 @@
     <string name="se_connecter_underline"><u>Se connecter</u></string>
     <string name="deja_inscrit">Déjà inscrit ?</string>
     <string name="repeter_le_mot_de_passe">Répéter le mot de passe</string>
-    <string name="iconne_de_l_utilisateur">Iconne de l\'utilisateur</string>
-    <string name="date_du_jour">Lundi 4 décembre 2023</string>
-    <string name="tv_bonjour_utilisateur">Bonjour, %1$s !</string>
-    <string name="play_button">Play button</string>
-    <string name="active_home_button">Active home button</string>
-    <string name="active_path_button">Active path button</string>
-    <string name="home_button">Home button</string>
-    <string name="path_button_active">Path button active</string>
-    <string name="path_button">Path button</string>
-    <string name="dernier_parcour_effectu">Dernier parcour effectué</string>
-    <string name="statistiques_des_30_derniers_jours">Statistiques des 30 derniers jours</string>
-    <string name="distance_parcourue">Distance parcourue</string>
-    <string name="km">KM</string>
-    <string name="temps_de_parcours">Temps de parcours</string>
-    <string name="parcours_crees">Parcours crées</string>
-    <string name="statistiques_globales">Statistiques globales</string>
-    <string name="vitesse_moyenne">Vitesse Moyenne</string>
-    <string name="kmh">km/h</string>
-    <string name="duree_du_parcours">Durée du parcours</string>
+    <string name="dernier_parcour_effectu">Dernier parcours effectué</string>
     <string name="ajouter_point">Ajout point</string>
     <string name="stop">STOP</string>
     <string name="start">Start</string>
@@ -39,4 +20,53 @@
     <string name="Description">Description</string>
     <string name="Confirm">Confirmer</string>
     <string name="Cancel">Annuler</string>
+
+    <!--                Synthèse titre                              -->
+
+    <string name="distance_parcourue">Distance parcourue</string>
+    <string name="temps_de_parcours">Temps de parcours</string>
+    <string name="parcours_crees">Parcours crées</string>
+    <string name="points_interets">Points d\'intérêts</string>
+    <string name="denivele_positif">Dénivelé Positif</string>
+    <string name="denivele_negatif">Dénivelé Négatif</string>
+
+    <string name="vitesse_moyenne">Vitesse Moyenne</string>
+    <string name="duree_du_parcours">Durée du parcours</string>
+    <string name="statistiques_globales">Statistiques globales</string>
+    <string name="statistiques_des_30_derniers_jours">Statistiques des 30 derniers jours</string>
+
+    <!--                Stat unité                                  -->
+    <string name="km">Km</string>
+    <string name="kmh">Km/h</string>
+    <string name="m">m</string>
+    <string name="h">H</string>
+
+    <!--                ImageView contentDescription                -->
+    <string name="iconne_de_l_utilisateur">Icône de l\'utilisateur</string>
+    <string name="play_button">Play button</string>
+    <string name="active_home_button">Active home button</string>
+    <string name="active_path_button">Active path button</string>
+    <string name="home_button">Home button</string>
+    <string name="path_button_active">Path button active</string>
+    <string name="path_button">Path button</string>
+    <string name="icone_de_l_application">Icône de l\'application</string>
+
+    <string name="icone_null">Aucune icône</string>
+    <string name="icone_lapin">Lapin</string>
+    <string name="icone_escargot">Escargot</string>
+    <string name="icone_compteur">Compteur de vitesse</string>
+    <string name="icone_course">Personne en mouvement</string>
+    <string name="icone_chronometre">Chronomètre</string>
+    <string name="icone_denivele_negatif">Montagne descendente</string>
+    <string name="icone_denivele_positif">Montagne ascension</string>
+    <string name="icone_localisation">Point GPS</string>
+
+
+    <!--                tools help text                             -->
+    <string name="date_du_jour">Lundi 4 décembre 2023</string>
+    <string name="tv_bonjour_utilisateur">Bonjour, Clément !</string>
+    <string name="titre_du_parcours">Titre du parcours</string>
+    <string name="description_du_parcours">Description du parcours</string>
+    <string name="numeric_value">000</string>
+
 </resources>
