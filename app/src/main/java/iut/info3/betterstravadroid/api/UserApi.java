@@ -11,6 +11,7 @@ public class UserApi {
 
     public static final String USER_API_CREATE_ACCOUNT = ApiConfiguration.API_BASE_URL + "users/createAccount";
     public static final String USER_API_LOGIN = ApiConfiguration.API_BASE_URL + "users/login";
+    public static final String USER_API_INFOS = ApiConfiguration.API_BASE_URL + "users/getInfo";
 
     public static final String ERROR_MESSAGE_ALL_FIELD_NOT_FILL =
             "Veuillez remplir tous les champs";

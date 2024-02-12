@@ -15,7 +15,7 @@
     <string name="repeter_le_mot_de_passe">Répéter le mot de passe</string>
     <string name="iconne_de_l_utilisateur">Iconne de l\'utilisateur</string>
     <string name="date_du_jour">Lundi 4 décembre 2023</string>
-    <string name="tv_bonjour_utilisateur">Bonjour, Clément !</string>
+    <string name="tv_bonjour_utilisateur">Bonjour, %1$s !</string>
     <string name="play_button">Play button</string>
     <string name="active_home_button">Active home button</string>
     <string name="active_path_button">Active path button</string>
@@ -23,8 +23,6 @@
     <string name="path_button_active">Path button active</string>
     <string name="path_button">Path button</string>
     <string name="dernier_parcour_effectu">Dernier parcour effectué</string>
-    <string name="titre_du_parcours">Titre du parcours</string>
-    <string name="description_du_parcours">Description du parcours</string>
     <string name="statistiques_des_30_derniers_jours">Statistiques des 30 derniers jours</string>
     <string name="distance_parcourue">Distance parcourue</string>
     <string name="km">KM</string>
