@@ -2,7 +2,6 @@ package iut.info3.betterstravadroid;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import android.graphics.Color;
@@ -10,7 +9,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,13 +16,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
@@ -46,20 +42,17 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Calendar;
 
 import android.location.Criteria;
 
 import com.android.volley.VolleyError;
 
 import iut.info3.betterstravadroid.api.ApiConfiguration;
-import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 
 
 public class PageParcours extends Fragment implements View.OnClickListener, View.OnTouchListener {
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
     LocationManager locationManager = null;
@@ -70,10 +63,9 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     public static Boolean play = false;
 
     public static Boolean parcours = false;
-
     private String fournisseur;
     ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-    private double gLatitute;
+    private double gLatitude;
     private double gLongitude;
     TextView title;
     TextView description;
@@ -83,51 +75,54 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
     private Context context;
     private RequestBuilder helper;
-    private ToastMaker toastMaker;
-    private SharedPreferences.Editor editor;
     public static final String API_REQUEST_CREATE_PATH = ApiConfiguration.API_BASE_URL + "path/createPath";
     public static final String API_REQUEST_ADD_POINT = ApiConfiguration.API_BASE_URL + "path/addPoint";
     private String parcoursId;
+    private String parcoursTitre;
+    private String parcoursDescription;
+    public Boolean nouveauParcours = false;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            result -> {
+                if (result) {
+                    // PERMISSION GRANTED
+
+                    // Configuration de la couche de localisation de l'utilisateur
+                    GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
+                    myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
+                    myLocationOverlay.enableFollowLocation();
+
+                    myLocationOverlay.enableMyLocation();
+                    binding.mapview.getOverlays().add(myLocationOverlay);
+
+                    centerMapOnUser();
+                } else {
+                    // PERMISSION NOT GRANTED
+                    Toast.makeText( context,
+                            "Permission non accordée", Toast.LENGTH_LONG).show();
+                }
+            }
+    );
 
     LocationListener ecouteurGPS = new LocationListener() {
         @Override
-        public void onLocationChanged(Location localisation) {
+        public void onLocationChanged(@NonNull Location localisation) {
 
             if (play) {
                 trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
 
-                gLatitute = localisation.getLatitude();
+                gLatitude = localisation.getLatitude();
                 gLongitude = localisation.getLongitude();
 
-                //line.setSubDescription(Polyline.class.getCanonicalName());
-                line.setWidth(10f);
-                line.setColor(Color.RED);
+                line.getOutlinePaint().setColor(Color.RED);
+                line.getOutlinePaint().setStrokeWidth(10);
                 line.setPoints(trajet);
                 line.setGeodesic(true);
-                //line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
-                binding.mapview.getOverlayManager().add(line);
+                //binding.mapview.getOverlayManager().add(line);
 
-                //map.invalidate();
+                pushGeoPoint();
 
-                /*helper.newJSONObjectRequest(API_REQUEST_ADD_POINT
-                                + "?longitude=" + gLongitude + "&latitude=" + gLatitute)
-                        .send();*/
-
-                try {//TODO
-                    JSONObject object = new JSONObject();
-                    object.put("id", parcoursId);
-                    object.put("longitude", gLongitude);
-                    object.put("latitude", gLatitute);
-
-                    new RequestBuilder(context).withBody(object)
-                            .newJSONObjectRequest(API_REQUEST_ADD_POINT)
-                            .send();
-                } catch (IllegalArgumentException e) {
-                    //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
-                    //toast.show();
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     };
@@ -137,8 +132,7 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     }
 
     public static PageParcours newInstance() {
-        PageParcours pageParcours = new PageParcours();
-        return pageParcours;
+        return new PageParcours();
     }
 
     @Override
@@ -147,7 +141,7 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = PageParcoursBinding.inflate(inflater, container, false);
@@ -158,7 +152,7 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
         trajet = new ArrayList<>();
         line = new Polyline(binding.mapview);
-        checkLocationPermission(((MainActivity) inflater.getContext()));
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
 
         Configuration.getInstance().load(context,
                 PreferenceManager.getDefaultSharedPreferences(context));
@@ -193,17 +187,9 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         binding.btnStart.setOnClickListener(this);
         binding.btnStop.setOnTouchListener((View.OnTouchListener) this);
 
-        return vue;
-    }
+        binding.mapview.getOverlayManager().add(line);
 
-    // Vérifier la permission d'accès à la localisation
-    private void checkLocationPermission(MainActivity activity) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
+        return vue;
     }
 
     private void centerMapOnUser() {
@@ -225,20 +211,21 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
                     trajet.add(userLocation);
 
-                    // Créer MyLocationNewOverlay
+                    /*// Créer MyLocationNewOverlay
                     GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
                     myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
                     myLocationOverlay.enableMyLocation();
 
                     // Ajouter MyLocationNewOverlay à la carte
-                    binding.mapview.getOverlays().add(myLocationOverlay);
+                    binding.mapview.getOverlays().add(myLocationOverlay);*/
 
                     // Centrer la carte sur la position de l'utilisateur
                     binding.mapview.getController().setCenter(userLocation);
                     binding.mapview.getController().setZoom(18.0);
 
                 } else {
-                    // La dernière position connue n'est pas disponible, vous pouvez gérer cela en affichant un message par exemple
+                    Toast.makeText( context,
+                            "Aucune position trouver", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -270,45 +257,12 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
     }
 
-    // Manipulation de la réponse à la demande de permission
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission accordée centrage de la carte
-                centerMapOnUser();
-            } else {
-                // Permission refusée
-                // TODO message d'erreur disant que sans accepter bah l'appli elle marche pas
-            }
-        }
-    }
-
     private void initialiserLocalisation()
     {
         if (locationManager == null)
         {
             locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             Criteria criteres = new Criteria();
-
-            /*// la précision  : (ACCURACY_FINE pour une haute précision ou ACCURACY_COARSE pour une moins bonne précision)
-            criteres.setAccuracy(Criteria.ACCURACY_FINE);
-
-            // l'altitude
-            criteres.setAltitudeRequired(true);
-
-            // la direction
-            criteres.setBearingRequired(true);
-
-            // la vitesse
-            criteres.setSpeedRequired(true);
-
-            // la consommation d'énergie demandée
-            criteres.setCostAllowed(true);
-            //criteres.setPowerRequirement(Criteria.POWER_HIGH);
-            criteres.setPowerRequirement(Criteria.POWER_MEDIUM);*/
 
             fournisseur = locationManager.getBestProvider(criteres, true);
         }
@@ -337,11 +291,21 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     public void onClick(View view) {
 
         if (view.getId() == R.id.btn_ajout) {
-            showAboutPopup();
+            if (play) {
+                showAboutPopup();
+            }
         } else if (view.getId() == R.id.btn_start) {
-            buttonStartPressed();
+            nouveauParcours = true;
+            showAboutPopup();
         } else if (view.getId() == R.id.btn_confirm) {
-            confirmTitleDescription(view);
+            if (nouveauParcours) {
+                parcoursTitre = title.getText().toString();
+                parcoursDescription = description.getText().toString();
+                popup.dismiss();
+                buttonStartPressed();
+            } else{
+                confirmTitleDescription(view);
+            }
         } else if (view.getId() == R.id.btn_cancel) {
             popup.dismiss();
         }
@@ -371,13 +335,76 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
 
-        try {//TODO
+        trajet.clear();
+        centerMapOnUser();
+        createPath();
+    }
+
+    private void buttonStopPressed() {
+        parcours = false;
+        play = false;
+        binding.btnStop.setVisibility(View.INVISIBLE);
+        binding.btnStart.setVisibility(View.VISIBLE);
+        binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
+
+        nouveauParcours = false;
+        trajet.clear();
+        line.setPoints(trajet);
+        //items.clear();
+
+    }
+
+    private void showAboutPopup() {
+
+        AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
+
+        View customLayout = getLayoutInflater().inflate(R.layout.popup_interest_point, null);
+        title = customLayout.findViewById(R.id.et_titre);
+        description = customLayout.findViewById(R.id.et_description);
+
+        /* Listener boutons popup*/
+        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(this);
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(this);
+
+        popup_builder.setView(customLayout);
+
+        popup = popup_builder.create();
+        popup.show();
+    }
+
+    public void confirmTitleDescription(View view){
+
+        items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitude, gLongitude)));
+
+        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(context, items,
+                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                    @Override
+                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                        Toast.makeText( context,
+                                item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+                    @Override
+                    public boolean onItemLongPress(final int index, final OverlayItem item) {
+                        return false;
+                        //TODO si on veut supprimer point d'interet
+                    }
+                });
+        //mOverlay.setFocusItemsOnTap(true);
+        binding.mapview.getOverlays().add(mOverlay);
+        popup.dismiss();
+    }
+
+    public void createPath() {
+        try {
             JSONObject object = new JSONObject();
             object.put("idUtilisateur", 1);
-            object.put("description", "TODO");
-            object.put("nom", "TODO");
-            object.put("points", new JSONArray(new double[]{trajet.get(0).getLatitude(), trajet.get(0).getLongitude()}));//TODO
-            object.put("pointsInterets", new JSONArray(new double[]{trajet.get(0).getLatitude(), trajet.get(0).getLongitude()}));
+            object.put("description", parcoursDescription);
+            object.put("nom", parcoursTitre);
+            object.put("date", Calendar.getInstance().getTime().getTime());
+            object.put("points", new JSONArray(new double[]{trajet.get(0).getLatitude(), trajet.get(0).getLongitude()}));
             Log.i("PageParcours", object.toString());
 
             helper.withBody(object)
@@ -391,65 +418,25 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
-        /*helper.onSucces(this::handleResponse)
-                .onError(this::handleError)
-                .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
-                .send();*/
     }
 
-    private void buttonStopPressed() {
-        parcours = false;
-        play = false;
-        binding.btnStop.setVisibility(View.INVISIBLE);
-        binding.btnStart.setVisibility(View.VISIBLE);
-        binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
-        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
-        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
-    }
+    public void pushGeoPoint() {
+        try {
+            JSONObject object = new JSONObject();
+            object.put("id", parcoursId);
+            object.put("longitude", gLongitude);
+            object.put("latitude", gLatitude);
+            Log.i("IdParcours", parcoursId);
 
-    private void showAboutPopup() {
-
-        AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
-
-
-        View customLayout = getLayoutInflater().inflate(R.layout.popup_interest_point, null);
-        title = customLayout.findViewById(R.id.et_titre);
-        description = customLayout.findViewById(R.id.et_description);
-
-        /* Listener boutons popup*/
-        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(this);
-        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(this);
-
-
-        popup_builder.setView(customLayout);
-
-        popup = popup_builder.create();
-        popup.show();
-
-    }
-
-    public void confirmTitleDescription(View view){
-
-        items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitute, gLongitude)));
-
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(context, items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        Toast.makeText( context,
-                                item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
-                        return true;
-                    }
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                        //TODO si le temps suppression du point
-                    }
-                });
-        //mOverlay.setFocusItemsOnTap(true);
-        binding.mapview.getOverlays().add(mOverlay);
-        popup.dismiss();
+            new RequestBuilder(context).withBody(object)
+                    .newJSONObjectRequest(API_REQUEST_ADD_POINT)
+                    .send();
+        } catch (IllegalArgumentException e) {
+            //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+            //toast.show();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void handleResponse(Object object) {
