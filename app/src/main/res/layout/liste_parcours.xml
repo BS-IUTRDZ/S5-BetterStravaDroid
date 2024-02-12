@@ -34,7 +34,6 @@
                 android:text="@string/filtre_parcour_date_depuis"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:onClick="showDatePickerFrom"
                 android:layout_gravity="center_horizontal"
                 />
             <Button
@@ -42,7 +41,6 @@
                 android:text="@string/filtre_parcour_date_jusqua"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:onClick="showDatePickerTo"
                 android:layout_gravity="center_horizontal"/>
 
         </LinearLayout>

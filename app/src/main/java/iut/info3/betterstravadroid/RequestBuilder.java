@@ -30,7 +30,14 @@ public class RequestBuilder {
     private Consumer<VolleyError> onError;
     private Consumer<Object> onSucces;
 
-
+    public RequestBuilder(RequestBuilder requestBuilder) {
+        fileRequetes = requestBuilder.fileRequetes;
+        header = requestBuilder.header;
+        body = requestBuilder.body;
+        method = requestBuilder.method;
+        onError = requestBuilder.onError;
+        onSucces = requestBuilder.onSucces;
+    }
 
     public RequestBuilder(Context context) {
         this(Volley.newRequestQueue(context));
