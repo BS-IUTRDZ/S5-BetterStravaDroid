@@ -39,6 +39,7 @@ public class PageModifParcours extends AppCompatActivity {
 
     @Override
     public void onCreate (Bundle savedInstance) {
+
         super.onCreate(savedInstance);
 
         binding = PageModificationParcoursBinding.inflate(getLayoutInflater());
@@ -48,6 +49,7 @@ public class PageModifParcours extends AppCompatActivity {
 
         Intent intention = getIntent();
         idParcours = intention.getStringExtra("id");
+
         String titre = intention.getStringExtra("titre");
         String description = intention.getStringExtra("description");
         binding.editTitre.setText(titre);
@@ -102,6 +104,8 @@ public class PageModifParcours extends AppCompatActivity {
         intentionRetour.putExtra("description",description );
         intentionRetour.putExtra("id",idParcours);
         setResult(Activity.RESULT_OK, intentionRetour);
+
+        //TODO appel a l'api pout modifer description et titre
 
         this.finish();
 
