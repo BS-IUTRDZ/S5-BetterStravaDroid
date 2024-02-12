@@ -23,7 +23,10 @@
     <string name="filtre_parcours_date_depuis">Depuis</string>
     <string name="filtre_parcours_date_jusqua">Jusqu\'a</string>
     <string name="valider">Valider</string>
+<<<<<<< HEAD
 
+=======
+>>>>>>> dff976b (ajout page modif parcours)
     <!--                Synthèse titre                              -->
 
     <string name="distance_parcourue">Distance parcourue</string>

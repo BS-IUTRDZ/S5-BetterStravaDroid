@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,9 +18,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import iut.info3.betterstravadroid.api.PathApi;
-import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageModificationParcoursBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
+
 
 public class PageModifParcours extends AppCompatActivity {
 
