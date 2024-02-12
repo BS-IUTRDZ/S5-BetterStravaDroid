@@ -21,7 +21,6 @@ import iut.info3.betterstravadroid.api.PathApi;
 import iut.info3.betterstravadroid.databinding.PageModificationParcoursBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-
 public class PageModifParcours extends AppCompatActivity {
 
     PageModificationParcoursBinding binding;
@@ -56,13 +55,6 @@ public class PageModifParcours extends AppCompatActivity {
 
         binding.btnAnnuler.setOnClickListener(view -> {onClickAnnuler();});
         binding.btnAnnuler.setOnClickListener(view -> {onClickValider();});
-
-        //Gestion des preferences
-        preferences = this.getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
-
-        context = binding.getRoot().getContext();
-
-        helper = new RequestBuilder(this);
 
     }
 
@@ -137,4 +129,6 @@ public class PageModifParcours extends AppCompatActivity {
                     .show();
         }
     }
+
+
 }
