@@ -40,7 +40,7 @@
                 style="@style/fontDefault"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/date_du_jour"
+                tools:text="@string/date_du_jour"
                 android:textColor="#808080" />
 
             <TextView
@@ -48,7 +48,7 @@
                 style="@style/fontTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tv_bonjour_utilisateur" />
+                tools:text="@string/tv_bonjour_utilisateur" />
 
         </LinearLayout>
 
