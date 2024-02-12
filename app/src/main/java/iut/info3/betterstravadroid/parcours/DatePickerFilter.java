@@ -11,19 +11,17 @@ import iut.info3.betterstravadroid.PageListeParcours;
 
 
 public class DatePickerFilter extends DatePickerDialog {
-    public DatePickerFilter(@NonNull Context context, PageListeParcours view, Button linkedButton) {
+    public DatePickerFilter(@NonNull Context context, Button linkedButton) {
         super(context);
-        setOnDateSetListener(new DatePickerListener(view, linkedButton));
+        setOnDateSetListener(new DatePickerListener(linkedButton));
     }
 
 
     public static class DatePickerListener implements DatePickerDialog.OnDateSetListener {
 
-        private PageListeParcours view;
         private Button linkedButton;
-        public DatePickerListener(PageListeParcours view, Button linkedButton) {
+        public DatePickerListener(Button linkedButton) {
             this.linkedButton = linkedButton;
-            this.view = view;
         }
         @Override
         public void onDateSet(DatePicker picker, int year, int month, int dayOfMonth) {
