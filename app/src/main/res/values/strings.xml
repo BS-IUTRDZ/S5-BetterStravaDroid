@@ -21,10 +21,13 @@
     <string name="Confirm">Confirmer</string>
     <string name="Cancel">Annuler</string>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <string name="filtre_parcours_date_depuis">Depuis</string>
     <string name="filtre_parcours_date_jusqua">Jusqu\'a</string>
     <string name="valider">Valider</string>
 =======
+=======
+>>>>>>> 7dea8a2 (ajout page modif parcours)
     <string name="valider">Valider</string>
 
 >>>>>>> 7dea8a2 (ajout page modif parcours)
