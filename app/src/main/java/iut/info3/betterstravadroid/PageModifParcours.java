@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import iut.info3.betterstravadroid.databinding.PageModificationParcoursBinding;
 
@@ -15,11 +16,12 @@ public class PageModifParcours extends AppCompatActivity {
 
     @Override
     public void onCreate (Bundle savedInstance) {
-
         super.onCreate(savedInstance);
 
         binding = PageModificationParcoursBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        binding.topbar.ivEditIcon.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.edit_active));
 
         Intent intention = getIntent();
         String titre = intention.getStringExtra("titre");
