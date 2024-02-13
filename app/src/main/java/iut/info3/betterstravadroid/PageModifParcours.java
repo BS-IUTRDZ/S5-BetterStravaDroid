@@ -101,10 +101,10 @@ public class PageModifParcours extends AppCompatActivity {
         intentionRetour.putExtra("description", description);
         intentionRetour.putExtra("id", idParcours);
         setResult(Activity.RESULT_OK, intentionRetour);
+
         this.finish();
 
     }
-
 
     public void handleError(VolleyError error) {
         try {
