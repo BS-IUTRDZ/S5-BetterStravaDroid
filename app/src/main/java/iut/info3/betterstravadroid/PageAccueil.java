@@ -2,7 +2,6 @@ package iut.info3.betterstravadroid;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -66,10 +65,11 @@ public class PageAccueil extends Fragment {
         View vue = binding.getRoot();
         context = vue.getContext();
 
+        toastMaker = new ToastMaker();
         binding.cardLastRun.map.setDestroyMode(false);
 
         //Gestion des preferences
-        preferences = this.getActivity().getSharedPreferences(UserPreferences.PREFERENCES_FILE, MODE_PRIVATE);
+        preferences = this.getActivity().getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         helper = new RequestBuilder(vue.getContext());
 
