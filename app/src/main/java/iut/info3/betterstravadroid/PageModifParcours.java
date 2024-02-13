@@ -98,15 +98,31 @@ public class PageModifParcours extends AppCompatActivity {
 
     public void retourListe(Object object) {
 
+        String newDescritpion = binding.editDescription.getText().toString();
+
         Intent intentionRetour = new Intent();
         String description = binding.editDescription.getText().toString();
         intentionRetour.putExtra("description",description );
         intentionRetour.putExtra("id",idParcours);
         setResult(Activity.RESULT_OK, intentionRetour);
 
-        //TODO appel a l'api pout modifer description et titre
 
-        this.finish();
+        JSONObject body = new JSONObject();
+        HashMap<String,String> header = new HashMap<>();
+        try {
+            body.put("id",idParcours);
+            body.put("description",newDescritpion);
+            header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        helper.onSucces(this::retourListe)
+                .onError(this::handleError)
+                .withHeader(header)
+                .withBody(body)
+                .newJSONObjectRequest(PathApi.PATH_API_MODIF)
+                .send();
 
     }
 
