@@ -39,7 +39,6 @@ public class PageModifParcours extends AppCompatActivity {
 
     @Override
     public void onCreate (Bundle savedInstance) {
-
         super.onCreate(savedInstance);
 
         binding = PageModificationParcoursBinding.inflate(getLayoutInflater());
