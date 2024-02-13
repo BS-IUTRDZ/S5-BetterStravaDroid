@@ -26,6 +26,7 @@
             android:maxLines="1"/>
 
         <TextView
+            android:id="@+id/parcour_titre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Titre du parcours"
@@ -36,6 +37,7 @@
             android:maxLines="1"/>
 
         <TextView
+            android:id="@+id/parcour_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Description du parcours\nLigne 2\nLigne 3"

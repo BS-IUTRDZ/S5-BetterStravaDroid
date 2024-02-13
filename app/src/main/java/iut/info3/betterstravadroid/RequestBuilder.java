@@ -1,6 +1,7 @@
 package iut.info3.betterstravadroid;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Header;
@@ -30,7 +31,14 @@ public class RequestBuilder {
     private Consumer<VolleyError> onError;
     private Consumer<Object> onSucces;
 
-
+    public RequestBuilder(RequestBuilder requestBuilder) {
+        fileRequetes = requestBuilder.fileRequetes;
+        header = requestBuilder.header;
+        body = requestBuilder.body;
+        method = requestBuilder.method;
+        onError = requestBuilder.onError;
+        onSucces = requestBuilder.onSucces;
+    }
 
     public RequestBuilder(Context context) {
         this(Volley.newRequestQueue(context));
@@ -39,10 +47,7 @@ public class RequestBuilder {
 
     public RequestBuilder(RequestQueue fileRequetes) {
         this.fileRequetes = fileRequetes;
-        method(Request.Method.GET);
-        withHeader(new HashMap<>());
-        onError(System.out::println);
-        onSucces(System.out::println);
+        reset();
     }
 
 
@@ -57,17 +62,18 @@ public class RequestBuilder {
      *         et la requête
      */
     public RequestFinaliser<JsonObjectRequest> newJSONObjectRequest(String url) {
+        Map<String, String> headers = new HashMap<>(header);
 
         JsonObjectRequest request = new JsonObjectRequest(method,
                 url, (JSONObject) body,
                 onSucces::accept, onError::accept) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return header;
+                return headers;
             }
         };
 
-        return new RequestFinaliser(fileRequetes, request);
+        return new RequestFinaliser(this, request);
 
     }
 
@@ -80,17 +86,17 @@ public class RequestBuilder {
      *         et la requête
      */
     public RequestFinaliser<JsonArrayRequest> newJSONArrayRequest(String url) {
-
+        Map<String, String> headers = new HashMap<>(header);
         JsonArrayRequest request = new JsonArrayRequest(
                 method, url, (JSONArray) body,
                 onSucces::accept, onError::accept) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return header;
+                return headers;
             }
         };
 
-        return new RequestFinaliser<>(fileRequetes, request);
+        return new RequestFinaliser<>(this, request);
 
     }
 
@@ -173,23 +179,32 @@ public class RequestBuilder {
      * @param <T> le type de la requête a envoyer.
      */
     public static class RequestFinaliser<T extends JsonRequest> {
-        private RequestQueue fileRequetes;
+        private RequestBuilder builder;
         private T request;
-        private RequestFinaliser(RequestQueue fileRequetes, T request) {
-            this.fileRequetes = fileRequetes;
+
+        private RequestFinaliser(RequestBuilder builder, T request) {
+            this.builder = builder;
             this.request = request;
         }
 
         public void send() {
-            fileRequetes.add(request);
+            builder.send(request);
+            builder.reset();
         }
 
-        public T getRequest() {
+        public T get() {
             return request;
         }
 
     }
 
+
+    private void reset() {
+        method(Request.Method.GET);
+        withHeader(new HashMap<>());
+        onError(Throwable::printStackTrace);
+        onSucces(System.out::println);
+    }
 
 
 

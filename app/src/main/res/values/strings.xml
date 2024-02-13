@@ -67,6 +67,6 @@
     <string name="tv_bonjour_utilisateur">Bonjour, %1$s !</string>
     <string name="titre_du_parcours">Titre du parcours</string>
     <string name="description_du_parcours">Description du parcours</string>
-    <string name="numeric_value">000</string>
 
+    <string name="placeBeforeTextSearchBarParcour">Nom du parcour</string>
 </resources>
