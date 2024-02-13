@@ -19,8 +19,8 @@ public class ParcoursViewHolder extends RecyclerView.ViewHolder {
     public ParcoursViewHolder(@NonNull View itemView) {
         super(itemView);
         dateTextView = itemView.findViewById(R.id.parcour_date);
-        titreTextView = itemView.findViewById(R.id.parcour_titre);
-        descriptionTextView = itemView.findViewById(R.id.parcour_description);
+        titreTextView = itemView.findViewById(R.id.tv_titre);
+        descriptionTextView = itemView.findViewById(R.id.tv_description);
         cardView = itemView.findViewById(R.id.item_container);
         titreTextView = itemView.findViewById(R.id.tv_titre);
         descriptionTextView = itemView.findViewById(R.id.tv_description);

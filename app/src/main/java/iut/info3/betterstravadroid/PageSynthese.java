@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,8 @@ public class PageSynthese extends AppCompatActivity {
     private RequestBuilder requestBuilder;
     private ToastMaker toastMaker;
 
+    private String pathId;
+
     private ActivityResultLauncher<Intent> lanceur;
 
     @Override
@@ -50,8 +53,12 @@ public class PageSynthese extends AppCompatActivity {
         View vue = binding.getRoot();
         setContentView(vue);
 
+        lanceur = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::retourModif);
+
         Intent intention = getIntent();
-        String pathId  = intention.getStringExtra("pathId");
+        pathId  = intention.getStringExtra("pathId");
 
         //Gestion des preferences
         preferences = getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
@@ -60,6 +67,7 @@ public class PageSynthese extends AppCompatActivity {
         toastMaker = new ToastMaker();
 
         binding.topbar.ivBackIcon.setOnClickListener(view -> clickNavbar(PATH_PAGE));
+        binding.topbar.ivEditIcon.setOnClickListener(view -> {toEdit();});
 
         binding.navbar.playButton.setVisibility(View.INVISIBLE);
         binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
@@ -108,8 +116,8 @@ public class PageSynthese extends AppCompatActivity {
             c.setTimeInMillis((Long) response.get("date"));
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
             binding.cardRun.parcourDate.setText(sdf.format(c.getTime()));
-            binding.cardRun.parcourTitre.setText((String) response.get("nom"));
-            binding.cardRun.parcourDescription.setText((String) response.get("description"));
+            binding.cardRun.tvTitre.setText((String) response.get("nom"));
+            binding.cardRun.tvDescription.setText((String) response.get("description"));
 
             JSONObject stats = response.getJSONObject("statistiques");
             binding.speedStat.tvSyntheseStat.setText(Double.toString((Double) stats.get("vitesseMoyenne")));
@@ -163,14 +171,12 @@ public class PageSynthese extends AppCompatActivity {
                             Toast.LENGTH_LONG)
                     .show();
         }
-        setContentView(binding.getRoot());
-
-        binding.topbar.ivEditIcon.setOnClickListener(view -> {toEdit(view);});
     }
 
-    public void toEdit(View view) {
+    public void toEdit() {
+        Log.i("truc","truc");
         Intent intent =
-                new Intent(this,
+                new Intent(PageSynthese.this,
                         PageModifParcours.class);
 
         String description = binding.cardRun.tvDescription.getText().toString();
@@ -178,11 +184,8 @@ public class PageSynthese extends AppCompatActivity {
 
         intent.putExtra("description",description );
         intent.putExtra("titre",titre);
-        intent.putExtra("id","bouchon"); //TODO faire passer l'id du parcours selectionner
+        intent.putExtra("id",pathId);
 
-        lanceur = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                this::retourModif);
         lanceur.launch(intent);
 
     }
@@ -194,14 +197,11 @@ public class PageSynthese extends AppCompatActivity {
 
         if (result.getResultCode() == Activity.RESULT_OK) {
             newDescription = intent.getStringExtra("description");
-            newTitre = intent.getStringExtra("titre");
         }else {
             newDescription = binding.cardRun.tvDescription.getText().toString();
-            newTitre = binding.cardRun.tvTitre.getText().toString();
         }
 
         binding.cardRun.tvDescription.setText(newDescription);
-        binding.cardRun.tvDescription.setText(newTitre);
 
     }
 

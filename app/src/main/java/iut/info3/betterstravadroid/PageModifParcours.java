@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,7 +47,6 @@ public class PageModifParcours extends AppCompatActivity {
 
         Intent intention = getIntent();
         idParcours = intention.getStringExtra("id");
-
         String titre = intention.getStringExtra("titre");
         String description = intention.getStringExtra("description");
         binding.editTitre.setText(titre);
@@ -55,6 +55,13 @@ public class PageModifParcours extends AppCompatActivity {
 
         binding.btnAnnuler.setOnClickListener(view -> {onClickAnnuler();});
         binding.btnAnnuler.setOnClickListener(view -> {onClickValider();});
+
+        //Gestion des preferences
+        preferences = this.getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
+
+        context = binding.getRoot().getContext();
+
+        helper = new RequestBuilder(this);
 
     }
 
@@ -89,31 +96,12 @@ public class PageModifParcours extends AppCompatActivity {
 
     public void retourListe(Object object) {
 
-        String newDescritpion = binding.editDescription.getText().toString();
-
         Intent intentionRetour = new Intent();
         String description = binding.editDescription.getText().toString();
         intentionRetour.putExtra("description", description);
         intentionRetour.putExtra("id", idParcours);
         setResult(Activity.RESULT_OK, intentionRetour);
-
-
-        JSONObject body = new JSONObject();
-        HashMap<String,String> header = new HashMap<>();
-        try {
-            body.put("id",idParcours);
-            body.put("description",newDescritpion);
-            header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        helper.onSucces(this::retourListe)
-                .onError(this::handleError)
-                .withHeader(header)
-                .withBody(body)
-                .newJSONObjectRequest(PathApi.PATH_API_MODIF)
-                .send();
+        this.finish();
 
     }
 
@@ -129,6 +117,4 @@ public class PageModifParcours extends AppCompatActivity {
                     .show();
         }
     }
-
-
 }
