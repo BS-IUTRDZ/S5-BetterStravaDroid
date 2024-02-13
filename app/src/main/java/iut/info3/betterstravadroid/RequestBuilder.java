@@ -1,6 +1,7 @@
 package iut.info3.betterstravadroid;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Header;
@@ -61,13 +62,14 @@ public class RequestBuilder {
      *         et la requête
      */
     public RequestFinaliser<JsonObjectRequest> newJSONObjectRequest(String url) {
+        Map<String, String> headers = new HashMap<>(header);
 
         JsonObjectRequest request = new JsonObjectRequest(method,
                 url, (JSONObject) body,
                 onSucces::accept, onError::accept) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return header;
+                return headers;
             }
         };
 
@@ -84,13 +86,13 @@ public class RequestBuilder {
      *         et la requête
      */
     public RequestFinaliser<JsonArrayRequest> newJSONArrayRequest(String url) {
-
+        Map<String, String> headers = new HashMap<>(header);
         JsonArrayRequest request = new JsonArrayRequest(
                 method, url, (JSONArray) body,
                 onSucces::accept, onError::accept) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return header;
+                return headers;
             }
         };
 
@@ -179,13 +181,14 @@ public class RequestBuilder {
     public static class RequestFinaliser<T extends JsonRequest> {
         private RequestBuilder builder;
         private T request;
+
         private RequestFinaliser(RequestBuilder builder, T request) {
             this.builder = builder;
             this.request = request;
         }
 
         public void send() {
-            builder.fileRequetes.add(request);
+            builder.send(request);
             builder.reset();
         }
 
