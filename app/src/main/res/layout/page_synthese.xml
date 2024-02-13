@@ -25,10 +25,10 @@
 
                 <include
                     android:id="@+id/card_run"
+                    layout="@layout/parcour_item"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    layout="@layout/parcour_item"
-                    android:layout_marginBottom="13dp"/>
+                    android:layout_marginBottom="13dp" />
 
                 <org.osmdroid.views.MapView
                     android:id="@+id/mapview"

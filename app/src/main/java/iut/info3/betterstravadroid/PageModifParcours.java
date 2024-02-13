@@ -58,7 +58,7 @@ public class PageModifParcours extends AppCompatActivity {
         binding.btnAnnuler.setOnClickListener(view -> {onClickValider();});
 
         //Gestion des preferences
-        preferences = this.getSharedPreferences(UserPreferences.PREFERENCES_FILE, MODE_PRIVATE);
+        preferences = this.getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         context = binding.getRoot().getContext();
 
