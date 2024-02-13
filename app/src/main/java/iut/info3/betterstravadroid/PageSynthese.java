@@ -7,12 +7,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import android.os.Bundle;
+import android.view.View;
 
 import com.android.volley.VolleyError;
 
@@ -185,6 +189,11 @@ public class PageSynthese extends AppCompatActivity {
         intent.putExtra("description",description );
         intent.putExtra("id",pathId);
 
+        intent.putExtra("id","bouchon"); //TODO faire passer l'id du parcours selectionner
+
+        lanceur = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::retourModif);
         lanceur.launch(intent);
 
     }
@@ -195,12 +204,11 @@ public class PageSynthese extends AppCompatActivity {
 
         if (result.getResultCode() == Activity.RESULT_OK) {
             newDescription = intent.getStringExtra("description");
-        }else {
+        } else {
             newDescription = binding.cardRun.tvDescription.getText().toString();
         }
 
         binding.cardRun.tvDescription.setText(newDescription);
-
     }
 
 }
