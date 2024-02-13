@@ -83,6 +83,7 @@ public class PageParcours extends Fragment {
     private String parcoursDescription;
     public Boolean nouveauParcours = false;
     private Thread threadTimer;
+    private Thread threadVitesseMoyenne;
     private static final String TAG = "PageParcours";
     private int dureeParcours;
 
@@ -125,6 +126,7 @@ public class PageParcours extends Fragment {
                 line.setGeodesic(true);
 
                 pushGeoPoint();
+                calculVitesseMoyenne();
             }
         }
     };
@@ -502,5 +504,35 @@ public class PageParcours extends Fragment {
             }
         };
         threadTimer.start();
+    }
+
+    private void calculVitesseMoyenne() {
+
+        if (threadVitesseMoyenne != null && threadVitesseMoyenne.isAlive()) { return; }
+
+        // On définit le système de calcul de la vitesse moyenne
+        threadVitesseMoyenne = new Thread(() -> {
+            try {
+                double distance = 0;
+
+                // On calcule la distance parcourue
+                for (int i = 0; i < trajet.size() - 1; i++) {
+                    distance += trajet.get(i).distanceToAsDouble(trajet.get(i + 1));
+                }
+
+                // On calcule la vitesse moyenne
+                double vitesseMoyenne = distance / dureeParcours;
+
+                // On met à jour l'affichage
+                ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                    binding.tvVitesseMoyenne.setText(String.format(Locale.FRANCE, "%.2f", vitesseMoyenne));
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        threadVitesseMoyenne.start();
     }
 }
