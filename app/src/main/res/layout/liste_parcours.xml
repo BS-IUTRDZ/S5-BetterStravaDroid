@@ -32,14 +32,14 @@
             android:layout_height="wrap_content">
             <Button
                 android:id="@+id/btn_depuis"
-                android:text="@string/filtre_parcour_date_depuis"
+                android:text="@string/filtre_parcours_date_depuis"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center_horizontal"
                 />
             <Button
                 android:id="@+id/btn_jusqua"
-                android:text="@string/filtre_parcour_date_jusqua"
+                android:text="@string/filtre_parcours_date_jusqua"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center_horizontal"/>
