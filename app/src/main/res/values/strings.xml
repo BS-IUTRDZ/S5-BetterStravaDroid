@@ -64,7 +64,7 @@
 
     <!--                tools help text                             -->
     <string name="date_du_jour">Lundi 4 décembre 2023</string>
-    <string name="tv_bonjour_utilisateur">Bonjour, Clément !</string>
+    <string name="tv_bonjour_utilisateur">Bonjour, %1$s !</string>
     <string name="titre_du_parcours">Titre du parcours</string>
     <string name="description_du_parcours">Description du parcours</string>
     <string name="numeric_value">000</string>

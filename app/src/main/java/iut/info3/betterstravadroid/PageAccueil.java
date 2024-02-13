@@ -2,12 +2,16 @@ package iut.info3.betterstravadroid;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -21,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.time.LocalDate;
@@ -29,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import iut.info3.betterstravadroid.api.PathApi;
 import iut.info3.betterstravadroid.api.UserApi;
@@ -48,8 +54,7 @@ public class PageAccueil extends Fragment {
     }
 
     public static PageAccueil newInstance() {
-        PageAccueil pageAccueil = new PageAccueil();
-        return pageAccueil;
+        return new PageAccueil();
     }
 
     @Override
@@ -72,13 +77,12 @@ public class PageAccueil extends Fragment {
         preferences = this.getActivity().getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         helper = new RequestBuilder(vue.getContext());
+        toastMaker = new ToastMaker();
 
         afficherUserInfos();
         afficherParcours();
 
         return vue;
-
-
     }
 
     /**
@@ -86,16 +90,12 @@ public class PageAccueil extends Fragment {
      * le dernier parcours de l'utilisateur
      */
     public void afficherParcours() {
-        JSONObject body = new JSONObject();
-        try {
-            body.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        Map<String, String> header = new HashMap<>();
+        header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
         // On envoie la requête de recupération du dernier parcours de l'utilisateur
         helper.onSucces(this::setViewParcours)
                 .onError(this::handleError)
-                .withBody(body)
+                .withHeader(header)
                 .newJSONObjectRequest(PathApi.PATH_API_LAST)
                 .send();
     }
@@ -209,21 +209,46 @@ public class PageAccueil extends Fragment {
             line.getOutlinePaint().setStrokeWidth(10);
             line.setPoints(trajet);
             line.setGeodesic(true);
+            line.setInfoWindow(null);
 
             binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false);
 
             // Ajout de l'overlay du trajet sur la carte
             binding.cardLastRun.map.getOverlayManager().add(line);
 
-            binding.cardLastRun.map.addOnFirstLayoutListener((v, left, top, right, bottom) -> {
-                binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false, 200);
-                binding.cardLastRun.map.getController().setCenter(line.getBounds().getCenterWithDateLine());
+            // Centrage de la carte
+            binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false, 200);
+            binding.cardLastRun.map.getController().setCenter(line.getBounds().getCenterWithDateLine());
 
-                // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
-                // cardview qui contient les infos du trajet
-                binding.cardLastRun.map.scrollBy(0, 100);
-                binding.cardLastRun.map.invalidate();
-            });
+            // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
+            // cardview qui contient les infos du trajet
+            binding.cardLastRun.map.scrollBy(0, 100);
+            binding.cardLastRun.map.invalidate();
+
+            // Desactivation du zoom
+            binding.cardLastRun.map.setOnTouchListener(new View.OnTouchListener() {
+                   @Override
+                   public boolean onTouch(View v, MotionEvent event) {
+                       return true;
+                   }
+               }
+            );
+
+            // Icônes de départ et din du parcours
+            Marker startMarker = new Marker(binding.cardLastRun.map);
+            startMarker.setPosition(trajet.get(0));
+            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            startMarker.setIcon(getDrawable(context, R.drawable.start));
+            startMarker.setInfoWindow(null);
+            binding.cardLastRun.map.getOverlays().add(startMarker);
+
+            Marker finishMarker = new Marker(binding.cardLastRun.map);
+            finishMarker.setPosition(trajet.get(trajet.size() - 1));
+            finishMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            finishMarker.setIcon(getDrawable(context, R.drawable.finish));
+            finishMarker.setInfoWindow(null);
+            binding.cardLastRun.map.getOverlays().add(finishMarker);
+
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -246,21 +271,4 @@ public class PageAccueil extends Fragment {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        Log.i("PageAccueil", "onSaveInstanceState");
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onPause() {
-        Log.i("PageAccueil", "onPause");
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        Log.i("PageAccueil", "onResume");
-        super.onResume();
-    }
 }
