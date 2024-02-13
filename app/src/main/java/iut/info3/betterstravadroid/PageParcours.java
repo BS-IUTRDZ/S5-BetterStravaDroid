@@ -52,7 +52,7 @@ import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
-public class PageParcours extends Fragment implements View.OnClickListener, View.OnTouchListener {
+public class PageParcours extends Fragment {
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
     LocationManager locationManager = null;
@@ -179,12 +179,28 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
 
         /* Listener bouton page */
-        binding.btnAjout.setOnClickListener(this);
-        binding.btnStart.setOnClickListener(this);
-        binding.btnStop.setOnTouchListener((View.OnTouchListener) this);
+        binding.btnAjout.setOnClickListener(v -> {
+            if (play) {
+                showAboutPopup();
+            }
+        });
+
+        binding.btnStart.setOnClickListener(v -> {
+            nouveauParcours = true;
+            showAboutPopup();
+        });
+
+        binding.btnStop.setOnTouchListener((v, event) -> {
+            if (v.isPressed() && event.getAction() == MotionEvent.ACTION_UP) {
+                long eventDuration = event.getEventTime() - event.getDownTime();
+                if (eventDuration > ViewConfiguration.getLongPressTimeout()) {
+                    buttonStopPressed();
+                }
+            }
+            return false;
+        });
 
         binding.mapview.getOverlayManager().add(line);
-
         return vue;
     }
 
@@ -275,44 +291,6 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
     }
 
-    @Override
-    public void onClick(View view) {
-
-        if (view.getId() == R.id.btn_ajout) {
-            if (play) {
-                showAboutPopup();
-            }
-        } else if (view.getId() == R.id.btn_start) {
-            nouveauParcours = true;
-            showAboutPopup();
-        } else if (view.getId() == R.id.btn_confirm) {
-            if (nouveauParcours) {
-                parcoursTitre = title.getText().toString();
-                parcoursDescription = description.getText().toString();
-                popup.dismiss();
-                buttonStartPressed();
-            } else{
-                confirmTitleDescription(view);
-            }
-        } else if (view.getId() == R.id.btn_cancel) {
-            popup.dismiss();
-        }
-    }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
-        if (view.getId() == R.id.btn_stop) {
-            if (view.isPressed() && event.getAction() == MotionEvent.ACTION_UP) {
-                long eventDuration = event.getEventTime() - event.getDownTime();
-                if (eventDuration > ViewConfiguration.getLongPressTimeout()) {
-                    buttonStopPressed();
-                }
-            }
-        }
-
-        return false;
-    }
-
 
     private void buttonStartPressed() {
         parcours = true;
@@ -353,8 +331,17 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         description = customLayout.findViewById(R.id.et_description);
 
         /* Listener boutons popup*/
-        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(this);
-        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(this);
+        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(v -> popup.dismiss());
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
+            if (nouveauParcours) {
+                parcoursTitre = title.getText().toString();
+                parcoursDescription = description.getText().toString();
+                popup.dismiss();
+                buttonStartPressed();
+            } else{
+                confirmTitleDescription(null);
+            }
+        });
 
         popup_builder.setView(customLayout);
 
