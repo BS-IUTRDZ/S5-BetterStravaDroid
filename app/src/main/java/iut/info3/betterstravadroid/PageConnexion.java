@@ -55,9 +55,9 @@ public class PageConnexion extends AppCompatActivity {
 
         setHelper(new RequestBuilder(this));
         toastMaker = new ToastMaker();
-        editor = getSharedPreferences(UserPreferences.PREFERENCES_FILE, MODE_PRIVATE).edit();
 
         helper = new RequestBuilder(this);
+        editor = getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE).edit();
     }
 
     public void goToInscription(View view) {

@@ -33,7 +33,7 @@
             android:paddingBottom="5dp">
 
             <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline33_30J"
+                android:id="@+id/guideline_milieu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -41,13 +41,13 @@
 
             <!-- - - - - - - - Distance parcourue - - - - - - - -->
             <LinearLayout
-                android:id="@+id/ll_distance_30J"
+                android:id="@+id/ll_vitesse_moyenne"
                 android:layout_width="106dp"
                 android:layout_height="51dp"
                 android:layout_marginHorizontal="10dp"
                 android:gravity="center"
                 android:orientation="horizontal"
-                app:layout_constraintEnd_toStartOf="@+id/guideline33_30J"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_milieu"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -74,9 +74,9 @@
                 android:gravity="bottom"
                 android:orientation="horizontal"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toStartOf="@+id/guideline33_30J"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_milieu"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_distance_30J">
+                app:layout_constraintTop_toBottomOf="@id/ll_vitesse_moyenne">
 
                 <ImageView
                     android:layout_width="25dp"
@@ -85,7 +85,7 @@
                     android:src="@drawable/rabbit" />
 
                 <TextView
-                    android:id="@+id/tv_distance_30J"
+                    android:id="@+id/tv_vitesse_moyenne"
                     style="@style/fontSegmentDigit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -104,13 +104,13 @@
 
             <!-- - - - - - - - Temps de parcours - - - - - - - -->
             <LinearLayout
-                android:id="@+id/ll_tps_parcours_30J"
+                android:id="@+id/ll_duree_parcours"
                 android:layout_width="137dp"
                 android:layout_height="45dp"
                 android:layout_marginHorizontal="5dp"
                 android:gravity="center"
                 android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="@+id/guideline33_30J"
+                app:layout_constraintStart_toStartOf="@+id/guideline_milieu"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
@@ -138,11 +138,11 @@
                 android:paddingBottom="3dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline33_30J"
-                app:layout_constraintTop_toBottomOf="@id/ll_tps_parcours_30J">
+                app:layout_constraintStart_toStartOf="@+id/guideline_milieu"
+                app:layout_constraintTop_toBottomOf="@id/ll_duree_parcours">
 
                 <TextView
-                    android:id="@+id/tv_tps_parcours_heure_30J"
+                    android:id="@+id/tv_tps_parcours_heure"
                     style="@style/fontSegmentDigit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -157,12 +157,12 @@
                     android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/tv_tps_parcours_minute_30J"
+                    android:id="@+id/tv_tps_parcours_minute"
                     style="@style/fontSegmentDigit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="00"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -173,8 +173,8 @@
                 android:layout_height="0dp"
                 android:background="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/guideline33_30J"
-                app:layout_constraintStart_toStartOf="@id/guideline33_30J"
+                app:layout_constraintEnd_toEndOf="@id/guideline_milieu"
+                app:layout_constraintStart_toStartOf="@id/guideline_milieu"
                 app:layout_constraintTop_toTopOf="parent" />
 
 

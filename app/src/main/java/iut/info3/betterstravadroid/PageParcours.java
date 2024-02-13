@@ -28,7 +28,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
@@ -37,12 +36,12 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
-import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import android.location.Criteria;
 
@@ -50,6 +49,7 @@ import com.android.volley.VolleyError;
 
 import iut.info3.betterstravadroid.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
+import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
 public class PageParcours extends Fragment implements View.OnClickListener, View.OnTouchListener {
@@ -81,6 +81,8 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     private String parcoursTitre;
     private String parcoursDescription;
     public Boolean nouveauParcours = false;
+    private Thread threadTimer;
+    private static final String TAG = "PageParcours";
 
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
@@ -119,10 +121,8 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
                 line.getOutlinePaint().setStrokeWidth(10);
                 line.setPoints(trajet);
                 line.setGeodesic(true);
-                //binding.mapview.getOverlayManager().add(line);
 
                 pushGeoPoint();
-
             }
         }
     };
@@ -167,10 +167,6 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
         initialiserLocalisation();
 
-        CompassOverlay compassOverlay = new CompassOverlay(context, binding.mapview);
-        compassOverlay.enableCompass();
-        binding.mapview.getOverlays().add(compassOverlay);
-
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             // Configuration de la couche de localisation de l'utilisateur
@@ -211,21 +207,13 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
                     trajet.add(userLocation);
 
-                    /*// Créer MyLocationNewOverlay
-                    GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
-                    myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
-                    myLocationOverlay.enableMyLocation();
-
-                    // Ajouter MyLocationNewOverlay à la carte
-                    binding.mapview.getOverlays().add(myLocationOverlay);*/
-
                     // Centrer la carte sur la position de l'utilisateur
                     binding.mapview.getController().setCenter(userLocation);
                     binding.mapview.getController().setZoom(18.0);
 
                 } else {
-                    Toast.makeText( context,
-                            "Aucune position trouver", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context,
+                            "Aucune position trouvée", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -400,14 +388,16 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     public void createPath() {
         try {
             JSONObject object = new JSONObject();
-            object.put("idUtilisateur", 1);
             object.put("description", parcoursDescription);
             object.put("nom", parcoursTitre);
             object.put("date", Calendar.getInstance().getTime().getTime());
-            object.put("points", new JSONArray(new double[]{trajet.get(0).getLatitude(), trajet.get(0).getLongitude()}));
             Log.i("PageParcours", object.toString());
 
+            HashMap<String, String> token = new HashMap<>();
+            token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE, Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
+
             helper.withBody(object)
+                    .withHeader(token)
                     .onError(this::handleError)
                     .onSucces(this::handleResponse)
                     .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
@@ -461,5 +451,40 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
     }
 
+    /**
+     * Thread pour créer le timer de la durée du parcours
+     */
+    private void startThreadTimer() {
+        threadTimer = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    long timeInSeconds = 0;
+                    long currentTime;
+                    while (!isInterrupted()) {
 
+                        currentTime = System.currentTimeMillis();
+                        if (play) {
+                            timeInSeconds += 1;
+                        }
+
+                        // On met à jour le temps si on est à plus d'une minute de différence
+                        if (timeInSeconds % 60 == 0) {
+                            long finalTimeInSeconds = timeInSeconds;
+                            ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                                binding.tvTpsParcoursHeure.setText(String.valueOf(finalTimeInSeconds / 3600));
+                                binding.tvTpsParcoursMinute.setText(String.valueOf((finalTimeInSeconds % 3600) / 60));
+                            });
+                        }
+
+                        // On attend le reste de la seconde qui n'a pas été utilisée pendant le traitement
+                        Thread.sleep(1000 - (System.currentTimeMillis() - currentTime));
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        threadTimer.start();
+    }
 }
