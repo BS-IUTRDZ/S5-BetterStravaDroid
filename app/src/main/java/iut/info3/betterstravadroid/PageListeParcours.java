@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -16,7 +17,10 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +31,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
 import iut.info3.betterstravadroid.parcours.ParcoursItem;
@@ -58,6 +65,9 @@ public class PageListeParcours extends Fragment  {
     private String dateSup;
 
     private String textSearch;
+
+    private int lengthMin;
+    private int lengthMax;
 
 
 
@@ -132,6 +142,16 @@ public class PageListeParcours extends Fragment  {
             }
         });
 
+        binding.lenghtMax.setOnValueChangedListener((numberPicker, oldValue, newValue) -> {
+            lengthMax = newValue;
+            refreshPaths();
+        });
+
+        binding.lenghtMin.setOnValueChangedListener((numberPicker, oldValue, newValue) -> {
+            lengthMin = newValue;
+            refreshPaths();
+        });
+
         LinearLayoutManager gestionnaireLineaire = new LinearLayoutManager(this.getContext());
         binding.recyclerView.setLayoutManager(gestionnaireLineaire);
         refreshPaths();
@@ -156,25 +176,26 @@ public class PageListeParcours extends Fragment  {
         query += "dateInf=" + dateInf;
         query += "&dateSup=" + dateSup;
         query += "&nom=" + parcourName;
-        query += "&token=" + token;
+        //query += "&lengthMin=" + lengthMin;
+        //query += "&lengthMax=" + lengthMax;
 
-        Log.i(tag, query);
-        Log.i(tag, token);
 
-        builder.onError(this::handleError)
+
+
+        builder.addHeader("token", token)
+                .onError(this::handleError)
                 .onSucces(this::handleSucces)
+
                 .newJSONArrayRequest(query).send();
     }
 
     private void handleError(VolleyError error) {
-        Log.i(tag, "Erreur volley");
         parcoursItemList = null;
         error.printStackTrace();
         toastMaker.makeText(activity,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
     }
 
     private void handleSucces(Object body) {
-        Log.i(tag, "Reception des parcours");
         parcoursItemList = new ArrayList<>();
 
         JSONArray array = (JSONArray) body;
@@ -196,8 +217,6 @@ public class PageListeParcours extends Fragment  {
         String token = preferences.getString(UserPreferences.USER_KEY_TOKEN,"None");
         findPaths(token, dateInf, dateSup, textSearch);
     }
-
-
 
 
 
