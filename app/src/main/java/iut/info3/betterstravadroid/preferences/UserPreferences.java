@@ -2,8 +2,7 @@ package iut.info3.betterstravadroid.preferences;
 
 public class UserPreferences {
 
-    public static final String PREFERENCES_FILE = "BetterStrava";
-
+    public static final String PREFERENCE_FILE = "BetterStrava";
     public static final String USER_KEY_TOKEN = "token";
     public static final String USER_KEY_NAME = "nom";
     public static final String USER_KEY_SURNAME = "prenom";

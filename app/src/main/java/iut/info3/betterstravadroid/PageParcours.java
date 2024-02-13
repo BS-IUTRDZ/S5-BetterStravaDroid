@@ -9,19 +9,18 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
@@ -29,25 +28,32 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
-import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
 
 import android.location.Criteria;
 
+import com.android.volley.VolleyError;
+
+import iut.info3.betterstravadroid.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
+import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
-public class PageParcours extends Fragment implements View.OnClickListener, View.OnTouchListener {
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
+public class PageParcours extends Fragment {
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
     LocationManager locationManager = null;
@@ -58,10 +64,9 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     public static Boolean play = false;
 
     public static Boolean parcours = false;
-
     private String fournisseur;
     ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-    private double gLatitute;
+    private double gLatitude;
     private double gLongitude;
     TextView title;
     TextView description;
@@ -70,26 +75,58 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     private PageParcoursBinding binding;
 
     private Context context;
+    private RequestBuilder helper;
+    public static final String API_REQUEST_CREATE_PATH = ApiConfiguration.API_BASE_URL + "path/createPath";
+    public static final String API_REQUEST_ADD_POINT = ApiConfiguration.API_BASE_URL + "path/addPoint";
+    private String parcoursId;
+    private String parcoursTitre;
+    private String parcoursDescription;
+    public Boolean nouveauParcours = false;
+    private Thread threadTimer;
+    private Thread threadVitesseMoyenne;
+    private static final String TAG = "PageParcours";
+    private int dureeParcours;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            result -> {
+                if (result) {
+                    // PERMISSION GRANTED
+
+                    // Configuration de la couche de localisation de l'utilisateur
+                    GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
+                    myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
+                    myLocationOverlay.enableFollowLocation();
+
+                    myLocationOverlay.enableMyLocation();
+                    binding.mapview.getOverlays().add(myLocationOverlay);
+
+                    centerMapOnUser();
+                } else {
+                    // PERMISSION NOT GRANTED
+                    Toast.makeText( context,
+                            "Permission non accordée", Toast.LENGTH_LONG).show();
+                }
+            }
+    );
 
     LocationListener ecouteurGPS = new LocationListener() {
         @Override
-        public void onLocationChanged(Location localisation) {
+        public void onLocationChanged(@NonNull Location localisation) {
 
             if (play) {
                 trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
 
-                gLatitute = localisation.getLatitude();
+                gLatitude = localisation.getLatitude();
                 gLongitude = localisation.getLongitude();
 
-                //line.setSubDescription(Polyline.class.getCanonicalName());
-                line.setWidth(10f);
-                line.setColor(Color.RED);
+                line.getOutlinePaint().setColor(Color.RED);
+                line.getOutlinePaint().setStrokeWidth(10);
                 line.setPoints(trajet);
                 line.setGeodesic(true);
-                //line.setInfoWindow(new BasicInfoWindow(R.layout.bonuspack_bubble, map));
-                binding.mapview.getOverlayManager().add(line);
 
-                //map.invalidate();
+                pushGeoPoint();
+                calculVitesseMoyenne();
             }
         }
     };
@@ -99,8 +136,7 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     }
 
     public static PageParcours newInstance() {
-        PageParcours pageParcours = new PageParcours();
-        return pageParcours;
+        return new PageParcours();
     }
 
     @Override
@@ -109,16 +145,18 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = PageParcoursBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
         context = vue.getContext();
 
+        helper = new RequestBuilder(context);
+
         trajet = new ArrayList<>();
         line = new Polyline(binding.mapview);
-        checkLocationPermission(((MainActivity) inflater.getContext()));
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
 
         Configuration.getInstance().load(context,
                 PreferenceManager.getDefaultSharedPreferences(context));
@@ -133,10 +171,6 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
         initialiserLocalisation();
 
-        CompassOverlay compassOverlay = new CompassOverlay(context, binding.mapview);
-        compassOverlay.enableCompass();
-        binding.mapview.getOverlays().add(compassOverlay);
-
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             // Configuration de la couche de localisation de l'utilisateur
@@ -149,21 +183,29 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
 
         /* Listener bouton page */
-        binding.btnAjout.setOnClickListener(this);
-        binding.btnStart.setOnClickListener(this);
-        binding.btnStop.setOnTouchListener((View.OnTouchListener) this);
+        binding.btnAjout.setOnClickListener(v -> {
+            if (play) {
+                showPopupPoint();
+            }
+        });
 
+        binding.btnStart.setOnClickListener(v -> {
+            nouveauParcours = true;
+            showPopupPoint();
+        });
+
+        binding.btnStop.setOnTouchListener((v, event) -> {
+            if (v.isPressed() && event.getAction() == MotionEvent.ACTION_UP) {
+                long eventDuration = event.getEventTime() - event.getDownTime();
+                if (eventDuration > ViewConfiguration.getLongPressTimeout()) {
+                    buttonStopPressed();
+                }
+            }
+            return false;
+        });
+
+        binding.mapview.getOverlayManager().add(line);
         return vue;
-    }
-
-    // Vérifier la permission d'accès à la localisation
-    private void checkLocationPermission(MainActivity activity) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
     }
 
     private void centerMapOnUser() {
@@ -185,20 +227,13 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
 
                     trajet.add(userLocation);
 
-                    // Créer MyLocationNewOverlay
-                    GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
-                    myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
-                    myLocationOverlay.enableMyLocation();
-
-                    // Ajouter MyLocationNewOverlay à la carte
-                    binding.mapview.getOverlays().add(myLocationOverlay);
-
                     // Centrer la carte sur la position de l'utilisateur
                     binding.mapview.getController().setCenter(userLocation);
                     binding.mapview.getController().setZoom(18.0);
 
                 } else {
-                    // La dernière position connue n'est pas disponible, vous pouvez gérer cela en affichant un message par exemple
+                    Toast.makeText(context,
+                            "Aucune position trouvée", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -230,45 +265,15 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
     }
 
-    // Manipulation de la réponse à la demande de permission
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission accordée centrage de la carte
-                centerMapOnUser();
-            } else {
-                // Permission refusée
-                // TODO message d'erreur disant que sans accepter bah l'appli elle marche pas
-            }
-        }
-    }
-
+    /**
+     * Méthode pour initialiser la localisation. Appelée lors de l'init du fragment.
+     */
     private void initialiserLocalisation()
     {
         if (locationManager == null)
         {
             locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             Criteria criteres = new Criteria();
-
-            /*// la précision  : (ACCURACY_FINE pour une haute précision ou ACCURACY_COARSE pour une moins bonne précision)
-            criteres.setAccuracy(Criteria.ACCURACY_FINE);
-
-            // l'altitude
-            criteres.setAltitudeRequired(true);
-
-            // la direction
-            criteres.setBearingRequired(true);
-
-            // la vitesse
-            criteres.setSpeedRequired(true);
-
-            // la consommation d'énergie demandée
-            criteres.setCostAllowed(true);
-            //criteres.setPowerRequirement(Criteria.POWER_HIGH);
-            criteres.setPowerRequirement(Criteria.POWER_MEDIUM);*/
 
             fournisseur = locationManager.getBestProvider(criteres, true);
         }
@@ -293,35 +298,9 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         }
     }
 
-    @Override
-    public void onClick(View view) {
-
-        if (view.getId() == R.id.btn_ajout) {
-            showAboutPopup();
-        } else if (view.getId() == R.id.btn_start) {
-            buttonStartPressed();
-        } else if (view.getId() == R.id.btn_confirm) {
-            confirmTitleDescription(view);
-        } else if (view.getId() == R.id.btn_cancel) {
-            popup.dismiss();
-        }
-    }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
-        if (view.getId() == R.id.btn_stop) {
-            if (view.isPressed() && event.getAction() == MotionEvent.ACTION_UP) {
-                long eventDuration = event.getEventTime() - event.getDownTime();
-                if (eventDuration > ViewConfiguration.getLongPressTimeout()) {
-                    buttonStopPressed();
-                }
-            }
-        }
-
-        return false;
-    }
-
-
+    /**
+     * Méthode appelée lors du clic sur le bouton "Start"
+     */
     private void buttonStartPressed() {
         parcours = true;
         play = true;
@@ -330,41 +309,74 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         binding.cardViewStop.setCardBackgroundColor(0xFFC3363E);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
+
+        trajet.clear();
+        centerMapOnUser();
+        createPath();
+        startThreadTimer();
     }
 
+    /**
+     * Méthode appelée lors du clic sur le bouton "Stop"
+     */
     private void buttonStopPressed() {
         parcours = false;
+        play = false;
         binding.btnStop.setVisibility(View.INVISIBLE);
         binding.btnStart.setVisibility(View.VISIBLE);
         binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
+
+        nouveauParcours = false;
+        trajet.clear();
+        line.setPoints(trajet);
+        //items.clear();
+
+        // On stoppe le thread du chrono
+        if (threadTimer != null) {
+            threadTimer.interrupt();
+        }
     }
 
-    private void showAboutPopup() {
+    /**
+     * Méthode appelée lors du clic sur le bouton "Ajouter un point d'intérêt" et lors de
+     * la création d'un nouveau parcours.
+     */
+    private void showPopupPoint() {
 
         AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
-
 
         View customLayout = getLayoutInflater().inflate(R.layout.popup_interest_point, null);
         title = customLayout.findViewById(R.id.et_titre);
         description = customLayout.findViewById(R.id.et_description);
 
         /* Listener boutons popup*/
-        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(this);
-        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(this);
-
+        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(v -> popup.dismiss());
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
+            if (nouveauParcours) {
+                parcoursTitre = title.getText().toString();
+                parcoursDescription = description.getText().toString();
+                popup.dismiss();
+                buttonStartPressed();
+            } else{
+                confirmTitleDescription(null);
+            }
+        });
 
         popup_builder.setView(customLayout);
 
         popup = popup_builder.create();
         popup.show();
-
     }
 
+    /**
+     * Méthode appelée lors de la confirmation du titre et de la description du point d'intérêt
+     * @param view la vue (non utilisée)
+     */
     public void confirmTitleDescription(View view){
 
-        items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitute, gLongitude)));
+        items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitude, gLongitude)));
 
         ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(context, items,
                 new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
@@ -377,7 +389,7 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
                     @Override
                     public boolean onItemLongPress(final int index, final OverlayItem item) {
                         return false;
-                        //TODO si le temps suppression du point
+                        //TODO si on veut supprimer point d'interet
                     }
                 });
         //mOverlay.setFocusItemsOnTap(true);
@@ -385,4 +397,142 @@ public class PageParcours extends Fragment implements View.OnClickListener, View
         popup.dismiss();
     }
 
+    /**
+     * Méthode de création du parcours dans l'API. Permet d'obtenir l'id du parcours créé.
+     */
+    public void createPath() {
+        try {
+            JSONObject object = new JSONObject();
+            object.put("description", parcoursDescription);
+            object.put("nom", parcoursTitre);
+            object.put("date", Calendar.getInstance().getTime().getTime());
+            Log.i("PageParcours", object.toString());
+
+            HashMap<String, String> token = new HashMap<>();
+            token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE, Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
+
+            helper.withBody(object)
+                    .withHeader(token)
+                    .onError(error -> {
+                        Log.i("ReponseKo", "Requete Ko");
+                        try {
+                            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                        } catch (JSONException e) {
+                            ToastMaker toastMaker = new ToastMaker();
+                            Toast toast = toastMaker.makeText(context, "Erreur lors de la création du parcours", Toast.LENGTH_SHORT);
+                        }
+                    })
+                    .onSucces(o -> {
+                        try {
+                            JSONObject response = (JSONObject) o;
+                            parcoursId = response.getString("id");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
+                    .send();
+        } catch (IllegalArgumentException e) {
+            //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+            //toast.show();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Méthode permettant d'ajouter un point géographique à un parcours via son id.
+     */
+    public void pushGeoPoint() {
+        try {
+            JSONObject object = new JSONObject();
+            object.put("id", parcoursId);
+            object.put("longitude", gLongitude);
+            object.put("latitude", gLatitude);
+            Log.i("IdParcours", parcoursId);
+
+            new RequestBuilder(context).withBody(object)
+                    .newJSONObjectRequest(API_REQUEST_ADD_POINT)
+                    .send();
+        } catch (IllegalArgumentException e) {
+            //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+            //toast.show();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Thread pour créer le timer de la durée du parcours
+     */
+    private void startThreadTimer() {
+        threadTimer = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    // On réinitialise le temps
+                    ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                        binding.tvTpsParcoursHeure.setText("00");
+                        binding.tvTpsParcoursMinute.setText("00");
+                    });
+                    dureeParcours = 0;
+                    long currentTime;
+
+                    // On démarre le timer
+                    while (!isInterrupted()) {
+                        currentTime = System.currentTimeMillis();
+                        if (play) {
+                            dureeParcours += 1;
+                        }
+
+                        // On met à jour le temps si on est à plus d'une minute de différence
+                        if (dureeParcours % 60 == 0) {
+                            long finalTimeInSeconds = dureeParcours;
+                            ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                                binding.tvTpsParcoursHeure.setText(String.format(Locale.FRANCE, "%02d", finalTimeInSeconds / 3600));
+                                binding.tvTpsParcoursMinute.setText(String.format(Locale.FRANCE, "%02d",(finalTimeInSeconds % 3600) / 60));
+                            });
+                        }
+
+                        // On attend le reste de la seconde qui n'a pas été utilisée pendant le traitement
+                        Thread.sleep(1000 - (System.currentTimeMillis() - currentTime));
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        threadTimer.start();
+    }
+
+    private void calculVitesseMoyenne() {
+
+        if (threadVitesseMoyenne != null && threadVitesseMoyenne.isAlive()) { return; }
+
+        // On définit le système de calcul de la vitesse moyenne
+        threadVitesseMoyenne = new Thread(() -> {
+            try {
+                double distance = 0;
+
+                // On calcule la distance parcourue
+                for (int i = 0; i < trajet.size() - 1; i++) {
+                    distance += trajet.get(i).distanceToAsDouble(trajet.get(i + 1));
+                }
+
+                // On calcule la vitesse moyenne
+                double vitesseMoyenne = distance / dureeParcours;
+
+                // On met à jour l'affichage
+                ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                    binding.tvVitesseMoyenne.setText(String.format(Locale.FRANCE, "%.2f", vitesseMoyenne));
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        threadVitesseMoyenne.start();
+    }
 }
