@@ -42,6 +42,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import android.location.Criteria;
 
@@ -83,6 +84,7 @@ public class PageParcours extends Fragment {
     public Boolean nouveauParcours = false;
     private Thread threadTimer;
     private static final String TAG = "PageParcours";
+    private int dureeParcours;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
@@ -181,13 +183,13 @@ public class PageParcours extends Fragment {
         /* Listener bouton page */
         binding.btnAjout.setOnClickListener(v -> {
             if (play) {
-                showAboutPopup();
+                showPopupPoint();
             }
         });
 
         binding.btnStart.setOnClickListener(v -> {
             nouveauParcours = true;
-            showAboutPopup();
+            showPopupPoint();
         });
 
         binding.btnStop.setOnTouchListener((v, event) -> {
@@ -261,6 +263,9 @@ public class PageParcours extends Fragment {
         }
     }
 
+    /**
+     * Méthode pour initialiser la localisation. Appelée lors de l'init du fragment.
+     */
     private void initialiserLocalisation()
     {
         if (locationManager == null)
@@ -291,7 +296,9 @@ public class PageParcours extends Fragment {
         }
     }
 
-
+    /**
+     * Méthode appelée lors du clic sur le bouton "Start"
+     */
     private void buttonStartPressed() {
         parcours = true;
         play = true;
@@ -304,8 +311,12 @@ public class PageParcours extends Fragment {
         trajet.clear();
         centerMapOnUser();
         createPath();
+        startThreadTimer();
     }
 
+    /**
+     * Méthode appelée lors du clic sur le bouton "Stop"
+     */
     private void buttonStopPressed() {
         parcours = false;
         play = false;
@@ -320,9 +331,17 @@ public class PageParcours extends Fragment {
         line.setPoints(trajet);
         //items.clear();
 
+        // On stoppe le thread du chrono
+        if (threadTimer != null) {
+            threadTimer.interrupt();
+        }
     }
 
-    private void showAboutPopup() {
+    /**
+     * Méthode appelée lors du clic sur le bouton "Ajouter un point d'intérêt" et lors de
+     * la création d'un nouveau parcours.
+     */
+    private void showPopupPoint() {
 
         AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
 
@@ -349,6 +368,10 @@ public class PageParcours extends Fragment {
         popup.show();
     }
 
+    /**
+     * Méthode appelée lors de la confirmation du titre et de la description du point d'intérêt
+     * @param view la vue (non utilisée)
+     */
     public void confirmTitleDescription(View view){
 
         items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitude, gLongitude)));
@@ -372,6 +395,9 @@ public class PageParcours extends Fragment {
         popup.dismiss();
     }
 
+    /**
+     * Méthode de création du parcours dans l'API. Permet d'obtenir l'id du parcours créé.
+     */
     public void createPath() {
         try {
             JSONObject object = new JSONObject();
@@ -385,8 +411,23 @@ public class PageParcours extends Fragment {
 
             helper.withBody(object)
                     .withHeader(token)
-                    .onError(this::handleError)
-                    .onSucces(this::handleResponse)
+                    .onError(error -> {
+                        Log.i("ReponseKo", "Requete Ko");
+                        try {
+                            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                        } catch (JSONException e) {
+                            ToastMaker toastMaker = new ToastMaker();
+                            Toast toast = toastMaker.makeText(context, "Erreur lors de la création du parcours", Toast.LENGTH_SHORT);
+                        }
+                    })
+                    .onSucces(o -> {
+                        try {
+                            JSONObject response = (JSONObject) o;
+                            parcoursId = response.getString("id");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
                     .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
                     .send();
         } catch (IllegalArgumentException e) {
@@ -397,6 +438,9 @@ public class PageParcours extends Fragment {
         }
     }
 
+    /**
+     * Méthode permettant d'ajouter un point géographique à un parcours via son id.
+     */
     public void pushGeoPoint() {
         try {
             JSONObject object = new JSONObject();
@@ -416,27 +460,6 @@ public class PageParcours extends Fragment {
         }
     }
 
-    public void handleResponse(Object object) {
-        try {
-            JSONObject response = (JSONObject) object;
-            parcoursId = response.getString("id");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    public void handleError(VolleyError error) {
-        Log.i("ReponseKo", "Requete Ko");
-        //TODO toast d'erreur
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-//            String message = reponse.optString("erreur");
-//            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-//            toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
-        }
-    }
 
     /**
      * Thread pour créer le timer de la durée du parcours
@@ -446,21 +469,27 @@ public class PageParcours extends Fragment {
             @Override
             public void run() {
                 try {
-                    long timeInSeconds = 0;
+                    // On réinitialise le temps
+                    ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                        binding.tvTpsParcoursHeure.setText("00");
+                        binding.tvTpsParcoursMinute.setText("00");
+                    });
+                    dureeParcours = 0;
                     long currentTime;
-                    while (!isInterrupted()) {
 
+                    // On démarre le timer
+                    while (!isInterrupted()) {
                         currentTime = System.currentTimeMillis();
                         if (play) {
-                            timeInSeconds += 1;
+                            dureeParcours += 1;
                         }
 
                         // On met à jour le temps si on est à plus d'une minute de différence
-                        if (timeInSeconds % 60 == 0) {
-                            long finalTimeInSeconds = timeInSeconds;
+                        if (dureeParcours % 60 == 0) {
+                            long finalTimeInSeconds = dureeParcours;
                             ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
-                                binding.tvTpsParcoursHeure.setText(String.valueOf(finalTimeInSeconds / 3600));
-                                binding.tvTpsParcoursMinute.setText(String.valueOf((finalTimeInSeconds % 3600) / 60));
+                                binding.tvTpsParcoursHeure.setText(String.format(Locale.FRANCE, "%02d", finalTimeInSeconds / 3600));
+                                binding.tvTpsParcoursMinute.setText(String.format(Locale.FRANCE, "%02d",(finalTimeInSeconds % 3600) / 60));
                             });
                         }
 
