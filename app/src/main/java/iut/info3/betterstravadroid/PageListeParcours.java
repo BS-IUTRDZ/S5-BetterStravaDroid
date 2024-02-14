@@ -138,19 +138,35 @@ public class PageListeParcours extends Fragment  {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty()) {
+                    textSearch = "";
+                    refreshPaths();
+                }
                 return true;
             }
         });
 
+        binding.lenghtMax.setMinValue(0);
+        binding.lenghtMax.setMaxValue(300);
+        binding.lenghtMin.setMinValue(0);
+        binding.lenghtMin.setMaxValue(300);
+
         binding.lenghtMax.setOnValueChangedListener((numberPicker, oldValue, newValue) -> {
             lengthMax = newValue;
+            numberPicker.setValue(newValue);
             refreshPaths();
         });
 
         binding.lenghtMin.setOnValueChangedListener((numberPicker, oldValue, newValue) -> {
+            Log.i(tag, "" + newValue);
             lengthMin = newValue;
+            numberPicker.setValue(newValue);
             refreshPaths();
         });
+
+
+
+
 
         LinearLayoutManager gestionnaireLineaire = new LinearLayoutManager(this.getContext());
         binding.recyclerView.setLayoutManager(gestionnaireLineaire);
@@ -176,8 +192,8 @@ public class PageListeParcours extends Fragment  {
         query += "dateInf=" + dateInf;
         query += "&dateSup=" + dateSup;
         query += "&nom=" + parcourName;
-        //query += "&lengthMin=" + lengthMin;
-        //query += "&lengthMax=" + lengthMax;
+        query += "&distanceMin=" + lengthMin;
+        query += "&distanceMax=" + lengthMax;
 
 
 
