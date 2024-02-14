@@ -18,8 +18,11 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.content.res.AppCompatResources;
+
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
 import iut.info3.betterstravadroid.parcours.ParcoursItem;
@@ -56,11 +60,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     private PathFinder finder;
     private ActivityResultLauncher<Intent> launcher;
 
-
-
-
-
-
     public PageListeParcours() {
         //Require empty public constructor
     }
@@ -86,8 +85,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         super.onCreate(savedInstanceState);
 
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

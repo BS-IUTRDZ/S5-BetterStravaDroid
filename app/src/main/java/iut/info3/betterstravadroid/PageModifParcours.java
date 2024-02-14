@@ -59,6 +59,8 @@ public class PageModifParcours extends AppCompatActivity {
 
         binding.topbar.ivBackIcon.setOnClickListener(view -> this.finish());
 
+        toastMaker = new ToastMaker();
+
         binding.btnAnnuler.setOnClickListener(view -> {onClickAnnuler();});
         binding.btnValider.setOnClickListener(view -> {onClickValider();});
 

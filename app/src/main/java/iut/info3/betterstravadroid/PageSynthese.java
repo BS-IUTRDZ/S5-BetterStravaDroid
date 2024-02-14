@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 
@@ -30,9 +31,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import java.util.HashMap;
+
 import iut.info3.betterstravadroid.api.PathApi;
 import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
+
 import iut.info3.betterstravadroid.utils.MapHandler;
 
 public class PageSynthese extends AppCompatActivity {
@@ -52,6 +56,8 @@ public class PageSynthese extends AppCompatActivity {
     private Context context;
 
     private AlertDialog popup;
+
+    private RequestBuilder helper;
 
     private ActivityResultLauncher<Intent> lanceur;
 
@@ -167,23 +173,6 @@ public class PageSynthese extends AppCompatActivity {
         }
     }
 
-    /**
-     * Affichage d'un toast en cas d'erreur de l'API
-     * @param error erreur envoyée par l'API
-     */
-    private void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-            toastMaker.makeText(this,
-                            "Erreur lors de la récupération des informations",
-                            Toast.LENGTH_LONG)
-                    .show();
-        }
-    }
-
     public void toEdit() {
         Intent intent =
                 new Intent(PageSynthese.this,
@@ -196,11 +185,6 @@ public class PageSynthese extends AppCompatActivity {
         intent.putExtra("description",description );
         intent.putExtra("id",pathId);
 
-        intent.putExtra("id","bouchon"); //TODO faire passer l'id du parcours selectionner
-
-        lanceur = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                this::retourModif);
         lanceur.launch(intent);
 
     }
@@ -223,7 +207,7 @@ public class PageSynthese extends AppCompatActivity {
 
         View customLayout = getLayoutInflater().inflate(R.layout.popup_supression_parcours, null);
 
-        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(view1 -> {confirmSUpr(view1);});
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(view1 -> {confirmSupr(view1);});
         customLayout.findViewById(R.id.btn_cancel).setOnClickListener(view1 -> {popup.dismiss();});
 
         popup_builder.setView(customLayout);
@@ -233,12 +217,43 @@ public class PageSynthese extends AppCompatActivity {
 
     }
 
-    public void confirmSUpr(View view){
+    public void confirmSupr(View view){
 
-        //TODO appel a la route api pour suppr parcours
+        JSONObject body = new JSONObject();
+        HashMap<String,String> header = new HashMap<>();
+        try {
+            body.put("id","idParcours"); //TODO faire passer l'id du parcours
+            header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        helper.withHeader(header)
+                .onError(this::handleError)
+                .withHeader(header)
+                .withBody(body)
+                .newJSONObjectRequest(PathApi.PATH_API_MODIF)
+                .send();
 
         popup.dismiss();
 
+    }
+
+    /**
+     * Affichage d'un toast en cas d'erreur de l'API
+     * @param error erreur envoyée par l'API
+     */
+    public void handleError(VolleyError error) {
+        try {
+            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+            String message = reponse.optString("erreur");
+            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
+        } catch (JSONException e) {
+            toastMaker.makeText(context,
+                            "Erreur lors de la modification de la description",
+                            Toast.LENGTH_LONG)
+                    .show();
+        }
     }
 
 }
