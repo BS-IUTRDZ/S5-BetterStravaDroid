@@ -23,6 +23,9 @@
     <string name="filtre_parcours_date_depuis">Depuis</string>
     <string name="filtre_parcours_date_jusqua">Jusqu\'a</string>
     <string name="valider">Valider</string>
+    <string name="titreConfSupr">Confirmez-vous la suppression ?</string>
+    <string name="txtConfSupr">Si vous confirmez, votre parcours sera définitivement supprimé</string>
+
 
     <!--                Synthèse titre                              -->
     <string name="distance_parcourue">Distance parcourue</string>

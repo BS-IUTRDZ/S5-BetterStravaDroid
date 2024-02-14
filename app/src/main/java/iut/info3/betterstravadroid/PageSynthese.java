@@ -6,6 +6,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
@@ -47,6 +49,10 @@ public class PageSynthese extends AppCompatActivity {
 
     private String pathId;
 
+    private Context context;
+
+    private AlertDialog popup;
+
     private ActivityResultLauncher<Intent> lanceur;
 
     @Override
@@ -78,6 +84,7 @@ public class PageSynthese extends AppCompatActivity {
 
         binding.navbar.homeButtonInactive.setOnClickListener(v -> clickNavbar(HOME_PAGE));
         binding.navbar.pathButtonInactive.setOnClickListener(v -> clickNavbar(PATH_PAGE));
+        binding.topbar.ivTrashIcon.setOnClickListener(view -> {affichPopUpSupr(view);});
 
         getPath(pathId);
     }
@@ -209,6 +216,29 @@ public class PageSynthese extends AppCompatActivity {
         }
 
         binding.cardRun.tvDescription.setText(newDescription);
+    }
+
+    public void affichPopUpSupr(View view){
+        AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
+
+        View customLayout = getLayoutInflater().inflate(R.layout.popup_supression_parcours, null);
+
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(view1 -> {confirmSUpr(view1);});
+        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(view1 -> {popup.dismiss();});
+
+        popup_builder.setView(customLayout);
+        popup = popup_builder.create();
+        popup.show();
+
+
+    }
+
+    public void confirmSUpr(View view){
+
+        //TODO appel a la route api pour suppr parcours
+
+        popup.dismiss();
+
     }
 
 }
