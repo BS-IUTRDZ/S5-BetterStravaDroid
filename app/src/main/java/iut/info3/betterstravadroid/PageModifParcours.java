@@ -48,7 +48,6 @@ public class PageModifParcours extends AppCompatActivity {
 
         Intent intention = getIntent();
         idParcours = intention.getStringExtra("id");
-
         String titre = intention.getStringExtra("titre");
         String description = intention.getStringExtra("description");
         binding.editTitre.setText(titre);
