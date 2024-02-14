@@ -38,36 +38,25 @@ import java.util.Map;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
 import iut.info3.betterstravadroid.parcours.ParcoursItem;
+import iut.info3.betterstravadroid.parcours.PathFinder;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 public class PageListeParcours extends Fragment  {
 
-    private List<ParcoursItem> parcoursItemList;
 
     private static final String tag = "PageListeParcours";
 
-    private ListeParcoursBinding binding;
     private ParcoursAdaptateur parcoursAdaptateur;
-
-    private SharedPreferences preferences;
 
     private Activity activity;
 
+    private ToastMaker toastMaker;
 
     private DatePickerDialog datePickerFrom;
     private DatePickerDialog datePickerTo;
-    private ToastMaker toastMaker;
 
-    private String dateInf;
+    private PathFinder finder;
 
-    private RequestBuilder builder;
-
-    private String dateSup;
-
-    private String textSearch;
-
-    private int lengthMin;
-    private int lengthMax;
 
 
 
@@ -80,13 +69,10 @@ public class PageListeParcours extends Fragment  {
 
     public static PageListeParcours newInstance(Activity activity) {
         PageListeParcours pageListeParcours = new PageListeParcours();
-        pageListeParcours.preferences =
-                activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
-        pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
+
 
         pageListeParcours.activity = activity;
         pageListeParcours.toastMaker = new ToastMaker();
-        pageListeParcours.builder = new RequestBuilder(activity);
         return pageListeParcours;
     }
 
@@ -98,29 +84,56 @@ public class PageListeParcours extends Fragment  {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        ListeParcoursBinding binding = ListeParcoursBinding.inflate(inflater, container, false);
+        View vue = binding.getRoot();
+
         datePickerFrom = new DatePickerDialog(activity);
         datePickerTo = new DatePickerDialog(activity);
+        initDateSelector(binding);
+        initTextSelector(binding);
+        initLengthSelector(binding);
+
+        finder = new PathFinder(activity);
+
+        finder.setOnPathsUpdate(parcoursItemList -> {
+            parcoursAdaptateur = new ParcoursAdaptateur(parcoursItemList);
+            binding.recyclerView.setAdapter(parcoursAdaptateur);
+        });
+
+        finder.setOnError(error -> {
+            toastMaker.makeText(activity,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
+        });
+
+
+        LinearLayoutManager gestionnaireLineaire = new LinearLayoutManager(this.getContext());
+        binding.recyclerView.setLayoutManager(gestionnaireLineaire);
+
+        finder.findPaths();
+
+        return vue;
+
+    }
+
+
+
+    private void initDateSelector(ListeParcoursBinding binding) {
+
+
         datePickerFrom.setOnDateSetListener((view, year, month, dayOfMonth) -> {
             String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
                     format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             binding.btnDepuis.setText(date);
-            dateInf = date;
-            refreshPaths();
+            finder.setDateInf(date);
         });
 
         datePickerTo.setOnDateSetListener((view, year, month, dayOfMonth) -> {
             String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
                     format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             binding.btnJusqua.setText(date);
-            dateSup = date;
-            refreshPaths();
+            finder.setDateSup(date);
         });
 
-        binding = ListeParcoursBinding.inflate(inflater, container, false);
-
-
-        View vue = binding.getRoot();
-        //Gestion du RecyclerView
         binding.btnJusqua.setOnClickListener(view -> {
             datePickerTo.show();
         });
@@ -128,111 +141,46 @@ public class PageListeParcours extends Fragment  {
             datePickerFrom.show();
         });
 
+
+    }
+
+    private void initTextSelector(ListeParcoursBinding binding) {
         binding.searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                textSearch = query;
-                refreshPaths();
+                finder.setTextSearch(query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    textSearch = "";
-                    refreshPaths();
+                    finder.setTextSearch("");
                 }
                 return true;
             }
         });
+    }
 
+
+    private void initLengthSelector(ListeParcoursBinding binding) {
         binding.lenghtMax.setMinValue(0);
         binding.lenghtMax.setMaxValue(300);
         binding.lenghtMin.setMinValue(0);
         binding.lenghtMin.setMaxValue(300);
 
         binding.lenghtMax.setOnValueChangedListener((numberPicker, oldValue, newValue) -> {
-            lengthMax = newValue;
+            finder.setLengthMax(newValue);
             numberPicker.setValue(newValue);
-            refreshPaths();
         });
 
         binding.lenghtMin.setOnValueChangedListener((numberPicker, oldValue, newValue) -> {
-            Log.i(tag, "" + newValue);
-            lengthMin = newValue;
+            finder.setLengthMin(newValue);
             numberPicker.setValue(newValue);
-            refreshPaths();
+
         });
-
-
-
-
-
-        LinearLayoutManager gestionnaireLineaire = new LinearLayoutManager(this.getContext());
-        binding.recyclerView.setLayoutManager(gestionnaireLineaire);
-        refreshPaths();
-
-        return vue;
-
     }
 
-    public void findPaths(String token,
-                          @Nullable String dateInf,
-                          @Nullable String dateSup,
-                          @Nullable String parcourName) {
-
-        String query = ParcoursItem.GET_ALL_PARCOUR + "?";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        if (dateInf == null) dateInf = "01/01/2024";
-        if (dateSup == null) dateSup = formatter
-                .format(LocalDate.now().plus(1, ChronoUnit.DAYS));
-        if (parcourName == null) parcourName = "";
-
-        query += "dateInf=" + dateInf;
-        query += "&dateSup=" + dateSup;
-        query += "&nom=" + parcourName;
-        query += "&distanceMin=" + lengthMin;
-        query += "&distanceMax=" + lengthMax;
-
-
-
-
-        builder.addHeader("token", token)
-                .onError(this::handleError)
-                .onSucces(this::handleSucces)
-
-                .newJSONArrayRequest(query).send();
-    }
-
-    private void handleError(VolleyError error) {
-        parcoursItemList = null;
-        error.printStackTrace();
-        toastMaker.makeText(activity,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
-    }
-
-    private void handleSucces(Object body) {
-        parcoursItemList = new ArrayList<>();
-
-        JSONArray array = (JSONArray) body;
-        try {
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject jsonObject = array.getJSONObject(i);
-                parcoursItemList.add(new ParcoursItem(jsonObject));
-            }
-            parcoursAdaptateur = new ParcoursAdaptateur(parcoursItemList);
-            binding.recyclerView.setAdapter(parcoursAdaptateur);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-
-    public void refreshPaths() {
-        String token = preferences.getString(UserPreferences.USER_KEY_TOKEN,"None");
-        findPaths(token, dateInf, dateSup, textSearch);
-    }
 
 
 
