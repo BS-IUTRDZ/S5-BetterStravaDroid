@@ -51,13 +51,13 @@
             <NumberPicker
                 android:id="@+id/lenghtMin"
                 android:layout_width="200dp"
-                android:layout_height="50dp">
+                android:layout_height="wrap_content">
 
             </NumberPicker>
             <NumberPicker
                 android:id="@+id/lenghtMax"
                 android:layout_width="200dp"
-                android:layout_height="50dp">
+                android:layout_height="wrap_content">
 
             </NumberPicker>
         </LinearLayout>
