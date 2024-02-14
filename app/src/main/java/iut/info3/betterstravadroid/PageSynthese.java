@@ -2,6 +2,7 @@ package iut.info3.betterstravadroid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
@@ -16,6 +17,11 @@ public class PageSynthese extends AppCompatActivity {
         
         binding = PageSyntheseBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Intent intention = getIntent();
+        String information  = intention.getStringExtra("idPath");
+
+        binding.cardRun.parcourTitre.setText(information);
     }
 
 }

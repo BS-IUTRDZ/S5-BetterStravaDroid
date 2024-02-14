@@ -3,6 +3,7 @@ package iut.info3.betterstravadroid;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,7 +42,7 @@ import iut.info3.betterstravadroid.parcours.ParcoursItem;
 import iut.info3.betterstravadroid.parcours.PathFinder;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-public class PageListeParcours extends Fragment  {
+public class PageListeParcours extends Fragment implements RecyclerViewInterface {
 
 
     private static final String tag = "PageListeParcours";
@@ -181,12 +182,69 @@ public class PageListeParcours extends Fragment  {
         });
     }
 
+    public void findPaths(String token,
+                          @Nullable String dateInf,
+                          @Nullable String dateSup,
+                          @Nullable String parcourName) {
+
+        String query = ParcoursItem.GET_ALL_PARCOUR + "?";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        if (dateInf == null) dateInf = "01/01/2024";
+        if (dateSup == null) dateSup = formatter
+                .format(LocalDate.now().plus(1, ChronoUnit.DAYS));
+        if (parcourName == null) parcourName = "";
+
+        query += "dateInf=" + dateInf;
+        query += "&dateSup=" + dateSup;
+        query += "&nom=" + parcourName;
+        //query += "&lengthMin=" + lengthMin;
+        //query += "&lengthMax=" + lengthMax;
+
+        builder.addHeader("token", token)
+                .onError(this::handleError)
+                .onSucces(this::handleSucces)
+                .newJSONArrayRequest(query).send();
+    }
+
+    private void handleError(VolleyError error) {
+        parcoursItemList = null;
+        error.printStackTrace();
+        toastMaker.makeText(activity,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
+    }
+
+    private void handleSucces(Object body) {
+        parcoursItemList = new ArrayList<>();
+
+        JSONArray array = (JSONArray) body;
+        try {
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject jsonObject = array.getJSONObject(i);
+                parcoursItemList.add(new ParcoursItem(jsonObject));
+            }
+            parcoursAdaptateur = new ParcoursAdaptateur(parcoursItemList, this);
+            binding.recyclerView.setAdapter(parcoursAdaptateur);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 
+    public void refreshPaths() {
+        String token = preferences.getString(UserPreferences.USER_KEY_TOKEN,"None");
+        findPaths(token, dateInf, dateSup, textSearch);
+    }
 
+    @Override
+    public void onItemClick(ParcoursItem parcoursItem) {
 
+        // création d'une intention
+        Intent intention = new Intent(getActivity(), PageSynthese.class);
 
-
-
-
+        // transmission de l'id du parcours
+        intention.putExtra("idPath", parcoursItem.getId());
+        // lancement de l'activité fille
+        startActivity(intention);
+    }
 }

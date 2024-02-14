@@ -10,14 +10,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import iut.info3.betterstravadroid.R;
+import iut.info3.betterstravadroid.RecyclerViewInterface;
 
 public class ParcoursAdaptateur extends RecyclerView.Adapter<ParcoursViewHolder> {
 
+    private final RecyclerViewInterface recyclerViewInterface;
 
     private List<ParcoursItem> lesParcours;
 
-    public ParcoursAdaptateur(List<ParcoursItem> donnees) {
+    public ParcoursAdaptateur(List<ParcoursItem> donnees, RecyclerViewInterface recyclerViewInterface) {
         lesParcours = donnees;
+        this.recyclerViewInterface = recyclerViewInterface;
     }
 
     @NonNull
@@ -31,6 +34,14 @@ public class ParcoursAdaptateur extends RecyclerView.Adapter<ParcoursViewHolder>
     @Override
     public void onBindViewHolder(@NonNull ParcoursViewHolder holder, int position) {
         ParcoursItem myObject = lesParcours.get(position);
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recyclerViewInterface.onItemClick(lesParcours.get(position));
+            }
+        });
+
         holder.bind(myObject);
     }
 
