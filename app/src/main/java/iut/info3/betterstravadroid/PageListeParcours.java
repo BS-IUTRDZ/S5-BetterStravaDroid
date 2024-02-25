@@ -243,7 +243,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         Intent intention = new Intent(getActivity(), PageSynthese.class);
 
         // transmission de l'id du parcours
-        intention.putExtra("idPath", parcoursItem.getId());
+        intention.putExtra("pathId", parcoursItem.getId());
         // lancement de l'activité fille
         startActivity(intention);
     }
