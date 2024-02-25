@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.VolleyError;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.util.BoundingBox;
@@ -198,10 +199,11 @@ public class PageAccueil extends Fragment {
             List<GeoPoint> trajet = new ArrayList<>();
 
             // Création du trajet
-            JSONObject points = response.getJSONObject("points");
+            JSONArray points = response.getJSONArray("points");
             for (int i = 0; i < points.length(); i++) {
-                double latitude = (double) points.getJSONObject("point" + i).get("latitude");
-                double longitude = (double) points.getJSONObject("point" + i).get("longitude");
+                JSONObject point = points.getJSONObject(i);
+                double latitude = (double) point.get("latitude");
+                double longitude = (double) point.get("longitude");
                 trajet.add(new GeoPoint(latitude, longitude));
             }
 
