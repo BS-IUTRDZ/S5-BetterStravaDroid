@@ -2,6 +2,7 @@ package iut.info3.betterstravadroid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -26,6 +27,11 @@ import iut.info3.betterstravadroid.utils.MapHandler;
 
 public class PageSynthese extends AppCompatActivity {
 
+    public static final String KEY_PAGE = "page";
+
+    public static final String HOME_PAGE = "home";
+    public static final String PATH_PAGE = "path";
+
     private PageSyntheseBinding binding;
     private SharedPreferences preferences;
     private RequestBuilder requestBuilder;
@@ -48,15 +54,24 @@ public class PageSynthese extends AppCompatActivity {
         requestBuilder = new RequestBuilder(vue.getContext());
         toastMaker = new ToastMaker();
 
-        binding.topbar.ivBackIcon.setOnClickListener(view -> back());
+        binding.topbar.ivBackIcon.setOnClickListener(view -> clickNavbar(PATH_PAGE));
+
+        binding.navbar.playButton.setVisibility(View.INVISIBLE);
+        binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+
+        binding.navbar.homeButtonInactive.setOnClickListener(v -> clickNavbar(HOME_PAGE));
+        binding.navbar.pathButtonInactive.setOnClickListener(v -> clickNavbar(PATH_PAGE));
 
         getPath(pathId);
     }
 
-    private void back() {
+
+    private void clickNavbar(String pageName) {
+        Intent intent = new Intent();
+        intent.putExtra(KEY_PAGE, pageName);
+        setResult(Activity.RESULT_OK, intent);
         finish();
     }
-
 
     /**
      * Accès au serveur API pour récupérer le parcours
@@ -80,7 +95,7 @@ public class PageSynthese extends AppCompatActivity {
      * </ul>
      * @param object réponse de l'API
      */
-    public void setViewContent(Object object) {
+    private void setViewContent(Object object) {
         JSONObject response = (JSONObject) object;
         try {
 
@@ -132,7 +147,7 @@ public class PageSynthese extends AppCompatActivity {
      * Affichage d'un toast en cas d'erreur de l'API
      * @param error erreur envoyée par l'API
      */
-    public void handleError(VolleyError error) {
+    private void handleError(VolleyError error) {
         try {
             JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
             String message = reponse.optString("erreur");

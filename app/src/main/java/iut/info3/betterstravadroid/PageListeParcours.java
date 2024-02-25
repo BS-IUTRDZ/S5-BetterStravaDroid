@@ -6,35 +6,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
@@ -58,6 +53,8 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private PathFinder finder;
 
+
+    private ActivityResultLauncher<Intent> launcher;
 
 
 
@@ -180,6 +177,17 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
             numberPicker.setValue(newValue);
 
         });
+
+        LinearLayoutManager gestionnaireLineaire = new LinearLayoutManager(this.getContext());
+        binding.recyclerView.setLayoutManager(gestionnaireLineaire);
+
+        launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::goToPage);
+
+        refreshPaths();
+
+        return vue;
     }
 
     public void findPaths(String token,
@@ -238,13 +246,26 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     @Override
     public void onItemClick(ParcoursItem parcoursItem) {
-
         // création d'une intention
         Intent intention = new Intent(getActivity(), PageSynthese.class);
 
         // transmission de l'id du parcours
         intention.putExtra("pathId", parcoursItem.getId());
         // lancement de l'activité fille
-        startActivity(intention);
+        launcher.launch(intention);
     }
+
+    private void goToPage(ActivityResult result) {
+        Intent intent = result.getData();
+
+        String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (page.equals(PageSynthese.HOME_PAGE)) {
+            mainActivity.goToHome(getView());
+        }
+        if (page.equals(PageSynthese.PATH_PAGE)) {
+            mainActivity.goToPathList(getView());
+        }
+    }
+
 }
