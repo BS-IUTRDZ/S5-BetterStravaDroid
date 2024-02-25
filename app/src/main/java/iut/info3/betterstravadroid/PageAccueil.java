@@ -237,19 +237,21 @@ public class PageAccueil extends Fragment {
             );
 
             // Icônes de départ et din du parcours
-            Marker startMarker = new Marker(binding.cardLastRun.map);
-            startMarker.setPosition(trajet.get(0));
-            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            startMarker.setIcon(getDrawable(context, R.drawable.start));
-            startMarker.setInfoWindow(null);
-            binding.cardLastRun.map.getOverlays().add(startMarker);
+            if (!trajet.isEmpty()) {
+                Marker startMarker = new Marker(binding.cardLastRun.map);
+                startMarker.setPosition(trajet.get(0));
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                startMarker.setIcon(getDrawable(context, R.drawable.start));
+                startMarker.setInfoWindow(null);
+                binding.cardLastRun.map.getOverlays().add(startMarker);
 
-            Marker finishMarker = new Marker(binding.cardLastRun.map);
-            finishMarker.setPosition(trajet.get(trajet.size() - 1));
-            finishMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            finishMarker.setIcon(getDrawable(context, R.drawable.finish));
-            finishMarker.setInfoWindow(null);
-            binding.cardLastRun.map.getOverlays().add(finishMarker);
+                Marker finishMarker = new Marker(binding.cardLastRun.map);
+                finishMarker.setPosition(trajet.get(trajet.size() - 1));
+                finishMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                finishMarker.setIcon(getDrawable(context, R.drawable.finish));
+                finishMarker.setInfoWindow(null);
+                binding.cardLastRun.map.getOverlays().add(finishMarker);
+            }
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
