@@ -48,7 +48,13 @@ public class PageSynthese extends AppCompatActivity {
         requestBuilder = new RequestBuilder(vue.getContext());
         toastMaker = new ToastMaker();
 
+        binding.topbar.ivBackIcon.setOnClickListener(view -> back());
+
         getPath(pathId);
+    }
+
+    private void back() {
+        finish();
     }
 
 
