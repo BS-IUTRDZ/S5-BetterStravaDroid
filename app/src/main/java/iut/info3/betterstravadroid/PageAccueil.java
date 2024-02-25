@@ -2,21 +2,14 @@ package iut.info3.betterstravadroid;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.VolleyError;
@@ -24,16 +17,10 @@ import com.android.volley.VolleyError;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.util.BoundingBox;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,6 +28,7 @@ import iut.info3.betterstravadroid.api.PathApi;
 import iut.info3.betterstravadroid.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageAccueilBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
+import iut.info3.betterstravadroid.utils.MapHandler;
 
 public class PageAccueil extends Fragment {
 
@@ -194,64 +182,9 @@ public class PageAccueil extends Fragment {
                     response.getString(UserPreferences.PATH_KEY_DESCRIPTION)
             );
 
-            // Gestion de la carte en arrière plan
-            Polyline line = new Polyline(binding.cardLastRun.map);
-            List<GeoPoint> trajet = new ArrayList<>();
-
             // Création du trajet
             JSONArray points = response.getJSONArray("points");
-            for (int i = 0; i < points.length(); i++) {
-                JSONObject point = points.getJSONObject(i);
-                double latitude = (double) point.get("latitude");
-                double longitude = (double) point.get("longitude");
-                trajet.add(new GeoPoint(latitude, longitude));
-            }
-
-            line.getOutlinePaint().setColor(Color.RED);
-            line.getOutlinePaint().setStrokeWidth(10);
-            line.setPoints(trajet);
-            line.setGeodesic(true);
-            line.setInfoWindow(null);
-
-            binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false);
-
-            // Ajout de l'overlay du trajet sur la carte
-            binding.cardLastRun.map.getOverlayManager().add(line);
-
-            // Centrage de la carte
-            binding.cardLastRun.map.zoomToBoundingBox(line.getBounds(), false, 200);
-            binding.cardLastRun.map.getController().setCenter(line.getBounds().getCenterWithDateLine());
-
-            // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
-            // cardview qui contient les infos du trajet
-            binding.cardLastRun.map.scrollBy(0, 100);
-            binding.cardLastRun.map.invalidate();
-
-            // Desactivation du zoom
-            binding.cardLastRun.map.setOnTouchListener(new View.OnTouchListener() {
-                   @Override
-                   public boolean onTouch(View v, MotionEvent event) {
-                       return true;
-                   }
-               }
-            );
-
-            // Icônes de départ et din du parcours
-            if (!trajet.isEmpty()) {
-                Marker startMarker = new Marker(binding.cardLastRun.map);
-                startMarker.setPosition(trajet.get(0));
-                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                startMarker.setIcon(getDrawable(context, R.drawable.start));
-                startMarker.setInfoWindow(null);
-                binding.cardLastRun.map.getOverlays().add(startMarker);
-
-                Marker finishMarker = new Marker(binding.cardLastRun.map);
-                finishMarker.setPosition(trajet.get(trajet.size() - 1));
-                finishMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                finishMarker.setIcon(getDrawable(context, R.drawable.finish));
-                finishMarker.setInfoWindow(null);
-                binding.cardLastRun.map.getOverlays().add(finishMarker);
-            }
+            MapHandler.setMapViewContent(points, binding.cardLastRun.map, context);
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
