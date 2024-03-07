@@ -14,6 +14,8 @@ import iut.info3.betterstravadroid.api.ApiConfiguration;
  */
 public class ParcoursItem {
 
+    public static final String GET_ALL_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findPath";
+    public static final String GET_ALL_DEFAULT_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findDefaultPaths";
 
     private long date;
 

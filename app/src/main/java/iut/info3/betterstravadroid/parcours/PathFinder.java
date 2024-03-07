@@ -37,7 +37,6 @@ public class PathFinder {
 
     private int lengthMin;
 
-
     private int lengthMax;
 
     private String textSearch;
@@ -56,9 +55,6 @@ public class PathFinder {
 
 
     }
-
-
-
 
     public void findPaths() {
 
@@ -106,8 +102,6 @@ public class PathFinder {
         }
     }
 
-
-
     public void setOnPathsUpdate(PathsUpdateListener updateListener) {
         this.updateListener = updateListener;
     }
@@ -115,8 +109,6 @@ public class PathFinder {
     public void setOnError(Response.ErrorListener errorListener) {
         this.errorListener = errorListener;
     }
-
-
 
     public void setDateSup(String dateSup) {
         this.dateSup = dateSup;
