@@ -14,6 +14,8 @@ import iut.info3.betterstravadroid.api.ApiConfiguration;
  */
 public class ParcoursItem {
 
+    public static final String GET_ALL_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findPath";
+    public static final String GET_ALL_DEFAULT_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findDefaultPaths";
 
     private long date;
 
@@ -21,17 +23,21 @@ public class ParcoursItem {
 
     private String description;
 
+    private String id;
+
     public ParcoursItem(JSONObject jsonObject) throws JSONException {
         this(jsonObject.getLong("date"),
-                jsonObject.getString("nom"),
-                jsonObject.getString("description"));
+             jsonObject.getString("nom"),
+             jsonObject.getString("description"),
+             jsonObject.getString("id"));
     }
 
 
-    public ParcoursItem(long date, String title, String description) {
+    public ParcoursItem(long date, String title, String description, String id) {
         this.date = date;
         this.title = title;
         this.description = description;
+        this.id = id;
     }
 
     public String getDate() {
@@ -47,6 +53,9 @@ public class ParcoursItem {
 
     public String getDescription() {
         return description;
+    }
 
+    public String getId() {
+        return id;
     }
 }

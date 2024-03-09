@@ -27,10 +27,12 @@
         android:layout_height="93dp"
         android:layout_marginHorizontal="5dp"
         app:cardBackgroundColor="@color/blue_card"
+        app:cardElevation="20dp"
         app:cardCornerRadius="15dp"
         app:cardPreventCornerOverlap="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
@@ -98,7 +100,8 @@
                     android:layout_marginStart="5dp"
                     android:contentDescription="@{leftStatIconDescription}"
                     android:src="@{leftStatIcon}"
-                    tools:src="null"/>
+                    tools:src="null"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/tv_left_synthese_stat"
@@ -184,7 +187,8 @@
                         android:layout_marginStart="5dp"
                         android:contentDescription="@{rightStatIconDescription}"
                         android:src="@{rightStatIcon}"
-                        tools:src="null"/>
+                        tools:src="null"
+                        android:visibility="gone"/>
 
                     <TextView
                         android:id="@+id/tv_right_synthese_stat"

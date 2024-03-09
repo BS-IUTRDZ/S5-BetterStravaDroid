@@ -3,37 +3,33 @@ package iut.info3.betterstravadroid;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
@@ -41,12 +37,16 @@ import iut.info3.betterstravadroid.parcours.ParcoursItem;
 import iut.info3.betterstravadroid.parcours.PathFinder;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-public class PageListeParcours extends Fragment  {
+public class PageListeParcours extends Fragment implements RecyclerViewInterface {
 
+    private List<ParcoursItem> parcoursItemList;
 
     private static final String tag = "PageListeParcours";
 
+    private ListeParcoursBinding binding;
     private ParcoursAdaptateur parcoursAdaptateur;
+
+    private SharedPreferences preferences;
 
     private Activity activity;
 
@@ -56,20 +56,17 @@ public class PageListeParcours extends Fragment  {
     private DatePickerDialog datePickerTo;
 
     private PathFinder finder;
-
-
-
+    private ActivityResultLauncher<Intent> launcher;
 
     public PageListeParcours() {
         //Require empty public constructor
     }
 
-
-
-
     public static PageListeParcours newInstance(Activity activity) {
         PageListeParcours pageListeParcours = new PageListeParcours();
-
+        pageListeParcours.preferences =
+                activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
+        pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
 
         pageListeParcours.activity = activity;
         pageListeParcours.toastMaker = new ToastMaker();
@@ -85,7 +82,7 @@ public class PageListeParcours extends Fragment  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ListeParcoursBinding binding = ListeParcoursBinding.inflate(inflater, container, false);
+        binding = ListeParcoursBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
 
         datePickerFrom = new DatePickerDialog(activity);
@@ -97,7 +94,7 @@ public class PageListeParcours extends Fragment  {
         finder = new PathFinder(activity);
 
         finder.setOnPathsUpdate(parcoursItemList -> {
-            parcoursAdaptateur = new ParcoursAdaptateur(parcoursItemList);
+            parcoursAdaptateur = new ParcoursAdaptateur(parcoursItemList, this);
             binding.recyclerView.setAdapter(parcoursAdaptateur);
         });
 
@@ -111,14 +108,14 @@ public class PageListeParcours extends Fragment  {
 
         finder.findPaths();
 
-        return vue;
+        launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::goToPage);
 
+        return vue;
     }
 
-
-
     private void initDateSelector(ListeParcoursBinding binding) {
-
 
         datePickerFrom.setOnDateSetListener((view, year, month, dayOfMonth) -> {
             String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
@@ -140,8 +137,6 @@ public class PageListeParcours extends Fragment  {
         binding.btnDepuis.setOnClickListener(view -> {
             datePickerFrom.show();
         });
-
-
     }
 
     private void initTextSelector(ListeParcoursBinding binding) {
@@ -162,7 +157,6 @@ public class PageListeParcours extends Fragment  {
         });
     }
 
-
     private void initLengthSelector(ListeParcoursBinding binding) {
         binding.lenghtMax.setMinValue(0);
         binding.lenghtMax.setMaxValue(300);
@@ -181,12 +175,28 @@ public class PageListeParcours extends Fragment  {
         });
     }
 
+    @Override
+    public void onItemClick(ParcoursItem parcoursItem) {
+        // création d'une intention
+        Intent intention = new Intent(getActivity(), PageSynthese.class);
 
+        // transmission de l'id du parcours
+        intention.putExtra("pathId", parcoursItem.getId());
+        // lancement de l'activité fille
+        launcher.launch(intention);
+    }
 
+    private void goToPage(ActivityResult result) {
+        Intent intent = result.getData();
 
-
-
-
-
+        String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (page.equals(PageSynthese.HOME_PAGE)) {
+            mainActivity.goToHome(getView());
+        }
+        if (page.equals(PageSynthese.PATH_PAGE)) {
+            mainActivity.goToPathList(getView());
+        }
+    }
 
 }

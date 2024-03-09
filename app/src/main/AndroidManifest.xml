@@ -35,6 +35,7 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".PageSynthese"/>
     </application>
 
 </manifest>
