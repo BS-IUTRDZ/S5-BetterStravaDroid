@@ -16,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -46,10 +45,14 @@ import java.util.Locale;
 
 import android.location.Criteria;
 
-import com.android.volley.VolleyError;
+import com.android.volley.Request;
 
 import iut.info3.betterstravadroid.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
+import iut.info3.betterstravadroid.databinding.PopupInterestPointBinding;
+import iut.info3.betterstravadroid.parcours.entity.PathEntity;
+import iut.info3.betterstravadroid.parcours.entity.PointEntity;
+import iut.info3.betterstravadroid.parcours.entity.PointInteretEntity;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
@@ -66,26 +69,17 @@ public class PageParcours extends Fragment {
     public static Boolean parcours = false;
     private String fournisseur;
     ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-    private double gLatitude;
-    private double gLongitude;
-    TextView title;
-    TextView description;
     private AlertDialog popup;
 
     private PageParcoursBinding binding;
-
     private Context context;
     private RequestBuilder helper;
     public static final String API_REQUEST_CREATE_PATH = ApiConfiguration.API_BASE_URL + "path/createPath";
-    public static final String API_REQUEST_ADD_POINT = ApiConfiguration.API_BASE_URL + "path/addPoint";
-    private String parcoursId;
-    private String parcoursTitre;
-    private String parcoursDescription;
-    public Boolean nouveauParcours = false;
     private Thread threadTimer;
     private Thread threadVitesseMoyenne;
     private static final String TAG = "PageParcours";
     private int dureeParcours;
+    private PathEntity parcoursEnCours;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
@@ -113,20 +107,8 @@ public class PageParcours extends Fragment {
     LocationListener ecouteurGPS = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location localisation) {
-
             if (play) {
-                trajet.add(new GeoPoint(localisation.getLatitude(), localisation.getLongitude()));
-
-                gLatitude = localisation.getLatitude();
-                gLongitude = localisation.getLongitude();
-
-                line.getOutlinePaint().setColor(Color.RED);
-                line.getOutlinePaint().setStrokeWidth(10);
-                line.setPoints(trajet);
-                line.setGeodesic(true);
-
-                pushGeoPoint();
-                calculVitesseMoyenne();
+                parcoursAjouterPoint(localisation);
             }
         }
     };
@@ -185,13 +167,12 @@ public class PageParcours extends Fragment {
         /* Listener bouton page */
         binding.btnAjout.setOnClickListener(v -> {
             if (play) {
-                showPopupPoint();
+                showPopupPoint(false);
             }
         });
 
         binding.btnStart.setOnClickListener(v -> {
-            nouveauParcours = true;
-            showPopupPoint();
+            showPopupPoint(true);
         });
 
         binding.btnStop.setOnTouchListener((v, event) -> {
@@ -211,30 +192,24 @@ public class PageParcours extends Fragment {
     private void centerMapOnUser() {
         if (binding.mapview != null && binding.mapview.getController() != null) {
             // Vérifier si la permission d'accès à la localisation est accordée
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
+            Location lastKnownLocation = getCurrentUserLocation();
 
-                // Obtenir la position actuelle de l'utilisateur
-                LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnownLocation != null) {
+                double latitude = lastKnownLocation.getLatitude();
+                double longitude = lastKnownLocation.getLongitude();
 
-                if (lastKnownLocation != null) {
-                    double latitude = lastKnownLocation.getLatitude();
-                    double longitude = lastKnownLocation.getLongitude();
+                // Créer un GeoPoint avec les coordonnées
+                GeoPoint userLocation = new GeoPoint(latitude, longitude);
 
-                    // Créer un GeoPoint avec les coordonnées
-                    GeoPoint userLocation = new GeoPoint(latitude, longitude);
+                trajet.add(userLocation);
 
-                    trajet.add(userLocation);
+                // Centrer la carte sur la position de l'utilisateur
+                binding.mapview.getController().setCenter(userLocation);
+                binding.mapview.getController().setZoom(18.0);
 
-                    // Centrer la carte sur la position de l'utilisateur
-                    binding.mapview.getController().setCenter(userLocation);
-                    binding.mapview.getController().setZoom(18.0);
-
-                } else {
-                    Toast.makeText(context,
-                            "Aucune position trouvée", Toast.LENGTH_LONG).show();
-                }
+            } else {
+                Toast.makeText(context,
+                        "Aucune position trouvée", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -312,8 +287,8 @@ public class PageParcours extends Fragment {
 
         trajet.clear();
         centerMapOnUser();
-        createPath();
         startThreadTimer();
+        parcoursAjouterPoint(getCurrentUserLocation());
     }
 
     /**
@@ -328,7 +303,6 @@ public class PageParcours extends Fragment {
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
         ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
 
-        nouveauParcours = false;
         trajet.clear();
         line.setPoints(trajet);
         //items.clear();
@@ -337,34 +311,39 @@ public class PageParcours extends Fragment {
         if (threadTimer != null) {
             threadTimer.interrupt();
         }
+
+        // On envoie le parcours à l'API
+        sendPathToApi();
     }
 
     /**
      * Méthode appelée lors du clic sur le bouton "Ajouter un point d'intérêt" et lors de
      * la création d'un nouveau parcours.
      */
-    private void showPopupPoint() {
+    private void showPopupPoint(final boolean nouveauParcours) {
 
+        PopupInterestPointBinding alertBinding = PopupInterestPointBinding.inflate(LayoutInflater.from(context));
         AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
-
-        View customLayout = getLayoutInflater().inflate(R.layout.popup_interest_point, null);
-        title = customLayout.findViewById(R.id.et_titre);
-        description = customLayout.findViewById(R.id.et_description);
+        popup_builder.setView(alertBinding.getRoot());
 
         /* Listener boutons popup*/
-        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(v -> popup.dismiss());
-        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
+        alertBinding.btnCancel.setOnClickListener(v -> popup.dismiss());
+        alertBinding.btnConfirm.setOnClickListener(v -> {
             if (nouveauParcours) {
-                parcoursTitre = title.getText().toString();
-                parcoursDescription = description.getText().toString();
+                // La popup est utilisée pour créer un nouveau parcours
+                parcoursEnCours = new PathEntity(alertBinding.etTitre.getText().toString(),
+                                                 alertBinding.etDescription.getText().toString(),
+                                                 Calendar.getInstance().getTime().getTime());
                 popup.dismiss();
                 buttonStartPressed();
-            } else{
-                confirmTitleDescription(null);
+            } else {
+                // La popup est utilisée pour ajouter un point d'intérêt
+                pointInteretConfirmTitleDescription(
+                        alertBinding.etTitre.getText().toString(),
+                        alertBinding.etDescription.getText().toString()
+                );
             }
         });
-
-        popup_builder.setView(customLayout);
 
         popup = popup_builder.create();
         popup.show();
@@ -372,96 +351,45 @@ public class PageParcours extends Fragment {
 
     /**
      * Méthode appelée lors de la confirmation du titre et de la description du point d'intérêt
-     * @param view la vue (non utilisée)
      */
-    public void confirmTitleDescription(View view){
+    public void pointInteretConfirmTitleDescription(final String title, final String description) {
 
-        items.add(new OverlayItem(title.getText().toString(), description.getText().toString(), new GeoPoint(gLatitude, gLongitude)));
+        PointEntity lastPosition = parcoursEnCours.getLastPosition();
+        if (lastPosition == null) {
+            Toast.makeText(context, "Impossible de créer le point d'intéret", Toast.LENGTH_LONG).show();
+        } else {
+            // On ajoute le point d'intérêt sur l'overlay
+            items.add(new OverlayItem(title, description,
+                    new GeoPoint(lastPosition.getLat(), lastPosition.getLon())));
 
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(context, items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        Toast.makeText( context,
-                                item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
-                        return true;
-                    }
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                        //TODO si on veut supprimer point d'interet
-                    }
-                });
-        //mOverlay.setFocusItemsOnTap(true);
-        binding.mapview.getOverlays().add(mOverlay);
-        popup.dismiss();
-    }
-
-    /**
-     * Méthode de création du parcours dans l'API. Permet d'obtenir l'id du parcours créé.
-     */
-    public void createPath() {
-        try {
-            JSONObject object = new JSONObject();
-            object.put("description", parcoursDescription);
-            object.put("nom", parcoursTitre);
-            object.put("date", Calendar.getInstance().getTime().getTime());
-            Log.i("PageParcours", object.toString());
-
-            HashMap<String, String> token = new HashMap<>();
-            token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE, Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
-
-            helper.withBody(object)
-                    .withHeader(token)
-                    .onError(error -> {
-                        Log.i("ReponseKo", "Requete Ko");
-                        try {
-                            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-                        } catch (JSONException e) {
-                            ToastMaker toastMaker = new ToastMaker();
-                            Toast toast = toastMaker.makeText(context, "Erreur lors de la création du parcours", Toast.LENGTH_SHORT);
+            // On mets en place le listener lors du clic sur le point d'intérêt
+            ItemizedOverlayWithFocus<OverlayItem> mOverlay =
+                    new ItemizedOverlayWithFocus<OverlayItem>(
+                            context,
+                            items,
+                            new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                        @Override
+                        public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                            Toast.makeText( context,
+                                    item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
+                            return true;
                         }
-                    })
-                    .onSucces(o -> {
-                        try {
-                            JSONObject response = (JSONObject) o;
-                            parcoursId = response.getString("id");
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
+                        @Override
+                        public boolean onItemLongPress(final int index, final OverlayItem item) {
+                            return false;
+                            //TODO si on veut supprimer point d'interet
                         }
-                    })
-                    .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
-                    .send();
-        } catch (IllegalArgumentException e) {
-            //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
-            //toast.show();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+                    });
+
+            // On ajoute le point d'intéret au parcours
+            parcoursEnCours.addPointInteret(new PointInteretEntity(
+                    lastPosition, title, description));
+
+            //mOverlay.setFocusItemsOnTap(true);
+            binding.mapview.getOverlays().add(mOverlay);
+            popup.dismiss();
         }
     }
-
-    /**
-     * Méthode permettant d'ajouter un point géographique à un parcours via son id.
-     */
-    public void pushGeoPoint() {
-        try {
-            JSONObject object = new JSONObject();
-            object.put("id", parcoursId);
-            object.put("longitude", gLongitude);
-            object.put("latitude", gLatitude);
-            Log.i("IdParcours", parcoursId);
-
-            new RequestBuilder(context).withBody(object)
-                    .newJSONObjectRequest(API_REQUEST_ADD_POINT)
-                    .send();
-        } catch (IllegalArgumentException e) {
-            //Toast toast = toastMaker.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
-            //toast.show();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     /**
      * Thread pour créer le timer de la durée du parcours
@@ -534,5 +462,74 @@ public class PageParcours extends Fragment {
         });
 
         threadVitesseMoyenne.start();
+    }
+
+    private void sendPathToApi() {
+
+        // On mets la durée définitive du parcours
+        parcoursEnCours.setDuree(dureeParcours);
+
+        // On prépare le JSON du parcours
+        JSONObject parcoursJson = null;
+        try {
+            parcoursJson = parcoursEnCours.toJson();
+        } catch (JSONException e) {
+            Toast.makeText(context, "Impossible d'enregistrer le parcours", Toast.LENGTH_LONG).show();
+        }
+
+        // On envoie le parcours à l'API
+        if (parcoursJson != null) {
+            HashMap<String, String> token = new HashMap<>();
+            token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE, Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
+
+            Log.d(TAG, "sendPathToApi: " + parcoursJson.toString());
+            helper.withBody(parcoursJson)
+                    .withHeader(token)
+                    .onError((error) -> {
+                        Toast.makeText(context, "Impossible d'enregistrer le parcours", Toast.LENGTH_LONG).show();
+                    })
+                    .onSucces((response) -> {
+                        Toast.makeText(context, "Parcours enregistré", Toast.LENGTH_LONG).show();
+                    })
+                    .method(Request.Method.POST)
+                    .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
+                    .send();
+        }
+    }
+
+    /**
+     * Méthode permettant d'obtenir la position actuelle de l'utilisateur
+     * @return la position actuelle de l'utilisateur
+     */
+    public Location getCurrentUserLocation() {
+        Location lastKnownLocation = null;
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            // Obtenir la position actuelle de l'utilisateur
+            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+
+        return lastKnownLocation;
+    }
+
+    /**
+     * Méthode permettant l'ajout d'un point de passage au parcours.
+     */
+    public void parcoursAjouterPoint(Location point) {
+        if (point != null) {
+            trajet.add(new GeoPoint(point.getLatitude(), point.getLongitude()));
+            line.getOutlinePaint().setColor(Color.RED);
+            line.getOutlinePaint().setStrokeWidth(10);
+            line.setPoints(trajet);
+            line.setGeodesic(true);
+
+            parcoursEnCours.addPoint(new PointEntity(point.getLatitude(),
+                                                     point.getLongitude(),
+                                                     point.getAltitude()));
+
+            calculVitesseMoyenne();
+        }
     }
 }
