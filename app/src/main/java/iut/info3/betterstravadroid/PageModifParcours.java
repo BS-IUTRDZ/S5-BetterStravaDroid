@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,9 +53,13 @@ public class PageModifParcours extends AppCompatActivity {
         binding.editTitre.setText(titre);
         binding.editTitre.setEnabled(false);
         binding.editDescription.setText(description);
+        binding.topbar.ivTrashIcon.setVisibility(View.GONE);
+        binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+
+        binding.topbar.ivBackIcon.setOnClickListener(view -> this.finish());
 
         binding.btnAnnuler.setOnClickListener(view -> {onClickAnnuler();});
-        binding.btnAnnuler.setOnClickListener(view -> {onClickValider();});
+        binding.btnValider.setOnClickListener(view -> {onClickValider();});
 
         //Gestion des preferences
         preferences = this.getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
@@ -91,18 +96,17 @@ public class PageModifParcours extends AppCompatActivity {
                 .withBody(body)
                 .newJSONObjectRequest(PathApi.PATH_API_MODIF)
                 .send();
-
     }
 
     public void retourListe(Object object) {
 
+        Log.i("debut","debut");
         Intent intentionRetour = new Intent();
         String description = binding.editDescription.getText().toString();
         intentionRetour.putExtra("description", description);
         intentionRetour.putExtra("id", idParcours);
         setResult(Activity.RESULT_OK, intentionRetour);
         this.finish();
-
     }
 
     public void handleError(VolleyError error) {
