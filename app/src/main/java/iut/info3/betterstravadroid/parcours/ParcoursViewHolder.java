@@ -22,9 +22,11 @@ public class ParcoursViewHolder extends RecyclerView.ViewHolder {
         titreTextView = itemView.findViewById(R.id.parcour_titre);
         descriptionTextView = itemView.findViewById(R.id.parcour_description);
         cardView = itemView.findViewById(R.id.item_container);
+        titreTextView = itemView.findViewById(R.id.tv_titre);
+        descriptionTextView = itemView.findViewById(R.id.tv_description);
     }
 
-    public void bind(ParcoursItem parcoursItem) {
+    public void bind(ParcoursItem parcoursItem) { 
         dateTextView.setText(parcoursItem.getDate());
         titreTextView.setText(parcoursItem.getTitre());
         descriptionTextView.setText(parcoursItem.getDescription());
