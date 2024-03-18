@@ -18,49 +18,120 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:ignore="MissingConstraints">
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/search_bar"
-            android:hint="@string/placeBeforeTextSearchBarParcour"
+        android:orientation="vertical">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:gravity="center_vertical"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            tools:ignore="MissingConstraints" />
-        <LinearLayout
+            android:layout_height="50dp">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_bar"
+                android:layout_width="0dp"
+                android:layout_height="00dp"
+                android:hint="@string/placeBeforeTextSearchBarParcour"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/showMenu"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <ImageButton
+                android:id="@+id/showMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:contentDescription="TODO"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/menu_close"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:visibility="gone"
+            android:id="@+id/menu"
+            android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="64dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/dateMin"
+                app:layout_constraintBottom_toBottomOf="@id/btn_depuis"
+                app:layout_constraintTop_toTopOf="@id/btn_depuis" />
+
+
             <Button
+                android:layout_marginStart="10dp"
                 android:id="@+id/btn_depuis"
-                android:text="@string/filtre_parcours_date_depuis"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                />
+                android:text="@string/filtre_parcours_date_depuis"
+                app:layout_constraintStart_toEndOf="@+id/textView2"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dateMax"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_jusqua"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn_depuis" />
+
             <Button
                 android:id="@+id/btn_jusqua"
-                android:text="@string/filtre_parcours_date_jusqua"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"/>
+                android:text="@string/filtre_parcours_date_jusqua"
+                app:layout_constraintStart_toStartOf="@+id/btn_depuis"
+                app:layout_constraintTop_toBottomOf="@+id/btn_depuis" />
 
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <NumberPicker
+
+            <EditText
                 android:id="@+id/lenghtMin"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/btn_jusqua"
+                app:layout_constraintTop_toBottomOf="@+id/btn_jusqua" />
 
-            </NumberPicker>
-            <NumberPicker
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/longueurMax"
+                app:layout_constraintBottom_toBottomOf="@+id/lenghtMax"
+                app:layout_constraintTop_toTopOf="@+id/lenghtMax"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <EditText
                 android:id="@+id/lenghtMax"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView2"
+                app:layout_constraintStart_toStartOf="@+id/btn_jusqua"
+                app:layout_constraintTop_toBottomOf="@+id/lenghtMin" />
 
-            </NumberPicker>
-        </LinearLayout>
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/longueurMin"
+                app:layout_constraintBottom_toBottomOf="@+id/lenghtMin"
+                app:layout_constraintTop_toTopOf="@+id/lenghtMin" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <ScrollView
             android:layout_width="match_parent"
@@ -70,6 +141,7 @@
             android:layout_marginBottom="48dp">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:padding="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/recycler_view"/>

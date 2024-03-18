@@ -119,4 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_PARCOURS);
     }
+
+    public void showMenu() {
+
+    }
 }

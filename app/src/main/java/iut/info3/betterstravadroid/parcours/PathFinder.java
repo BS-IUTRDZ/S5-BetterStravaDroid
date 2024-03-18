@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
@@ -30,6 +31,7 @@ import iut.info3.betterstravadroid.preferences.UserPreferences;
 public class PathFinder {
 
     public static final String GET_ALL_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findPath";
+    public static final String DELETE_PARCOUR = ApiConfiguration.API_BASE_URL + "path/archivingPath";
 
 
     private String dateSup;
@@ -48,10 +50,13 @@ public class PathFinder {
     private PathsUpdateListener updateListener;
     private Response.ErrorListener errorListener;
 
+    private int nbPathAlreadyLoaded;
+
     public PathFinder(Activity activity) {
         token = activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE)
                 .getString(UserPreferences.USER_KEY_TOKEN,"None");
         this.builder = new RequestBuilder(activity);
+        nbPathAlreadyLoaded = 0;
 
 
     }
@@ -74,10 +79,27 @@ public class PathFinder {
 
 
         builder.addHeader("token", token)
+                .addHeader("nbPathAlreadyLoaded", nbPathAlreadyLoaded + "")
                 .onError(this::handleError)
                 .onSucces(this::updatePaths)
                 .newJSONArrayRequest(query).send();
     }
+
+    public void deletePath(ParcoursItem itemToDelete) {
+        try {
+            JSONObject jsonObject = itemToDelete.toJson();
+            builder.addHeader("token", token)
+                    .onError(this::handleError)
+                    .onSucces(d -> findPaths())
+                    .withBody(jsonObject)
+                    .method(Request.Method.PUT)
+                    .newJSONObjectRequest(DELETE_PARCOUR).send();
+        } catch (JSONException e) {
+        }
+
+    }
+
+
 
     public void updatePaths(Object object) {
         List<ParcoursItem> parcoursItemList = new ArrayList<>();
@@ -132,6 +154,11 @@ public class PathFinder {
 
     public void setTextSearch(String textSearch) {
         this.textSearch = textSearch;
+        findPaths();
+    }
+
+    public void setNbPathAlreadyLoaded(int nbPathAlreadyLoaded) {
+        this.nbPathAlreadyLoaded = nbPathAlreadyLoaded;
         findPaths();
     }
 

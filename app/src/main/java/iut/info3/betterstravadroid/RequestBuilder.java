@@ -1,6 +1,7 @@
 package iut.info3.betterstravadroid;
 
 import android.content.Context;
+import android.nfc.Tag;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -22,6 +23,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class RequestBuilder {
+
+    private static final String TAG = "RequestBuilder";
     private RequestQueue fileRequetes;
 
     private Map<String, String> header;
@@ -168,6 +171,11 @@ public class RequestBuilder {
      * @param jsonRequest requête a envoyer
      */
     public void send(JsonRequest jsonRequest) {
+        try {
+            Log.i(TAG,jsonRequest.getHeaders().toString());
+        } catch (AuthFailureError e) {
+            throw new RuntimeException(e);
+        }
         fileRequetes.add(jsonRequest);
     }
 
@@ -204,6 +212,7 @@ public class RequestBuilder {
         withHeader(new HashMap<>());
         onError(Throwable::printStackTrace);
         onSucces(System.out::println);
+        body = null;
     }
 
 

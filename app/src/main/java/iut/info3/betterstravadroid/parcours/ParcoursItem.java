@@ -58,4 +58,13 @@ public class ParcoursItem {
     public String getId() {
         return id;
     }
+
+    public JSONObject toJson() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", id);
+        jsonObject.put("date", date);
+        jsonObject.put("nom", title);
+        jsonObject.put("description", description);
+        return jsonObject;
+    }
 }
