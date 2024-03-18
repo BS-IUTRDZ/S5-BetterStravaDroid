@@ -146,9 +146,9 @@ public class PageSynthese extends AppCompatActivity {
                 String description = (String) pointInt.get("description");
 
                 View card = View.inflate(this, R.layout.interest_point_item, binding.syntheseMain);
-                TextView textViewTitre = card.findViewById(R.id.tv_titre);
+                TextView textViewTitre = card.findViewById(R.id.pi_titre);
                 textViewTitre.setText(titre);
-                TextView textViewDescription = card.findViewById(R.id.tv_description);
+                TextView textViewDescription = card.findViewById(R.id.pi_description);
                 textViewDescription.setText(description);
             }
         } catch (JSONException e) {
@@ -174,7 +174,6 @@ public class PageSynthese extends AppCompatActivity {
     }
 
     public void toEdit() {
-        Log.i("truc","truc");
         Intent intent =
                 new Intent(PageSynthese.this,
                         PageModifParcours.class);
@@ -182,8 +181,8 @@ public class PageSynthese extends AppCompatActivity {
         String description = binding.cardRun.tvDescription.getText().toString();
         String titre = binding.cardRun.tvTitre.getText().toString();
 
-        intent.putExtra("description",description );
         intent.putExtra("titre",titre);
+        intent.putExtra("description",description );
         intent.putExtra("id",pathId);
 
         lanceur.launch(intent);
@@ -192,7 +191,6 @@ public class PageSynthese extends AppCompatActivity {
 
     public void retourModif(ActivityResult result){
         Intent intent = result.getData();
-        String newTitre;
         String newDescription;
 
         if (result.getResultCode() == Activity.RESULT_OK) {
