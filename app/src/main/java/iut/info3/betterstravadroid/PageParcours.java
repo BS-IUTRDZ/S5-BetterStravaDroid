@@ -490,6 +490,12 @@ public class PageParcours extends Fragment {
                     })
                     .onSucces((response) -> {
                         Toast.makeText(context, "Parcours enregistré", Toast.LENGTH_LONG).show();
+
+                        Log.i("test", "rafraichisemnet");
+                        MainActivity mainActivity = (MainActivity) getActivity();
+                        if (mainActivity != null) {
+                            mainActivity.rafraichirTout();
+                        }
                     })
                     .method(Request.Method.POST)
                     .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
