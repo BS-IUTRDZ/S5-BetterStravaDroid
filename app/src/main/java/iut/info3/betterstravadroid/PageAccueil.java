@@ -184,7 +184,7 @@ public class PageAccueil extends Fragment {
 
             // Création du trajet
             JSONArray points = response.getJSONArray("points");
-            MapHandler.setMapViewContent(points, binding.cardLastRun.map, context);
+            MapHandler.setMapViewContent(points, binding.cardLastRun.map, context, false);
 
         } catch (JSONException e) {
             throw new RuntimeException(e);

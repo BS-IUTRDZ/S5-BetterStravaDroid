@@ -155,7 +155,7 @@ public class PageSynthese extends AppCompatActivity {
             binding.altitudeStat.tvRightSyntheseStat.setText(denivNeg);
 
             JSONArray points = response.getJSONArray("points");
-            MapHandler.setMapViewContent(points, binding.mapview, this);
+            MapHandler.setMapViewContent(points, binding.mapview, this, true);
 
             JSONArray pointsInterets = response.getJSONArray("pointsInterets");
             binding.interestStat.tvSyntheseStat.setText(String.valueOf(pointsInterets.length()));
