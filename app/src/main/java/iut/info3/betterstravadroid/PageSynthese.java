@@ -44,9 +44,9 @@ import iut.info3.betterstravadroid.utils.MapHandler;
 public class PageSynthese extends AppCompatActivity {
 
     public static final String KEY_PAGE = "page";
-
     public static final String HOME_PAGE = "home";
     public static final String PATH_PAGE = "path";
+    public static final String KEY_FORCE_REFRESH = "refresh";
 
     private PageSyntheseBinding binding;
     private SharedPreferences preferences;
@@ -60,6 +60,7 @@ public class PageSynthese extends AppCompatActivity {
     private AlertDialog popup;
 
     private ActivityResultLauncher<Intent> lanceur;
+    private boolean forceRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,7 @@ public class PageSynthese extends AppCompatActivity {
         binding.navbar.pathButtonInactive.setOnClickListener(v -> clickNavbar(PATH_PAGE));
         binding.topbar.ivTrashIcon.setOnClickListener(view -> {affichPopUpSupr(view);});
 
+        forceRefresh = false;
         getPath(pathId);
     }
 
@@ -100,6 +102,7 @@ public class PageSynthese extends AppCompatActivity {
     private void clickNavbar(String pageName) {
         Intent intent = new Intent();
         intent.putExtra(KEY_PAGE, pageName);
+        intent.putExtra(KEY_FORCE_REFRESH, forceRefresh);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
@@ -192,15 +195,11 @@ public class PageSynthese extends AppCompatActivity {
 
     public void retourModif(ActivityResult result){
         Intent intent = result.getData();
-        String newDescription;
 
         if (result.getResultCode() == Activity.RESULT_OK) {
-            newDescription = intent.getStringExtra("description");
-        } else {
-            newDescription = binding.cardRun.tvDescription.getText().toString();
+            binding.cardRun.tvDescription.setText(intent.getStringExtra("description"));
+            forceRefresh = true;
         }
-
-        binding.cardRun.tvDescription.setText(newDescription);
     }
 
     public void affichPopUpSupr(View view){
@@ -234,6 +233,7 @@ public class PageSynthese extends AppCompatActivity {
                 .onSucces(o -> {
                     Intent intent = new Intent();
                     intent.putExtra(KEY_PAGE, PATH_PAGE);
+                    intent.putExtra(KEY_FORCE_REFRESH, true);
                     setResult(Activity.RESULT_OK, intent);
                     finish();
                 })

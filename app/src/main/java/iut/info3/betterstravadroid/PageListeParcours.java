@@ -204,15 +204,23 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private void goToPage(ActivityResult result) {
         Intent intent = result.getData();
-
-        String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
         MainActivity mainActivity = (MainActivity) getActivity();
-        if (page.equals(PageSynthese.HOME_PAGE)) {
-            mainActivity.goToHome(getView());
+
+        if (intent != null && mainActivity != null) {
+            String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
+
+            if (page != null && page.equals(PageSynthese.HOME_PAGE)) {
+                mainActivity.goToHome(getView());
+            } else if (page != null && page.equals(PageSynthese.PATH_PAGE)) {
+                mainActivity.goToPathList(getView());
+            }
+
+
+            if (intent.getBooleanExtra(PageSynthese.KEY_FORCE_REFRESH, false)) {
+                mainActivity.rafraichirTout();
+            }
         }
-        if (page.equals(PageSynthese.PATH_PAGE)) {
-            mainActivity.goToPathList(getView());
-        }
+
     }
 
     private void onClickShowMenuButton() {
@@ -268,7 +276,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     }
 
-
-
-
+    public void rafraichir() {
+        finder.findPaths();
+    }
 }
