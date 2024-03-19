@@ -3,6 +3,7 @@ package iut.info3.betterstravadroid;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.VolleyError;
@@ -37,6 +41,8 @@ public class PageAccueil extends Fragment {
     private SharedPreferences preferences;
     private RequestBuilder helper;
     private ToastMaker toastMaker;
+
+    private ActivityResultLauncher<Intent> launcher;
 
     public PageAccueil() {
         //Require empty public constructor
@@ -68,10 +74,29 @@ public class PageAccueil extends Fragment {
         helper = new RequestBuilder(vue.getContext());
         toastMaker = new ToastMaker();
 
+        launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::retourSynthese);
+
         afficherUserInfos();
         afficherParcours();
 
         return vue;
+    }
+
+    private void retourSynthese(ActivityResult result){
+
+    }
+
+    public void lancementSynthese(JSONObject result) throws JSONException {
+        // création d'une intention
+        Intent intention = new Intent(getActivity(), PageSynthese.class);
+
+        // transmission de l'id du parcours
+        intention.putExtra("pathId",result.getString("id") );
+        // lancement de l'activité fille
+        launcher.launch(intention);
+
     }
 
     /**
@@ -186,9 +211,20 @@ public class PageAccueil extends Fragment {
             JSONArray points = response.getJSONArray("points");
             MapHandler.setMapViewContent(points, binding.cardLastRun.map, context, false);
 
+            // mise en place du Onclick sur la cardview
+            binding.cardLastRun.cadre.setOnClickListener(v -> {
+                try {
+                    lancementSynthese(response);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     /**
