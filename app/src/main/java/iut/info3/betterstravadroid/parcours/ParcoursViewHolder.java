@@ -22,8 +22,6 @@ public class ParcoursViewHolder extends RecyclerView.ViewHolder {
         titreTextView = itemView.findViewById(R.id.tv_titre);
         descriptionTextView = itemView.findViewById(R.id.tv_description);
         cardView = itemView.findViewById(R.id.item_container);
-        titreTextView = itemView.findViewById(R.id.tv_titre);
-        descriptionTextView = itemView.findViewById(R.id.tv_description);
     }
 
     public void bind(ParcoursItem parcoursItem) { 

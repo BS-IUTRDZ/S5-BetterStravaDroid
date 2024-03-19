@@ -52,13 +52,11 @@ public class PathFinder {
 
     private int nbPathAlreadyLoaded;
 
-    public PathFinder(Activity activity) {
-        token = activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE)
+    public PathFinder(Context context) {
+        token = context.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE)
                 .getString(UserPreferences.USER_KEY_TOKEN,"None");
-        this.builder = new RequestBuilder(activity);
+        this.builder = new RequestBuilder(context);
         nbPathAlreadyLoaded = 0;
-
-
     }
 
     public void findPaths() {

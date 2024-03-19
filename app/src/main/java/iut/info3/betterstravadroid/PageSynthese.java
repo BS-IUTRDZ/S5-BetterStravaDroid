@@ -6,7 +6,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +17,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,17 +33,20 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import java.util.HashMap;
+
 import iut.info3.betterstravadroid.api.PathApi;
 import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
+
 import iut.info3.betterstravadroid.utils.MapHandler;
 
 public class PageSynthese extends AppCompatActivity {
 
     public static final String KEY_PAGE = "page";
-
     public static final String HOME_PAGE = "home";
     public static final String PATH_PAGE = "path";
+    public static final String KEY_FORCE_REFRESH = "refresh";
 
     private PageSyntheseBinding binding;
     private SharedPreferences preferences;
@@ -43,7 +55,12 @@ public class PageSynthese extends AppCompatActivity {
 
     private String pathId;
 
+    private Context context;
+
+    private AlertDialog popup;
+
     private ActivityResultLauncher<Intent> lanceur;
+    private boolean forceRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +68,7 @@ public class PageSynthese extends AppCompatActivity {
         
         binding = PageSyntheseBinding.inflate(getLayoutInflater());
         View vue = binding.getRoot();
+        context = vue.getContext();
         setContentView(vue);
 
         lanceur = registerForActivityResult(
@@ -74,7 +92,9 @@ public class PageSynthese extends AppCompatActivity {
 
         binding.navbar.homeButtonInactive.setOnClickListener(v -> clickNavbar(HOME_PAGE));
         binding.navbar.pathButtonInactive.setOnClickListener(v -> clickNavbar(PATH_PAGE));
+        binding.topbar.ivTrashIcon.setOnClickListener(view -> {affichPopUpSupr(view);});
 
+        forceRefresh = false;
         getPath(pathId);
     }
 
@@ -82,6 +102,7 @@ public class PageSynthese extends AppCompatActivity {
     private void clickNavbar(String pageName) {
         Intent intent = new Intent();
         intent.putExtra(KEY_PAGE, pageName);
+        intent.putExtra(KEY_FORCE_REFRESH, forceRefresh);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
@@ -156,23 +177,6 @@ public class PageSynthese extends AppCompatActivity {
         }
     }
 
-    /**
-     * Affichage d'un toast en cas d'erreur de l'API
-     * @param error erreur envoyée par l'API
-     */
-    private void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-            toastMaker.makeText(this,
-                            "Erreur lors de la récupération des informations",
-                            Toast.LENGTH_LONG)
-                    .show();
-        }
-    }
-
     public void toEdit() {
         Intent intent =
                 new Intent(PageSynthese.this,
@@ -191,16 +195,71 @@ public class PageSynthese extends AppCompatActivity {
 
     public void retourModif(ActivityResult result){
         Intent intent = result.getData();
-        String newDescription;
 
         if (result.getResultCode() == Activity.RESULT_OK) {
-            newDescription = intent.getStringExtra("description");
-        }else {
-            newDescription = binding.cardRun.tvDescription.getText().toString();
+            binding.cardRun.tvDescription.setText(intent.getStringExtra("description"));
+            forceRefresh = true;
+        }
+    }
+
+    public void affichPopUpSupr(View view){
+        AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
+
+        View customLayout = getLayoutInflater().inflate(R.layout.popup_supression_parcours, null);
+
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(view1 -> {confirmSupr(view1);});
+        customLayout.findViewById(R.id.btn_cancel).setOnClickListener(view1 -> {popup.dismiss();});
+
+        popup_builder.setView(customLayout);
+        popup = popup_builder.create();
+        popup.show();
+
+
+    }
+
+    public void confirmSupr(View view){
+
+        JSONObject body = new JSONObject();
+        HashMap<String,String> header = new HashMap<>();
+        try {
+            body.put("id", pathId);
+            header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
         }
 
-        binding.cardRun.tvDescription.setText(newDescription);
+        requestBuilder.withHeader(header)
+                .onError(this::handleError)
+                .onSucces(o -> {
+                    Intent intent = new Intent();
+                    intent.putExtra(KEY_PAGE, PATH_PAGE);
+                    intent.putExtra(KEY_FORCE_REFRESH, true);
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
+                })
+                .withBody(body)
+                .method(Request.Method.PUT)
+                .newJSONObjectRequest(PathApi.PATH_API_SUPR)
+                .send();
 
+        popup.dismiss();
+    }
+
+    /**
+     * Affichage d'un toast en cas d'erreur de l'API
+     * @param error erreur envoyée par l'API
+     */
+    public void handleError(VolleyError error) {
+        try {
+            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+            String message = reponse.optString("erreur");
+            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
+        } catch (JSONException e) {
+            toastMaker.makeText(context,
+                            "Erreur lors de la modification de la description",
+                            Toast.LENGTH_LONG)
+                    .show();
+        }
     }
 
 }

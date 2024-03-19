@@ -2,6 +2,7 @@ package iut.info3.betterstravadroid;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
@@ -121,6 +122,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showMenu() {
+
+    }
+
+    public void rafraichirTout() {
+        PageAccueil pageAccueil = (PageAccueil) getSupportFragmentManager().findFragmentByTag("f0");
+        if (pageAccueil != null) {
+            pageAccueil.afficherParcours();
+        }
+
+        PageListeParcours pageListeParcours = (PageListeParcours) getSupportFragmentManager().findFragmentByTag("f2");
+        if (pageListeParcours != null) {
+            pageListeParcours.rafraichir();
+        }
 
     }
 }

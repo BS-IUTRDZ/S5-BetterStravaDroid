@@ -12,12 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.content.res.AppCompatResources;
+
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -46,7 +46,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private SharedPreferences preferences;
 
-    private Activity activity;
+    private Context context;
 
     private ToastMaker toastMaker;
 
@@ -55,11 +55,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private PathFinder finder;
     private ActivityResultLauncher<Intent> launcher;
-
-
-
-
-
 
     public PageListeParcours() {
         //Require empty public constructor
@@ -71,7 +66,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
                 activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
         pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
 
-        pageListeParcours.activity = activity;
         pageListeParcours.toastMaker = new ToastMaker();
         pageListeParcours.parcoursItemList = new ArrayList<>();
         pageListeParcours.parcoursAdaptateur =
@@ -87,28 +81,28 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
 
         binding = ListeParcoursBinding.inflate(inflater, container, false);
+        View vue = binding.getRoot();
+        context = vue.getContext();
 
         onClickShowMenuButton();
         initPathFinder();
         initRecyclerView();
-        View vue = binding.getRoot();
+
 
         parcoursAdaptateur.setOnBottomReachedListener(position -> {
             finder.setNbPathAlreadyLoaded(position + 1);
         });
 
-        SwipeHelper swipeHelper = new SwipeHelper(activity, binding.recyclerView) {
+        SwipeHelper swipeHelper = new SwipeHelper(context, binding.recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new UnderlayButton(activity, 0, Color.WHITE,
+                underlayButtons.add(new UnderlayButton(context, 0, Color.WHITE,
                         pos -> finder.deletePath(parcoursItemList.get(pos))));
             }
         };
@@ -130,8 +124,8 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void initDateSelector(ListeParcoursBinding binding) {
-        datePickerFrom = new DatePickerDialog(activity);
-        datePickerTo = new DatePickerDialog(activity);
+        datePickerFrom = new DatePickerDialog(context);
+        datePickerTo = new DatePickerDialog(context);
         datePickerFrom.setOnDateSetListener((view, year, month, dayOfMonth) -> {
             String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
                     format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -210,20 +204,28 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private void goToPage(ActivityResult result) {
         Intent intent = result.getData();
-
-        String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
         MainActivity mainActivity = (MainActivity) getActivity();
-        if (page.equals(PageSynthese.HOME_PAGE)) {
-            mainActivity.goToHome(getView());
+
+        if (intent != null && mainActivity != null) {
+            String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
+
+            if (page != null && page.equals(PageSynthese.HOME_PAGE)) {
+                mainActivity.goToHome(getView());
+            } else if (page != null && page.equals(PageSynthese.PATH_PAGE)) {
+                mainActivity.goToPathList(getView());
+            }
+
+
+            if (intent.getBooleanExtra(PageSynthese.KEY_FORCE_REFRESH, false)) {
+                mainActivity.rafraichirTout();
+            }
         }
-        if (page.equals(PageSynthese.PATH_PAGE)) {
-            mainActivity.goToPathList(getView());
-        }
+
     }
 
     private void onClickShowMenuButton() {
-        Drawable closeMenu = AppCompatResources.getDrawable(activity, R.drawable.menu_close);
-        Drawable openMenu  = AppCompatResources.getDrawable(activity, R.drawable.menu_open);
+        Drawable closeMenu = AppCompatResources.getDrawable(context, R.drawable.menu_close);
+        Drawable openMenu  = AppCompatResources.getDrawable(context, R.drawable.menu_open);
         binding.showMenu.setOnClickListener(v -> {
             int visibility = binding.menu.getVisibility();
             System.out.println(visibility);
@@ -258,7 +260,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void initPathFinder() {
-        finder = new PathFinder(activity);
+        finder = new PathFinder(context);
         finder.setOnPathsUpdate(parcoursItemList -> {
             this.parcoursItemList.clear();
             this.parcoursItemList.addAll(parcoursItemList);
@@ -269,12 +271,12 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         });
 
         finder.setOnError(error -> {
-            toastMaker.makeText(activity,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
+            toastMaker.makeText(context,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
         });
 
     }
 
-
-
-
+    public void rafraichir() {
+        finder.findPaths();
+    }
 }
