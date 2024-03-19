@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ import java.util.Locale;
 import java.util.HashMap;
 
 import iut.info3.betterstravadroid.api.PathApi;
+import iut.info3.betterstravadroid.databinding.InterestPointItemBinding;
 import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
@@ -166,11 +169,21 @@ public class PageSynthese extends AppCompatActivity {
                 String titre = (String) pointInt.get("nom");
                 String description = (String) pointInt.get("description");
 
-                View card = View.inflate(this, R.layout.interest_point_item, binding.syntheseMain);
-                TextView textViewTitre = card.findViewById(R.id.pi_titre);
-                textViewTitre.setText(titre);
-                TextView textViewDescription = card.findViewById(R.id.pi_description);
-                textViewDescription.setText(description);
+                InterestPointItemBinding bindingPi = InterestPointItemBinding.inflate(getLayoutInflater(), null, false);
+                CardView card = bindingPi.getRoot();
+
+                bindingPi.piTitre.setText(titre);
+                bindingPi.piDescription.setText(description);
+
+                ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                lp.setMargins(0, 10, 0, 10);
+                card.setLayoutParams(lp);
+
+
+                binding.syntheseMain.addView(card);
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
