@@ -84,7 +84,7 @@ public class PageAccueil extends Fragment {
         return vue;
     }
 
-    private void retourSynthese(ActivityResult result){
+    private void retourSynthese(ActivityResult result) {
 
     }
 
@@ -93,7 +93,7 @@ public class PageAccueil extends Fragment {
         Intent intention = new Intent(getActivity(), PageSynthese.class);
 
         // transmission de l'id du parcours
-        intention.putExtra("pathId",result.getString("id") );
+        intention.putExtra("pathId", result.getString("id"));
         // lancement de l'activité fille
         launcher.launch(intention);
 
@@ -141,6 +141,7 @@ public class PageAccueil extends Fragment {
      *     <li>stats de l'utilisateur sur 30 jours</li>
      *     <li>stats de l'utilisateur depuis la création de son compte</li>
      * </ul>
+     *
      * @param object réponse de l'API
      */
     public void setViewContent(Object object) {
@@ -163,7 +164,7 @@ public class PageAccueil extends Fragment {
 
             float dureeParcours30Jours = Float.parseFloat(stats30Jours.getString(UserPreferences.STAT_KEY_TIME));
             float heureParcours30Jours = dureeParcours30Jours / 3600;
-            float minParcours30Jours = dureeParcours30Jours  % 3600 / 60;
+            float minParcours30Jours = dureeParcours30Jours % 3600 / 60;
             binding.tvTpsParcoursHeure30J.setText(Integer.toString(Math.round(heureParcours30Jours)));
             binding.tvTpsParcoursMinute30J.setText(Integer.toString(Math.round(minParcours30Jours)));
 
@@ -194,6 +195,7 @@ public class PageAccueil extends Fragment {
      *     <li>le titre du dernier parcours</li>
      *     <li>la description du dernier parcours</li>
      * </ul>
+     *
      * @param object réponse de l'API
      */
     public void setViewParcours(Object object) {
@@ -229,20 +231,21 @@ public class PageAccueil extends Fragment {
 
     /**
      * Affichage d'un toast en cas d'erreur de l'API
+     *
      * @param error erreur envoyée par l'API
      */
     public void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-            toastMaker.makeText(context,
+        if (error.networkResponse != null) {
+            try {
+                JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                String message = reponse.optString("erreur");
+                toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                toastMaker.makeText(context,
                                 "Erreur lors de la récupération des informations",
                                 Toast.LENGTH_LONG)
-                                .show();
-        } catch (NullPointerException ex) {
-            ex.printStackTrace();
+                        .show();
+            }
         }
     }
 
