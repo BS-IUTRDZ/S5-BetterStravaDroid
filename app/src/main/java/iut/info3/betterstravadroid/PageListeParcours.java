@@ -66,7 +66,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
                 activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
         pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
 
-        // pageListeParcours.activity = activity;
         pageListeParcours.toastMaker = new ToastMaker();
         pageListeParcours.parcoursItemList = new ArrayList<>();
         pageListeParcours.parcoursAdaptateur =

@@ -231,6 +231,12 @@ public class PageSynthese extends AppCompatActivity {
 
         requestBuilder.withHeader(header)
                 .onError(this::handleError)
+                .onSucces(o -> {
+                    Intent intent = new Intent();
+                    intent.putExtra(KEY_PAGE, PATH_PAGE);
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
+                })
                 .withBody(body)
                 .method(Request.Method.PUT)
                 .newJSONObjectRequest(PathApi.PATH_API_SUPR)
