@@ -142,8 +142,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         datePickerFrom.setDate("01/01/2024");
         datePickerTo.setDate(formatter.format(LocalDate.now().plus(1, ChronoUnit.DAYS)));
-
-
     }
 
     private void initTextSelector(ListeParcoursBinding binding) {
