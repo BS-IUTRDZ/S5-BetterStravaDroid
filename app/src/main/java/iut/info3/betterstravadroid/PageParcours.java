@@ -1,5 +1,7 @@
 package iut.info3.betterstravadroid;
 
+import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -37,10 +39,12 @@ import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+import org.osmdroid.views.util.constants.OverlayConstants;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import android.location.Criteria;
@@ -68,7 +72,7 @@ public class PageParcours extends Fragment {
 
     public static Boolean parcours = false;
     private String fournisseur;
-    ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+    ArrayList<OverlayItem> items = new ArrayList<>();
     private AlertDialog popup;
 
     private PageParcoursBinding binding;
@@ -80,6 +84,7 @@ public class PageParcours extends Fragment {
     private static final String TAG = "PageParcours";
     private int dureeParcours;
     private PathEntity parcoursEnCours;
+    private List<ItemizedOverlayWithFocus<OverlayItem>> mapPointsInterets = new ArrayList<>();
 
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
@@ -305,6 +310,8 @@ public class PageParcours extends Fragment {
 
         trajet.clear();
         line.setPoints(trajet);
+        binding.mapview.getOverlays().removeAll(mapPointsInterets);
+        mapPointsInterets.clear();
         //items.clear();
 
         // On stoppe le thread du chrono
@@ -364,22 +371,25 @@ public class PageParcours extends Fragment {
 
             // On mets en place le listener lors du clic sur le point d'intérêt
             ItemizedOverlayWithFocus<OverlayItem> mOverlay =
-                    new ItemizedOverlayWithFocus<OverlayItem>(
-                            context,
-                            items,
+                    new ItemizedOverlayWithFocus<OverlayItem>(items,
+                            getDrawable(context, R.drawable.pin),
+                            null,
+                            OverlayConstants.NOT_SET,
                             new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                        @Override
-                        public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                            Toast.makeText( context,
-                                    item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
-                            return true;
-                        }
-                        @Override
-                        public boolean onItemLongPress(final int index, final OverlayItem item) {
-                            return false;
-                            //TODO si on veut supprimer point d'interet
-                        }
-                    });
+                                @Override
+                                public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                                    Toast.makeText(context,
+                                            item.getTitle() + "\n" + item.getSnippet(), Toast.LENGTH_LONG).show();
+                                    return true;
+                                }
+
+                                @Override
+                                public boolean onItemLongPress(final int index, final OverlayItem item) {
+                                    return false;
+                                    //TODO si on veut supprimer point d'interet
+                                }
+                            },
+                            context);
 
             // On ajoute le point d'intéret au parcours
             parcoursEnCours.addPointInteret(new PointInteretEntity(
@@ -387,6 +397,7 @@ public class PageParcours extends Fragment {
 
             //mOverlay.setFocusItemsOnTap(true);
             binding.mapview.getOverlays().add(mOverlay);
+            mapPointsInterets.add(mOverlay);
             popup.dismiss();
         }
     }
