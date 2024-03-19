@@ -338,17 +338,21 @@ public class PageParcours extends Fragment {
         alertBinding.btnConfirm.setOnClickListener(v -> {
             if (nouveauParcours) {
                 // La popup est utilisée pour créer un nouveau parcours
-                parcoursEnCours = new PathEntity(alertBinding.etTitre.getText().toString(),
-                                                 alertBinding.etDescription.getText().toString(),
-                                                 Calendar.getInstance().getTime().getTime());
-                popup.dismiss();
-                buttonStartPressed();
+                if(!alertBinding.etTitre.getText().toString().isEmpty()) {
+                    parcoursEnCours = new PathEntity(alertBinding.etTitre.getText().toString(),
+                            alertBinding.etDescription.getText().toString(),
+                            Calendar.getInstance().getTime().getTime());
+                    popup.dismiss();
+                    buttonStartPressed();
+                }
             } else {
                 // La popup est utilisée pour ajouter un point d'intérêt
-                pointInteretConfirmTitleDescription(
-                        alertBinding.etTitre.getText().toString(),
-                        alertBinding.etDescription.getText().toString()
-                );
+                if(!alertBinding.etTitre.getText().toString().isEmpty()) {
+                    pointInteretConfirmTitleDescription(
+                            alertBinding.etTitre.getText().toString(),
+                            alertBinding.etDescription.getText().toString()
+                    );
+                }
             }
         });
 
