@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,9 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,7 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
 import iut.info3.betterstravadroid.parcours.ParcoursItem;
@@ -50,7 +46,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private SharedPreferences preferences;
 
-    private Activity activity;
+    private Context context;
 
     private ToastMaker toastMaker;
 
@@ -70,7 +66,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
                 activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
         pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
 
-        pageListeParcours.activity = activity;
+        // pageListeParcours.activity = activity;
         pageListeParcours.toastMaker = new ToastMaker();
         pageListeParcours.parcoursItemList = new ArrayList<>();
         pageListeParcours.parcoursAdaptateur =
@@ -92,20 +88,22 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
 
         binding = ListeParcoursBinding.inflate(inflater, container, false);
+        View vue = binding.getRoot();
+        context = vue.getContext();
 
         onClickShowMenuButton();
         initPathFinder();
         initRecyclerView();
-        View vue = binding.getRoot();
+
 
         parcoursAdaptateur.setOnBottomReachedListener(position -> {
             finder.setNbPathAlreadyLoaded(position + 1);
         });
 
-        SwipeHelper swipeHelper = new SwipeHelper(activity, binding.recyclerView) {
+        SwipeHelper swipeHelper = new SwipeHelper(context, binding.recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new UnderlayButton(activity, 0, Color.WHITE,
+                underlayButtons.add(new UnderlayButton(context, 0, Color.WHITE,
                         pos -> finder.deletePath(parcoursItemList.get(pos))));
             }
         };
@@ -127,8 +125,8 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void initDateSelector(ListeParcoursBinding binding) {
-        datePickerFrom = new DatePickerDialog(activity);
-        datePickerTo = new DatePickerDialog(activity);
+        datePickerFrom = new DatePickerDialog(context);
+        datePickerTo = new DatePickerDialog(context);
         datePickerFrom.setOnDateSetListener((view, year, month, dayOfMonth) -> {
             String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
                     format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -219,8 +217,8 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void onClickShowMenuButton() {
-        Drawable closeMenu = AppCompatResources.getDrawable(activity, R.drawable.menu_close);
-        Drawable openMenu  = AppCompatResources.getDrawable(activity, R.drawable.menu_open);
+        Drawable closeMenu = AppCompatResources.getDrawable(context, R.drawable.menu_close);
+        Drawable openMenu  = AppCompatResources.getDrawable(context, R.drawable.menu_open);
         binding.showMenu.setOnClickListener(v -> {
             int visibility = binding.menu.getVisibility();
             System.out.println(visibility);
@@ -255,7 +253,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void initPathFinder() {
-        finder = new PathFinder(activity);
+        finder = new PathFinder(context);
         finder.setOnPathsUpdate(parcoursItemList -> {
             this.parcoursItemList.clear();
             this.parcoursItemList.addAll(parcoursItemList);
@@ -266,7 +264,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         });
 
         finder.setOnError(error -> {
-            toastMaker.makeText(activity,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
+            toastMaker.makeText(context,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
         });
 
     }

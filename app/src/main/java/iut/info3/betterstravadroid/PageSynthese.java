@@ -21,7 +21,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,8 +59,6 @@ public class PageSynthese extends AppCompatActivity {
 
     private AlertDialog popup;
 
-    private RequestBuilder helper;
-
     private ActivityResultLauncher<Intent> lanceur;
 
     @Override
@@ -67,6 +67,7 @@ public class PageSynthese extends AppCompatActivity {
         
         binding = PageSyntheseBinding.inflate(getLayoutInflater());
         View vue = binding.getRoot();
+        context = vue.getContext();
         setContentView(vue);
 
         lanceur = registerForActivityResult(
@@ -222,21 +223,20 @@ public class PageSynthese extends AppCompatActivity {
         JSONObject body = new JSONObject();
         HashMap<String,String> header = new HashMap<>();
         try {
-            body.put("id","idParcours"); //TODO faire passer l'id du parcours
+            body.put("id", pathId);
             header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
 
-        helper.withHeader(header)
+        requestBuilder.withHeader(header)
                 .onError(this::handleError)
-                .withHeader(header)
                 .withBody(body)
-                .newJSONObjectRequest(PathApi.PATH_API_MODIF)
+                .method(Request.Method.PUT)
+                .newJSONObjectRequest(PathApi.PATH_API_SUPR)
                 .send();
 
         popup.dismiss();
-
     }
 
     /**
