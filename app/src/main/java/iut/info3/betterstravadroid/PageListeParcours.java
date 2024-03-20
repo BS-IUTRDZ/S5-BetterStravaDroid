@@ -101,9 +101,16 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
         SwipeHelper swipeHelper = new SwipeHelper(context, binding.recyclerView) {
             @Override
-            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new UnderlayButton(context, 0, Color.WHITE,
-                        pos -> finder.deletePath(parcoursItemList.get(pos))));
+            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder,
+                                                  List<UnderlayButton> underlayButtons) {
+                underlayButtons.add(new UnderlayButton(context, 0, Color.RED,
+                        pos -> {
+                            try {
+                                finder.deletePath(parcoursItemList.get(pos));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }));
             }
         };
 
@@ -174,6 +181,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
                 finder.setLengthMax(Integer.parseInt(text));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
+                finder.setLengthMax(0);
             }
         });
 
@@ -183,6 +191,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
                 finder.setLengthMin(Integer.parseInt(text));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
+                finder.setLengthMin(0);
             }
         });
 
