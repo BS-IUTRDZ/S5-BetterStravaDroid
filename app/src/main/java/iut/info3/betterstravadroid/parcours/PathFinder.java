@@ -113,7 +113,6 @@ public class PathFinder {
                 parcoursItemList.add(new ParcoursItem(jsonObject));
             }
             if (parcoursItemList.isEmpty()) {
-                Log.i("debug", "pas de resultat");
                 binding.aucunResultat.setVisibility(View.VISIBLE);
             } else {
                 binding.aucunResultat.setVisibility(View.GONE);

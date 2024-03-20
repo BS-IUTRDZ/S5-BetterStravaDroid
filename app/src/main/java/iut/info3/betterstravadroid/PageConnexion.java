@@ -87,7 +87,6 @@ public class PageConnexion extends AppCompatActivity {
         String token = response.optString("token");
         editor.putString("token", token);
         editor.apply();
-        toastMaker.makeText(this, "Utilisateur connecté", Toast.LENGTH_SHORT).show();
         goToHome();
     }
 
