@@ -69,11 +69,17 @@ public class PathFinder {
                 .format(LocalDate.now().plus(1, ChronoUnit.DAYS));
         if (textSearch == null) textSearch = "";
 
+
         query += "dateInf=" + dateInf;
         query += "&dateSup=" + dateSup;
         query += "&nom=" + textSearch;
         query += "&distanceMin=" + lengthMin;
-        query += "&distanceMax=" + lengthMax;
+        if (lengthMin != 0 && lengthMax == 0) {
+            query += "&distanceMax=" + 1000;
+        } else {
+            query += "&distanceMax=" + lengthMax;
+        }
+
 
 
         builder.addHeader("token", token)

@@ -205,6 +205,8 @@ public class PageAccueil extends Fragment {
                                 "Erreur lors de la récupération des informations",
                                 Toast.LENGTH_LONG)
                                 .show();
+        } catch (NullPointerException ex) {
+            ex.printStackTrace();
         }
     }
 

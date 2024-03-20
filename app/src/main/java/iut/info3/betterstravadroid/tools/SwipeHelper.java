@@ -57,19 +57,23 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             if (swipedPos < 0) return false;
             Point point = new Point((int) e.getRawX(), (int) e.getRawY());
 
-            RecyclerView.ViewHolder swipedViewHolder = recyclerView.findViewHolderForAdapterPosition(swipedPos);
-            View swipedItem = swipedViewHolder.itemView;
-            Rect rect = new Rect();
-            swipedItem.getGlobalVisibleRect(rect);
+            try {
+                RecyclerView.ViewHolder swipedViewHolder = recyclerView.findViewHolderForAdapterPosition(swipedPos);
+                View swipedItem = swipedViewHolder.itemView;
+                Rect rect = new Rect();
+                swipedItem.getGlobalVisibleRect(rect);
 
-            if (e.getAction() == MotionEvent.ACTION_DOWN || e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_MOVE) {
-                if (rect.top < point.y && rect.bottom > point.y)
-                    gestureDetector.onTouchEvent(e);
-                else {
-                    recoverQueue.add(swipedPos);
-                    swipedPos = -1;
-                    recoverSwipedItem();
+                if (e.getAction() == MotionEvent.ACTION_DOWN || e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (rect.top < point.y && rect.bottom > point.y)
+                        gestureDetector.onTouchEvent(e);
+                    else {
+                        recoverQueue.add(swipedPos);
+                        swipedPos = -1;
+                        recoverSwipedItem();
+                    }
                 }
+            } catch (NullPointerException ex) {
+                ex.printStackTrace();
             }
             return false;
         }
@@ -177,16 +181,17 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     private void drawButtons(Canvas c, View itemView, List<UnderlayButton> buffer, int pos, float dX) {
         float right = itemView.getRight();
         float dButtonWidth = (-1) * dX / buffer.size();
+        final int supLength = 50;
 
         for (UnderlayButton button : buffer) {
             float left = right - dButtonWidth;
             button.onDraw(
                     c,
                     new RectF(
-                            left,
-                            itemView.getTop(),
-                            right,
-                            itemView.getBottom()
+                            left + supLength,
+                            itemView.getTop() + supLength,
+                            right + supLength,
+                            itemView.getBottom() + supLength
                     ),
                     pos
             );
@@ -235,7 +240,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             c.drawRect(rect, p);
             Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.trash);
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() / 7, bitmap.getHeight() / 7, true);
-
+            resizedBitmap = changeColor(resizedBitmap, Color.BLACK, Color.WHITE);
             // Draw Text
             p.setColor(Color.WHITE);
             p.setTextSize(100);
@@ -253,5 +258,24 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
 
     public interface UnderlayButtonClickListener {
         void onClick(int pos);
+    }
+
+    public static Bitmap changeColor(Bitmap bitmap, int oldColor,
+                                     int newColor) {
+        if (bitmap == null) {
+            return bitmap;
+        }
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int x = 0; x < pixels.length; ++x) {
+            pixels[x] = (pixels[x] == oldColor) ? newColor : pixels[x];
+        }
+        Bitmap newBitmap = Bitmap.createBitmap(width, height,
+                bitmap.getConfig());
+        newBitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+        return newBitmap;
     }
 }
