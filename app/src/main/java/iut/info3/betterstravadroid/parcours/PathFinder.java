@@ -62,11 +62,6 @@ public class PathFinder {
     public void findPaths() {
 
         String query = GET_ALL_PARCOUR + "?";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        if (dateInf == null) dateInf = "01/01/2024";
-        if (dateSup == null) dateSup = formatter
-                .format(LocalDate.now().plus(1, ChronoUnit.DAYS));
         if (textSearch == null) textSearch = "";
 
 

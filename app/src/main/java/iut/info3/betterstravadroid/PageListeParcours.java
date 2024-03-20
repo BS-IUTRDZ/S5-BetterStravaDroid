@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
 import iut.info3.betterstravadroid.parcours.ParcoursItem;
 import iut.info3.betterstravadroid.parcours.PathFinder;
+import iut.info3.betterstravadroid.tools.DatePickerButton;
 import iut.info3.betterstravadroid.tools.SpacingItemDecorator;
 import iut.info3.betterstravadroid.tools.SwipeHelper;
 
@@ -50,8 +52,8 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private ToastMaker toastMaker;
 
-    private DatePickerDialog datePickerFrom;
-    private DatePickerDialog datePickerTo;
+    private DatePickerButton datePickerFrom;
+    private DatePickerButton datePickerTo;
 
     private PathFinder finder;
     private ActivityResultLauncher<Intent> launcher;
@@ -131,28 +133,17 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void initDateSelector(ListeParcoursBinding binding) {
-        datePickerFrom = new DatePickerDialog(context);
-        datePickerTo = new DatePickerDialog(context);
-        datePickerFrom.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
-                    format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            binding.btnDepuis.setText(date);
-            finder.setDateInf(date);
-        });
+        datePickerFrom = new DatePickerButton(context, binding.btnDepuis);
+        datePickerTo = new DatePickerButton(context, binding.btnJusqua);
+        datePickerFrom.setDateChangeListener((date) -> finder.setDateInf(date));
+        datePickerTo.setDateChangeListener((date) -> finder.setDateSup(date));
 
-        datePickerTo.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            String date = LocalDate.of(year,month + 1,dayOfMonth + 1).
-                    format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            binding.btnJusqua.setText(date);
-            finder.setDateSup(date);
-        });
 
-        binding.btnJusqua.setOnClickListener(view -> {
-            datePickerTo.show();
-        });
-        binding.btnDepuis.setOnClickListener(view -> {
-            datePickerFrom.show();
-        });
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        datePickerFrom.setDate("01/01/2024");
+        datePickerTo.setDate(formatter.format(LocalDate.now().plus(1, ChronoUnit.DAYS)));
+
+
     }
 
     private void initTextSelector(ListeParcoursBinding binding) {
