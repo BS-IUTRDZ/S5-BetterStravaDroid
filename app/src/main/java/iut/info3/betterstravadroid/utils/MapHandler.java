@@ -31,6 +31,9 @@ public class MapHandler {
      *                   si true alors on enleve l'espace supplémentaire qui sureleve la carte
      */
     public static void setMapViewContent(JSONArray points, MapView map, Context context, boolean isSynthese) {
+        //Suppression du contenu de la carte dans le cas d'un raffraichissement
+        map.getOverlayManager().clear();
+
         // Gestion de la carte en arrière plan
         Polyline line = new Polyline(map);
         List<GeoPoint> trajet = new ArrayList<>();

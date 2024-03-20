@@ -118,7 +118,7 @@ public class PageAccueil extends Fragment {
      * Accès au serveur API pour récupérer et mettre à jour
      * les informations de l'utilisateur
      */
-    private void afficherUserInfos() {
+    public void afficherUserInfos() {
         JSONObject body = new JSONObject();
         try {
             body.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
@@ -144,7 +144,7 @@ public class PageAccueil extends Fragment {
      *
      * @param object réponse de l'API
      */
-    public void setViewContent(Object object) {
+    private void setViewContent(Object object) {
         JSONObject response = (JSONObject) object;
         try {
             // Date du jour
@@ -198,7 +198,7 @@ public class PageAccueil extends Fragment {
      *
      * @param object réponse de l'API
      */
-    public void setViewParcours(Object object) {
+    private void setViewParcours(Object object) {
         JSONObject response = (JSONObject) object;
         try {
             // Dernier parcours
