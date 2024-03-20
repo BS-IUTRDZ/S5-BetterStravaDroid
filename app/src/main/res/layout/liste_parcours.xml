@@ -149,6 +149,16 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:id="@+id/aucun_resultat"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:fontFamily="@font/inter_regular"
+            android:text="@string/aucunResultat"
+            android:visibility="gone"/>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -164,11 +174,6 @@
                 android:id="@+id/recycler_view"/>
         </ScrollView>
 
-
-
     </LinearLayout>
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

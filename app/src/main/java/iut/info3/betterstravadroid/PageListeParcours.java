@@ -225,8 +225,6 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         Drawable closeMenu = AppCompatResources.getDrawable(context, R.drawable.menu_close);
         Drawable openMenu  = AppCompatResources.getDrawable(context, R.drawable.menu_open);
         binding.showMenu.setOnClickListener(v -> {
-            int visibility = binding.menu.getVisibility();
-            System.out.println(visibility);
             if (binding.menu.getVisibility() == View.VISIBLE) {
                 binding.menu.setVisibility(View.GONE);
                 binding.showMenu.setImageDrawable(closeMenu);
@@ -258,14 +256,11 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     }
 
     private void initPathFinder() {
-        finder = new PathFinder(context);
+        finder = new PathFinder(context, binding);
         finder.setOnPathsUpdate(parcoursItemList -> {
             this.parcoursItemList.clear();
             this.parcoursItemList.addAll(parcoursItemList);
             parcoursAdaptateur.notifyDataSetChanged();
-
-
-
         });
 
         finder.setOnError(error -> {
