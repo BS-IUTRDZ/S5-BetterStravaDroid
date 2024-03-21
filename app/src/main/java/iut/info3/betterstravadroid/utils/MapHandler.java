@@ -2,6 +2,7 @@ package iut.info3.betterstravadroid.utils;
 
 import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.MotionEvent;
@@ -27,8 +28,13 @@ public class MapHandler {
      * @param points les points du parcours obtenus par l'API
      * @param map le widget mapview
      * @param context le context courant
+     * @param isSynthese boolean pour indiquer si on provient de la page synthese
+     *                   si true alors on enleve l'espace supplémentaire qui sureleve la carte
      */
-    public static void setMapViewContent(JSONArray points, MapView map, Context context) {
+    public static void setMapViewContent(JSONArray points, MapView map, Context context, boolean isSynthese) {
+        //Suppression du contenu de la carte dans le cas d'un raffraichissement
+        map.getOverlayManager().clear();
+
         // Gestion de la carte en arrière plan
         Polyline line = new Polyline(map);
         List<GeoPoint> trajet = new ArrayList<>();
@@ -51,18 +57,19 @@ public class MapHandler {
         line.setGeodesic(true);
         line.setInfoWindow(null);
 
-        map.zoomToBoundingBox(line.getBounds(), false);
-
         // Ajout de l'overlay du trajet sur la carte
         map.getOverlayManager().add(line);
 
         // Centrage de la carte
-        map.zoomToBoundingBox(line.getBounds(), false, 200);
         map.getController().setCenter(line.getBounds().getCenterWithDateLine());
+        map.zoomToBoundingBox(line.getBounds(), false);
+        map.getController().setZoom(map.getZoomLevelDouble() - 2.0);
 
         // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
         // cardview qui contient les infos du trajet
-        map.scrollBy(0, 100);
+        if (!isSynthese) {
+            map.scrollBy(0, 100);
+        }
         map.invalidate();
 
         // Desactivation du zoom

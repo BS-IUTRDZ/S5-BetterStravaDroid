@@ -3,6 +3,7 @@ package iut.info3.betterstravadroid;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.VolleyError;
@@ -37,6 +41,8 @@ public class PageAccueil extends Fragment {
     private SharedPreferences preferences;
     private RequestBuilder helper;
     private ToastMaker toastMaker;
+
+    private ActivityResultLauncher<Intent> launcher;
 
     public PageAccueil() {
         //Require empty public constructor
@@ -68,10 +74,29 @@ public class PageAccueil extends Fragment {
         helper = new RequestBuilder(vue.getContext());
         toastMaker = new ToastMaker();
 
+        launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::retourSynthese);
+
         afficherUserInfos();
         afficherParcours();
 
         return vue;
+    }
+
+    private void retourSynthese(ActivityResult result) {
+
+    }
+
+    public void lancementSynthese(JSONObject result) throws JSONException {
+        // création d'une intention
+        Intent intention = new Intent(getActivity(), PageSynthese.class);
+
+        // transmission de l'id du parcours
+        intention.putExtra("pathId", result.getString("id"));
+        // lancement de l'activité fille
+        launcher.launch(intention);
+
     }
 
     /**
@@ -93,7 +118,7 @@ public class PageAccueil extends Fragment {
      * Accès au serveur API pour récupérer et mettre à jour
      * les informations de l'utilisateur
      */
-    private void afficherUserInfos() {
+    public void afficherUserInfos() {
         JSONObject body = new JSONObject();
         try {
             body.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
@@ -116,9 +141,10 @@ public class PageAccueil extends Fragment {
      *     <li>stats de l'utilisateur sur 30 jours</li>
      *     <li>stats de l'utilisateur depuis la création de son compte</li>
      * </ul>
+     *
      * @param object réponse de l'API
      */
-    public void setViewContent(Object object) {
+    private void setViewContent(Object object) {
         JSONObject response = (JSONObject) object;
         try {
             // Date du jour
@@ -138,7 +164,7 @@ public class PageAccueil extends Fragment {
 
             float dureeParcours30Jours = Float.parseFloat(stats30Jours.getString(UserPreferences.STAT_KEY_TIME));
             float heureParcours30Jours = dureeParcours30Jours / 3600;
-            float minParcours30Jours = dureeParcours30Jours  % 3600 / 60;
+            float minParcours30Jours = dureeParcours30Jours % 3600 / 60;
             binding.tvTpsParcoursHeure30J.setText(Integer.toString(Math.round(heureParcours30Jours)));
             binding.tvTpsParcoursMinute30J.setText(Integer.toString(Math.round(minParcours30Jours)));
 
@@ -169,9 +195,10 @@ public class PageAccueil extends Fragment {
      *     <li>le titre du dernier parcours</li>
      *     <li>la description du dernier parcours</li>
      * </ul>
+     *
      * @param object réponse de l'API
      */
-    public void setViewParcours(Object object) {
+    private void setViewParcours(Object object) {
         JSONObject response = (JSONObject) object;
         try {
             // Dernier parcours
@@ -184,29 +211,41 @@ public class PageAccueil extends Fragment {
 
             // Création du trajet
             JSONArray points = response.getJSONArray("points");
-            MapHandler.setMapViewContent(points, binding.cardLastRun.map, context);
+            MapHandler.setMapViewContent(points, binding.cardLastRun.map, context, false);
+
+            // mise en place du Onclick sur la cardview
+            binding.cardLastRun.cadre.setOnClickListener(v -> {
+                try {
+                    lancementSynthese(response);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     /**
      * Affichage d'un toast en cas d'erreur de l'API
+     *
      * @param error erreur envoyée par l'API
      */
     public void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-            toastMaker.makeText(context,
+        if (error.networkResponse != null) {
+            try {
+                JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                String message = reponse.optString("erreur");
+                toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                toastMaker.makeText(context,
                                 "Erreur lors de la récupération des informations",
                                 Toast.LENGTH_LONG)
-                                .show();
-        } catch (NullPointerException ex) {
-            ex.printStackTrace();
+                        .show();
+            }
         }
     }
 

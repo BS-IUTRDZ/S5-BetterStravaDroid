@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         PageAccueil pageAccueil = (PageAccueil) getSupportFragmentManager().findFragmentByTag("f0");
         if (pageAccueil != null) {
             pageAccueil.afficherParcours();
+            pageAccueil.afficherUserInfos();
         }
 
         PageListeParcours pageListeParcours = (PageListeParcours) getSupportFragmentManager().findFragmentByTag("f2");

@@ -7,14 +7,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-<!--    <include-->
-<!--        android:id="@+id/navbar"-->
-<!--        layout="@layout/navbar"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="75dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"/>-->
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -63,36 +55,61 @@
                 android:layout_marginEnd="64dp"
                 android:layout_marginBottom="4dp"
                 android:text="@string/dateMin"
-                app:layout_constraintBottom_toBottomOf="@id/btn_depuis"
-                app:layout_constraintTop_toTopOf="@id/btn_depuis" />
+                app:layout_constraintBottom_toBottomOf="@id/cardViewDepuis"
+                app:layout_constraintTop_toTopOf="@id/cardViewDepuis" />
 
 
-            <Button
-                android:layout_marginStart="10dp"
-                android:id="@+id/btn_depuis"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:text="@string/filtre_parcours_date_depuis"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewDepuis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#4478c2"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="15dp"
                 app:layout_constraintStart_toEndOf="@+id/textView2"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" >
+
+                <Button
+                    android:layout_marginStart="10dp"
+                    android:id="@+id/btn_depuis"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:text="@string/filtre_parcours_date_depuis"
+                    android:background="@color/transparent"
+                    android:textColor="@color/white"
+                    />
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dateMax"
-                app:layout_constraintBottom_toBottomOf="@+id/btn_jusqua"
+                app:layout_constraintBottom_toBottomOf="@+id/cardViewJusqua"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_depuis" />
+                app:layout_constraintTop_toBottomOf="@+id/cardViewDepuis" />
 
-            <Button
-                android:id="@+id/btn_jusqua"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:text="@string/filtre_parcours_date_jusqua"
-                app:layout_constraintStart_toStartOf="@+id/btn_depuis"
-                app:layout_constraintTop_toBottomOf="@+id/btn_depuis" />
-
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewJusqua"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#4478c2"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="15dp"
+                app:layout_constraintStart_toStartOf="@+id/cardViewDepuis"
+                app:layout_constraintEnd_toEndOf="@id/cardViewDepuis"
+                app:layout_constraintTop_toBottomOf="@+id/cardViewDepuis">
+                <Button
+                    android:id="@+id/btn_jusqua"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:text="@string/filtre_parcours_date_jusqua"
+                    android:background="@color/transparent"
+                    android:textColor="@color/white"
+                    />
+            </androidx.cardview.widget.CardView>
 
             <EditText
                 android:id="@+id/lenghtMin"
@@ -100,8 +117,8 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/btn_jusqua"
-                app:layout_constraintTop_toBottomOf="@+id/btn_jusqua" />
+                app:layout_constraintStart_toStartOf="@+id/cardViewJusqua"
+                app:layout_constraintTop_toBottomOf="@+id/cardViewJusqua" />
 
             <TextView
                 android:id="@+id/textView2"
@@ -119,7 +136,7 @@
                 android:inputType="number"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView2"
-                app:layout_constraintStart_toStartOf="@+id/btn_jusqua"
+                app:layout_constraintStart_toStartOf="@+id/cardViewJusqua"
                 app:layout_constraintTop_toBottomOf="@+id/lenghtMin" />
 
             <TextView
@@ -132,6 +149,16 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:id="@+id/aucun_resultat"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:fontFamily="@font/inter_regular"
+            android:text="@string/aucunResultat"
+            android:visibility="gone"/>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -147,11 +174,6 @@
                 android:id="@+id/recycler_view"/>
         </ScrollView>
 
-
-
     </LinearLayout>
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

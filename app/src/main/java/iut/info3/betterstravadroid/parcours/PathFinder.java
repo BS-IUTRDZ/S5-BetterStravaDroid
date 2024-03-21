@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -33,6 +34,7 @@ public class PathFinder {
     public static final String GET_ALL_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findPath";
     public static final String DELETE_PARCOUR = ApiConfiguration.API_BASE_URL + "path/archivingPath";
 
+    private final ListeParcoursBinding binding;
 
     private String dateSup;
     private String dateInf;
@@ -52,11 +54,12 @@ public class PathFinder {
 
     private int nbPathAlreadyLoaded;
 
-    public PathFinder(Context context) {
+    public PathFinder(Context context, ListeParcoursBinding binding) {
         token = context.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE)
                 .getString(UserPreferences.USER_KEY_TOKEN,"None");
         this.builder = new RequestBuilder(context);
         nbPathAlreadyLoaded = 0;
+        this.binding = binding;
     }
 
     public void findPaths() {
@@ -108,6 +111,11 @@ public class PathFinder {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jsonObject = array.getJSONObject(i);
                 parcoursItemList.add(new ParcoursItem(jsonObject));
+            }
+            if (parcoursItemList.isEmpty()) {
+                binding.aucunResultat.setVisibility(View.VISIBLE);
+            } else {
+                binding.aucunResultat.setVisibility(View.GONE);
             }
             if (updateListener != null) {
                 updateListener.onUpdate(parcoursItemList);

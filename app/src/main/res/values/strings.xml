@@ -73,9 +73,10 @@
     <string name="titre_du_parcours">Titre du parcours</string>
     <string name="description_du_parcours">Description du parcours</string>
 
-    <string name="placeBeforeTextSearchBarParcour">Nom du parcour</string>
+    <string name="placeBeforeTextSearchBarParcour">Nom du parcours</string>
     <string name="dateMin">Date minimale</string>
     <string name="dateMax">Date maximale</string>
     <string name="longueurMin">Longueur minimale</string>
     <string name="longueurMax">Longueur maximale</string>
+    <string name="aucunResultat">Oups !\nAucun parcours correspond à vos filtres...</string>
 </resources>
