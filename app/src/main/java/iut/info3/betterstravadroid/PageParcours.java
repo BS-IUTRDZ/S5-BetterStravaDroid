@@ -317,7 +317,12 @@ public class PageParcours extends Fragment {
         // On stoppe le thread du chrono
         if (threadTimer != null) {
             threadTimer.interrupt();
+            //On reinitialise l'indicateur visuel du chrono
+            binding.tvTpsParcoursHeure.setText("00");
+            binding.tvTpsParcoursMinute.setText("00");
         }
+        //On reinitialise l'indicateur visuel de vitesse
+        binding.tvVitesseMoyenne.setText(String.format(Locale.FRANCE, "%.2f", 0.00));
 
         // On envoie le parcours à l'API
         sendPathToApi();
@@ -415,10 +420,6 @@ public class PageParcours extends Fragment {
             public void run() {
                 try {
                     // On réinitialise le temps
-                    ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
-                        binding.tvTpsParcoursHeure.setText("00");
-                        binding.tvTpsParcoursMinute.setText("00");
-                    });
                     dureeParcours = 0;
                     long currentTime;
 
