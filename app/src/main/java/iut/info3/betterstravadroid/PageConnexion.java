@@ -92,13 +92,18 @@ public class PageConnexion extends AppCompatActivity {
 
 
     public void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
+        if (error.networkResponse != null) {
+            try {
+                JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                String message = reponse.optString("erreur");
+                toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
+            }
+        } else {
             toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
         }
+
     }
 
     public void setHelper(RequestBuilder helper) {
