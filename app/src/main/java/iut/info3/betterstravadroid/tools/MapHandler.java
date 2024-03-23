@@ -1,8 +1,7 @@
-package iut.info3.betterstravadroid.utils;
+package iut.info3.betterstravadroid.tools;
 
 import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.MotionEvent;

@@ -26,10 +26,14 @@ import org.junit.runner.RunWith;
 import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
 
-@RunWith(AndroidJUnit4.class)
-public class PageConnexionTest {
+import iut.info3.betterstravadroid.activities.ConnexionActivity;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.ToastMaker;
 
-    private PageConnexion pageConnexion;
+@RunWith(AndroidJUnit4.class)
+public class ConnexionActivityTest {
+
+    private ConnexionActivity connexionActivity;
 
     private EditText courriel;
 
@@ -56,14 +60,14 @@ public class PageConnexionTest {
     @UiThreadTest
     public void boutonConnexionWithEmptyField() {
         // Given un ou plusieur champ laisser vide par l'utilisateur
-        courriel = PageInscriptionTest.setUpMock("");
-        motDePasse = PageInscriptionTest.setUpMock("");
-        pageConnexion = new PageConnexion(courriel, motDePasse);
+        courriel = InscriptionActivityTest.setUpMock("");
+        motDePasse = InscriptionActivityTest.setUpMock("");
+        connexionActivity = new ConnexionActivity(courriel, motDePasse);
         View view = mock(View.class);
-        pageConnexion.setHelper(helper);
-        pageConnexion.setToastMaker(toastMaker);
+        connexionActivity.setHelper(helper);
+        connexionActivity.setToastMaker(toastMaker);
         // When il clique sur le bouton se connecter
-        pageConnexion.boutonConnexion(view);
+        connexionActivity.boutonConnexion(view);
         // Then un message d'erreur est afficher lui indiquant qu'il doit
         // finir de remplir les champs
         verify(toastMaker).makeText(any(),eq("Veuillez saisir votre courriel et votre mot de passe"),anyInt());
@@ -75,13 +79,13 @@ public class PageConnexionTest {
     public void handleErrorApi() {
 
         // Given une erreur envoyé par l'api lors de l'appel
-        pageConnexion = new PageConnexion();
+        connexionActivity = new ConnexionActivity();
         String errorMessage = "{\"erreur\" : \"Erreur api\" }";
         VolleyError error = new VolleyError(
                 new NetworkResponse(errorMessage.getBytes()));
-        pageConnexion.setToastMaker(toastMaker);
+        connexionActivity.setToastMaker(toastMaker);
         // When elle est reçut par l'application
-        pageConnexion.handleError(error);
+        connexionActivity.handleError(error);
         // Then un toast est afficher avec le message
         verify(toastMaker).makeText(any(), eq("Erreur api"), anyInt());
 
@@ -93,14 +97,14 @@ public class PageConnexionTest {
     public void handleErrorJsonFormatException() {
         // Given un message provenant de l'api qui ne respecte
         // pas le format JSON
-        pageConnexion = new PageConnexion();
+        connexionActivity = new ConnexionActivity();
         String errorMessage = "\"erreur\" : \"Erreur api\" }";
         VolleyError error = new VolleyError(
                 new NetworkResponse(errorMessage.getBytes()));
-        pageConnexion.setToastMaker(toastMaker);
+        connexionActivity.setToastMaker(toastMaker);
 
         // When il est reçut par l'api
-        pageConnexion.handleError(error);
+        connexionActivity.handleError(error);
         // Alors un message d'erreur générique est afficher
         verify(toastMaker).makeText(any(), eq("Erreur lors de la connexion"), anyInt());
     }
@@ -112,13 +116,13 @@ public class PageConnexionTest {
 
         // Given un message de succès avec un token renvoyer par l'api
         SharedPreferences.Editor editor = mock(SharedPreferences.Editor.class);
-        pageConnexion = new PageConnexion();
-        pageConnexion.setEditor(editor);
-        pageConnexion.setToastMaker(toastMaker);
+        connexionActivity = new ConnexionActivity();
+        connexionActivity.setEditor(editor);
+        connexionActivity.setToastMaker(toastMaker);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("token","tokenApi");
         // When il est reçut par l'application
-        pageConnexion.handleResponse(jsonObject);
+        connexionActivity.handleResponse(jsonObject);
         // Then il est stocker dans les préférences de l'application
         verify(editor).putString("token", "tokenApi");
         verify(editor).apply();

@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -28,13 +28,17 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import iut.info3.betterstravadroid.api.PathApi;
-import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.activities.SyntheseActivity;
+import iut.info3.betterstravadroid.R;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.ToastMaker;
+import iut.info3.betterstravadroid.tools.api.PathApi;
+import iut.info3.betterstravadroid.tools.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageAccueilBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
-import iut.info3.betterstravadroid.utils.MapHandler;
+import iut.info3.betterstravadroid.tools.MapHandler;
 
-public class PageAccueil extends Fragment {
+public class AccueilFragment extends Fragment {
 
     private PageAccueilBinding binding;
     private Context context;
@@ -44,12 +48,12 @@ public class PageAccueil extends Fragment {
 
     private ActivityResultLauncher<Intent> launcher;
 
-    public PageAccueil() {
+    public AccueilFragment() {
         //Require empty public constructor
     }
 
-    public static PageAccueil newInstance() {
-        return new PageAccueil();
+    public static AccueilFragment newInstance() {
+        return new AccueilFragment();
     }
 
     @Override
@@ -90,7 +94,7 @@ public class PageAccueil extends Fragment {
 
     public void lancementSynthese(JSONObject result) throws JSONException {
         // création d'une intention
-        Intent intention = new Intent(getActivity(), PageSynthese.class);
+        Intent intention = new Intent(getActivity(), SyntheseActivity.class);
 
         // transmission de l'id du parcours
         intention.putExtra("pathId", result.getString("id"));

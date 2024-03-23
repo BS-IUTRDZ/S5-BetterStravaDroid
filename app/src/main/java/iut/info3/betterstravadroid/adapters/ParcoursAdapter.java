@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.parcours;
+package iut.info3.betterstravadroid.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import iut.info3.betterstravadroid.R;
-import iut.info3.betterstravadroid.RecyclerViewInterface;
+import iut.info3.betterstravadroid.interfaces.RecyclerViewInterface;
+import iut.info3.betterstravadroid.tools.parcours.ParcoursItem;
+import iut.info3.betterstravadroid.tools.parcours.ParcoursViewHolder;
 
-public class ParcoursAdaptateur extends RecyclerView.Adapter<ParcoursViewHolder> {
+public class ParcoursAdapter extends RecyclerView.Adapter<ParcoursViewHolder> {
 
 
 
@@ -23,7 +25,7 @@ public class ParcoursAdaptateur extends RecyclerView.Adapter<ParcoursViewHolder>
 
     private List<ParcoursItem> lesParcours;
 
-    public ParcoursAdaptateur(List<ParcoursItem> donnees, RecyclerViewInterface recyclerViewInterface) {
+    public ParcoursAdapter(List<ParcoursItem> donnees, RecyclerViewInterface recyclerViewInterface) {
         lesParcours = donnees;
         this.recyclerViewInterface = recyclerViewInterface;
         bottomAlreadyReached = false;

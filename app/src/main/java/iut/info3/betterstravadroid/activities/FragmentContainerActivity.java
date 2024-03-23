@@ -1,17 +1,20 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.activities;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import iut.info3.betterstravadroid.adapters.PageAdapter;
 import iut.info3.betterstravadroid.databinding.ActivityMainBinding;
+import iut.info3.betterstravadroid.fragments.AccueilFragment;
+import iut.info3.betterstravadroid.fragments.ListeParcoursFragment;
+import iut.info3.betterstravadroid.fragments.ParcoursFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class FragmentContainerActivity extends AppCompatActivity {
 
-    ActivityMainBinding binding;
+    public ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
          * on associe au ViewPager un adaptateur (c'est lui qui organise le défilement
          * entre les fragments à afficher)
          */
-        binding.activityMainViewpager.setAdapter(new PageAdaptateur(this));
+        binding.activityMainViewpager.setAdapter(new PageAdapter(this));
         binding.activityMainViewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setParcoursButton() {
-        if (!PageParcours.play) {
+        if (!ParcoursFragment.play) {
             binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
             binding.navbar.playButton.setVisibility(View.VISIBLE);
         } else {
@@ -91,18 +94,18 @@ public class MainActivity extends AppCompatActivity {
 
     /* Appui sur le bouton accueil de la navbar */
     public void goToHome(View view) {
-        binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_ACCUEIL);
+        binding.activityMainViewpager.setCurrentItem(PageAdapter.PAGE_ACCUEIL);
     }
 
     /* Appui sur le bouton parcours de la navbar */
     public void goToPathList(View view) {
-        binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_LISTE_PARCOURS);
+        binding.activityMainViewpager.setCurrentItem(PageAdapter.PAGE_LISTE_PARCOURS);
     }
 
     public void pauseButton(View view){
 
         //Si parcours pause du parcours
-        PageParcours.play = false;
+        ParcoursFragment.play = false;
         view.setVisibility(View.INVISIBLE);
         binding.navbar.playButton.setVisibility(View.VISIBLE);
 
@@ -112,13 +115,13 @@ public class MainActivity extends AppCompatActivity {
         //Si pas de parcours tp sur page parcours
         //Si parcours reprise du parcours
 
-        if (PageParcours.parcours) {
+        if (ParcoursFragment.parcours) {
             view.setVisibility(View.INVISIBLE);
             binding.navbar.pauseButton.setVisibility(View.VISIBLE);
-            PageParcours.play = true;
+            ParcoursFragment.play = true;
         }
 
-        binding.activityMainViewpager.setCurrentItem(PageAdaptateur.PAGE_PARCOURS);
+        binding.activityMainViewpager.setCurrentItem(PageAdapter.PAGE_PARCOURS);
     }
 
     public void showMenu() {
@@ -126,15 +129,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void rafraichirTout() {
-        PageAccueil pageAccueil = (PageAccueil) getSupportFragmentManager().findFragmentByTag("f0");
-        if (pageAccueil != null) {
-            pageAccueil.afficherParcours();
-            pageAccueil.afficherUserInfos();
+        AccueilFragment accueilFragment = (AccueilFragment) getSupportFragmentManager().findFragmentByTag("f0");
+        if (accueilFragment != null) {
+            accueilFragment.afficherParcours();
+            accueilFragment.afficherUserInfos();
         }
 
-        PageListeParcours pageListeParcours = (PageListeParcours) getSupportFragmentManager().findFragmentByTag("f2");
-        if (pageListeParcours != null) {
-            pageListeParcours.rafraichir();
+        ListeParcoursFragment listeParcoursFragment = (ListeParcoursFragment) getSupportFragmentManager().findFragmentByTag("f2");
+        if (listeParcoursFragment != null) {
+            listeParcoursFragment.rafraichir();
         }
 
     }

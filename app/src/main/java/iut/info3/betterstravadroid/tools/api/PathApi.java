@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.api;
+package iut.info3.betterstravadroid.tools.api;
 
 public class PathApi {
 

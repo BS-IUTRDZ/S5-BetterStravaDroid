@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.parcours;
+package iut.info3.betterstravadroid.tools.parcours;
 
 import android.view.View;
 import android.widget.TextView;
@@ -14,7 +14,7 @@ public class ParcoursViewHolder extends RecyclerView.ViewHolder {
     TextView dateTextView;
     TextView titreTextView;
     TextView descriptionTextView;
-    CardView cardView;
+    public CardView cardView;
 
     public ParcoursViewHolder(@NonNull View itemView) {
         super(itemView);

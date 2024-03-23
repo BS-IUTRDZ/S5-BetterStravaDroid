@@ -1,14 +1,12 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.fragments;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,22 +27,27 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
+import iut.info3.betterstravadroid.activities.SyntheseActivity;
+import iut.info3.betterstravadroid.R;
+import iut.info3.betterstravadroid.interfaces.RecyclerViewInterface;
+import iut.info3.betterstravadroid.tools.ToastMaker;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
-import iut.info3.betterstravadroid.parcours.ParcoursAdaptateur;
-import iut.info3.betterstravadroid.parcours.ParcoursItem;
-import iut.info3.betterstravadroid.parcours.PathFinder;
+import iut.info3.betterstravadroid.adapters.ParcoursAdapter;
+import iut.info3.betterstravadroid.tools.parcours.ParcoursItem;
+import iut.info3.betterstravadroid.tools.parcours.PathFinder;
 import iut.info3.betterstravadroid.tools.DatePickerButton;
 import iut.info3.betterstravadroid.tools.SpacingItemDecorator;
 import iut.info3.betterstravadroid.tools.SwipeHelper;
 
-public class PageListeParcours extends Fragment implements RecyclerViewInterface {
+public class ListeParcoursFragment extends Fragment implements RecyclerViewInterface {
 
     private List<ParcoursItem> parcoursItemList;
 
     private static final String TAG = "PageListeParcours";
 
     private ListeParcoursBinding binding;
-    private ParcoursAdaptateur parcoursAdaptateur;
+    private ParcoursAdapter parcoursAdapter;
 
     private SharedPreferences preferences;
 
@@ -58,23 +61,23 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     private PathFinder finder;
     private ActivityResultLauncher<Intent> launcher;
 
-    public PageListeParcours() {
+    public ListeParcoursFragment() {
         //Require empty public constructor
     }
 
-    public static PageListeParcours newInstance(Activity activity) {
-        PageListeParcours pageListeParcours = new PageListeParcours();
-        pageListeParcours.preferences =
+    public static ListeParcoursFragment newInstance(Activity activity) {
+        ListeParcoursFragment listeParcoursFragment = new ListeParcoursFragment();
+        listeParcoursFragment.preferences =
                 activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
-        pageListeParcours.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
+        listeParcoursFragment.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
 
-        pageListeParcours.toastMaker = new ToastMaker();
-        pageListeParcours.parcoursItemList = new ArrayList<>();
-        pageListeParcours.parcoursAdaptateur =
-                new ParcoursAdaptateur(pageListeParcours.parcoursItemList, pageListeParcours);
+        listeParcoursFragment.toastMaker = new ToastMaker();
+        listeParcoursFragment.parcoursItemList = new ArrayList<>();
+        listeParcoursFragment.parcoursAdapter =
+                new ParcoursAdapter(listeParcoursFragment.parcoursItemList, listeParcoursFragment);
 
 
-        return pageListeParcours;
+        return listeParcoursFragment;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         initRecyclerView();
 
 
-        parcoursAdaptateur.setOnBottomReachedListener(position -> {
+        parcoursAdapter.setOnBottomReachedListener(position -> {
             finder.setNbPathAlreadyLoaded(position + 1);
         });
 
@@ -192,7 +195,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     @Override
     public void onItemClick(ParcoursItem parcoursItem) {
         // création d'une intention
-        Intent intention = new Intent(getActivity(), PageSynthese.class);
+        Intent intention = new Intent(getActivity(), SyntheseActivity.class);
 
         // transmission de l'id du parcours
         intention.putExtra("pathId", parcoursItem.getId());
@@ -202,20 +205,20 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
 
     private void goToPage(ActivityResult result) {
         Intent intent = result.getData();
-        MainActivity mainActivity = (MainActivity) getActivity();
+        FragmentContainerActivity fragmentContainerActivity = (FragmentContainerActivity) getActivity();
 
-        if (intent != null && mainActivity != null) {
-            String page = intent.getStringExtra(PageSynthese.KEY_PAGE);
+        if (intent != null && fragmentContainerActivity != null) {
+            String page = intent.getStringExtra(SyntheseActivity.KEY_PAGE);
 
-            if (page != null && page.equals(PageSynthese.HOME_PAGE)) {
-                mainActivity.goToHome(getView());
-            } else if (page != null && page.equals(PageSynthese.PATH_PAGE)) {
-                mainActivity.goToPathList(getView());
+            if (page != null && page.equals(SyntheseActivity.HOME_PAGE)) {
+                fragmentContainerActivity.goToHome(getView());
+            } else if (page != null && page.equals(SyntheseActivity.PATH_PAGE)) {
+                fragmentContainerActivity.goToPathList(getView());
             }
 
 
-            if (intent.getBooleanExtra(PageSynthese.KEY_FORCE_REFRESH, false)) {
-                mainActivity.rafraichirTout();
+            if (intent.getBooleanExtra(SyntheseActivity.KEY_FORCE_REFRESH, false)) {
+                fragmentContainerActivity.rafraichirTout();
             }
         }
 
@@ -240,14 +243,14 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
     private void initRecyclerView() {
         SpacingItemDecorator spacingItemDecorator = new SpacingItemDecorator(40);
 
-        binding.recyclerView.setAdapter(parcoursAdaptateur);
+        binding.recyclerView.setAdapter(parcoursAdapter);
         binding.recyclerView.addItemDecoration(spacingItemDecorator);
         binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dy > 0) {
-                    parcoursAdaptateur.resetBottomReached();
+                    parcoursAdapter.resetBottomReached();
                 }
             }
         });
@@ -260,7 +263,7 @@ public class PageListeParcours extends Fragment implements RecyclerViewInterface
         finder.setOnPathsUpdate(parcoursItemList -> {
             this.parcoursItemList.clear();
             this.parcoursItemList.addAll(parcoursItemList);
-            parcoursAdaptateur.notifyDataSetChanged();
+            parcoursAdapter.notifyDataSetChanged();
         });
 
         finder.setOnError(error -> {

@@ -11,11 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.android.volley.Cache;
@@ -38,10 +36,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 
-import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.activities.InscriptionActivity;
+import iut.info3.betterstravadroid.tools.api.UserApi;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.ToastMaker;
 
 @RunWith(AndroidJUnit4.class)
-public class PageInscriptionTest {
+public class InscriptionActivityTest {
 
 
 
@@ -74,10 +75,10 @@ public class PageInscriptionTest {
     @UiThreadTest
     public void handleResponse() {
         // Given une réponse d'api correcte
-        PageInscription pageInscription = new PageInscription();
-        pageInscription.setToastMaker(toastMaker);
+        InscriptionActivity inscriptionActivity = new InscriptionActivity();
+        inscriptionActivity.setToastMaker(toastMaker);
         // When elle est reçut par l'application
-        pageInscription.handleResponse(new Object());
+        inscriptionActivity.handleResponse(new Object());
         // Then un message de succès est affiché
         verify(toastMaker).makeText(any(), eq("Inscription réussie"), anyInt());
     }
@@ -87,14 +88,14 @@ public class PageInscriptionTest {
     @UiThreadTest
     public void boutonInscription() {
         // Given un utilisateur ayant entrer une information incorrecte
-        PageInscription pageInscription = new PageInscription(
+        InscriptionActivity inscriptionActivity = new InscriptionActivity(
                 nom, prenom, courriel, password, confirmPassword
         );
 
         View view1 = mock(View.class);
-        pageInscription.setToastMaker(toastMaker);
+        inscriptionActivity.setToastMaker(toastMaker);
         // When Il clique sur le bouton s'inscrire
-        pageInscription.boutonInscription(view1);
+        inscriptionActivity.boutonInscription(view1);
         // Alors un message d'erreur apparait
         verify(toastMaker).makeText(any(), eq(UserApi.ERROR_MESSAGE_NOT_SAME_PASSWORD),anyInt());
 
@@ -108,11 +109,11 @@ public class PageInscriptionTest {
         // Given un utilisateur ayant entrer des information correctes
         setUpGoodMock();
 
-        PageInscription pageInscription = spy(new PageInscription(
+        InscriptionActivity inscriptionActivity = spy(new InscriptionActivity(
                 nom, prenom, courriel, password, confirmPassword
         ));
         View view1 = mock(View.class);
-        pageInscription.setToastMaker(toastMaker);
+        inscriptionActivity.setToastMaker(toastMaker);
         // And une réponse de l'api correcte
         Network network = mock(Network.class);
         ResponseDelivery deliver = spy(new ExecutorDelivery(new Handler(Looper.getMainLooper())));
@@ -128,10 +129,10 @@ public class PageInscriptionTest {
                 "{ \"message\" : \"Utilisateur correctement insérer \","
                 +" \"utilisateur\" : \"guillaume\"}").getBytes());
         when(network.performRequest(any())).thenReturn(response);
-        pageInscription.setRequestHelper(helper);
+        inscriptionActivity.setRequestHelper(helper);
 
         // When il clique sur le bouton s'inscrire
-        pageInscription.boutonInscription(view1);
+        inscriptionActivity.boutonInscription(view1);
 
 
         verify(queue, times(1)).add(any());
@@ -158,12 +159,12 @@ public class PageInscriptionTest {
     @UiThreadTest
     public void handleError() {
         // Given une erreur réseau lors de l'appel pour l'inscription à l'api
-        PageInscription pageInscription = new PageInscription();
+        InscriptionActivity inscriptionActivity = new InscriptionActivity();
         String messageError =  "";
         VolleyError error = new VolleyError(new NetworkResponse(messageError.getBytes()));
-        pageInscription.setToastMaker(toastMaker);
+        inscriptionActivity.setToastMaker(toastMaker);
         // When elle est reçut par l'application
-        pageInscription.handleError(error);
+        inscriptionActivity.handleError(error);
 
         // Then un message d'erreur est afficher
         verify(toastMaker).makeText(any(), eq("Erreur lors de l'inscription"),anyInt());

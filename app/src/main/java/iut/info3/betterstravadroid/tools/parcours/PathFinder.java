@@ -1,31 +1,21 @@
-package iut.info3.betterstravadroid.parcours;
+package iut.info3.betterstravadroid.tools.parcours;
 
-import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import iut.info3.betterstravadroid.RequestBuilder;
-import iut.info3.betterstravadroid.api.ApiConfiguration;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 

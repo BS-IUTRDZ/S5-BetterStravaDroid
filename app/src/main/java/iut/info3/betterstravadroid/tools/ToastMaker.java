@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.tools;
 
 import android.content.Context;
 import android.widget.Toast;

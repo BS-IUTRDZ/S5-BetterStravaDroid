@@ -9,8 +9,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import iut.info3.betterstravadroid.MainActivity;
 import iut.info3.betterstravadroid.R;
 
 public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {

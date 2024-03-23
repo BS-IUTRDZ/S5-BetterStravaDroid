@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.parcours.entity;
+package iut.info3.betterstravadroid.entity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

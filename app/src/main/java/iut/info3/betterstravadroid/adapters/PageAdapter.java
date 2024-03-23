@@ -1,12 +1,15 @@
-package iut.info3.betterstravadroid;
-
-import android.view.View;
+package iut.info3.betterstravadroid.adapters;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-public class PageAdaptateur extends FragmentStateAdapter {
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
+import iut.info3.betterstravadroid.fragments.AccueilFragment;
+import iut.info3.betterstravadroid.fragments.ListeParcoursFragment;
+import iut.info3.betterstravadroid.fragments.ParcoursFragment;
+
+public class PageAdapter extends FragmentStateAdapter {
 
     /** Nombre de fragments gérés par cet adaptateur */
     private static final int NB_FRAGMENT = 3;
@@ -15,12 +18,12 @@ public class PageAdaptateur extends FragmentStateAdapter {
     public static final int PAGE_ACCUEIL = 0;
     public static final int PAGE_PARCOURS = 1;
     public static final int PAGE_LISTE_PARCOURS = 2;
-    private final MainActivity activity;
+    private final FragmentContainerActivity activity;
 
     private RequestBuilder builder;
 
 
-    public PageAdaptateur(MainActivity activity) {
+    public PageAdapter(FragmentContainerActivity activity) {
         super(activity);
         this.activity = activity;
         builder = new RequestBuilder(activity);
@@ -31,11 +34,11 @@ public class PageAdaptateur extends FragmentStateAdapter {
 
         switch(position) {
             case PAGE_ACCUEIL:
-                return PageAccueil.newInstance();
+                return AccueilFragment.newInstance();
             case PAGE_PARCOURS:
-                return PageParcours.newInstance();
+                return ParcoursFragment.newInstance();
             case PAGE_LISTE_PARCOURS:
-                return PageListeParcours.newInstance(activity);
+                return ListeParcoursFragment.newInstance(activity);
             default :
                 return null;
         }

@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.activities;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -12,10 +12,12 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONException;
 
-import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.ToastMaker;
+import iut.info3.betterstravadroid.tools.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageInscriptionBinding;
 
-public class PageInscription extends AppCompatActivity {
+public class InscriptionActivity extends AppCompatActivity {
 
     private PageInscriptionBinding binding;
 
@@ -27,16 +29,16 @@ public class PageInscription extends AppCompatActivity {
 
 
 
-    public PageInscription() {
+    public InscriptionActivity() {
 
     }
 
 
-    public PageInscription(EditText nom,
-                           EditText prenom,
-                           EditText courriel,
-                           EditText password,
-                           EditText confirmPassword) {
+    public InscriptionActivity(EditText nom,
+                               EditText prenom,
+                               EditText courriel,
+                               EditText password,
+                               EditText confirmPassword) {
         this.nom = nom;
         this.prenom = prenom;
         this.courriel = courriel;

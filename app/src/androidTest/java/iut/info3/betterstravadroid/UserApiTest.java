@@ -14,9 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.HashMap;
-
-import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.tools.api.UserApi;
 @RunWith(MockitoJUnitRunner.class)
 public class UserApiTest {
 

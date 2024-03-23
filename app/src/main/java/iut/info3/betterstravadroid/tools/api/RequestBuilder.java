@@ -1,14 +1,11 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.tools.api;
 
 import android.content.Context;
-import android.nfc.Tag;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.Header;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;

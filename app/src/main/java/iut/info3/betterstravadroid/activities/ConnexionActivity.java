@@ -1,11 +1,10 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,11 +14,13 @@ import com.android.volley.VolleyError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import iut.info3.betterstravadroid.api.UserApi;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.ToastMaker;
+import iut.info3.betterstravadroid.tools.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-public class PageConnexion extends AppCompatActivity {
+public class ConnexionActivity extends AppCompatActivity {
 
     private RequestBuilder helper;
 
@@ -29,19 +30,19 @@ public class PageConnexion extends AppCompatActivity {
     private SharedPreferences.Editor editor;
 
 
-    public static PageConnexion instance;
+    public static ConnexionActivity instance;
 
-    public static PageConnexion getInstance() {
+    public static ConnexionActivity getInstance() {
         return instance;
     }
 
-    public PageConnexion() {
+    public ConnexionActivity() {
 
     }
 
     private PageConnexionBinding binding;
 
-    public PageConnexion(EditText courriel, EditText motDePasse) {
+    public ConnexionActivity(EditText courriel, EditText motDePasse) {
         this.courriel = courriel;
         this.motDePasse = motDePasse;
     }
@@ -61,7 +62,7 @@ public class PageConnexion extends AppCompatActivity {
     }
 
     public void goToInscription(View view) {
-        Intent intent = new Intent(this, PageInscription.class);
+        Intent intent = new Intent(this, InscriptionActivity.class);
         startActivity(intent);
     }
 
@@ -119,7 +120,7 @@ public class PageConnexion extends AppCompatActivity {
     }
 
     private void goToHome() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, FragmentContainerActivity.class);
         startActivity(intent);
     }
 

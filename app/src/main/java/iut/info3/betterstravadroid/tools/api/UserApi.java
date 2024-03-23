@@ -1,8 +1,7 @@
-package iut.info3.betterstravadroid.api;
+package iut.info3.betterstravadroid.tools.api;
 
 import android.util.Patterns;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;

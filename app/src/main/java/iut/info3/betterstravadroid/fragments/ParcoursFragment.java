@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.fragments;
 
 import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
 
@@ -51,16 +51,19 @@ import android.location.Criteria;
 
 import com.android.volley.Request;
 
-import iut.info3.betterstravadroid.api.ApiConfiguration;
+import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
+import iut.info3.betterstravadroid.R;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 import iut.info3.betterstravadroid.databinding.PopupInterestPointBinding;
-import iut.info3.betterstravadroid.parcours.entity.PathEntity;
-import iut.info3.betterstravadroid.parcours.entity.PointEntity;
-import iut.info3.betterstravadroid.parcours.entity.PointInteretEntity;
+import iut.info3.betterstravadroid.entity.PathEntity;
+import iut.info3.betterstravadroid.entity.PointEntity;
+import iut.info3.betterstravadroid.entity.PointInteretEntity;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
-public class PageParcours extends Fragment {
+public class ParcoursFragment extends Fragment {
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
     LocationManager locationManager = null;
@@ -118,12 +121,12 @@ public class PageParcours extends Fragment {
         }
     };
 
-    public PageParcours() {
+    public ParcoursFragment() {
         //Require empty public constructor
     }
 
-    public static PageParcours newInstance() {
-        return new PageParcours();
+    public static ParcoursFragment newInstance() {
+        return new ParcoursFragment();
     }
 
     @Override
@@ -287,8 +290,8 @@ public class PageParcours extends Fragment {
         binding.btnStart.setVisibility(View.INVISIBLE);
         binding.btnStop.setVisibility(View.VISIBLE);
         binding.cardViewStop.setCardBackgroundColor(0xFFC3363E);
-        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
-        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
+        ((FragmentContainerActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.VISIBLE);
+        ((FragmentContainerActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.INVISIBLE);
 
         trajet.clear();
         centerMapOnUser();
@@ -305,8 +308,8 @@ public class PageParcours extends Fragment {
         binding.btnStop.setVisibility(View.INVISIBLE);
         binding.btnStart.setVisibility(View.VISIBLE);
         binding.cardViewStop.setCardBackgroundColor(0xFF4478c2);
-        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
-        ((MainActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
+        ((FragmentContainerActivity) getLayoutInflater().getContext()).binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
+        ((FragmentContainerActivity) getLayoutInflater().getContext()).binding.navbar.playButton.setVisibility(View.VISIBLE);
 
         trajet.clear();
         line.setPoints(trajet);
@@ -433,7 +436,7 @@ public class PageParcours extends Fragment {
                         // On met à jour le temps si on est à plus d'une minute de différence
                         if (dureeParcours % 60 == 0) {
                             long finalTimeInSeconds = dureeParcours;
-                            ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                            ((FragmentContainerActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
                                 binding.tvTpsParcoursHeure.setText(String.format(Locale.FRANCE, "%02d", finalTimeInSeconds / 3600));
                                 binding.tvTpsParcoursMinute.setText(String.format(Locale.FRANCE, "%02d",(finalTimeInSeconds % 3600) / 60));
                             });
@@ -468,7 +471,7 @@ public class PageParcours extends Fragment {
                 double vitesseMoyenne = distance / dureeParcours;
 
                 // On met à jour l'affichage
-                ((MainActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
+                ((FragmentContainerActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
                     binding.tvVitesseMoyenne.setText(String.format(Locale.FRANCE, "%.2f", vitesseMoyenne));
                 });
 
@@ -506,9 +509,9 @@ public class PageParcours extends Fragment {
                     })
                     .onSucces((response) -> {
                         Toast.makeText(context, "Parcours enregistré", Toast.LENGTH_LONG).show();
-                        MainActivity mainActivity = (MainActivity) getActivity();
-                        if (mainActivity != null) {
-                            mainActivity.rafraichirTout();
+                        FragmentContainerActivity fragmentContainerActivity = (FragmentContainerActivity) getActivity();
+                        if (fragmentContainerActivity != null) {
+                            fragmentContainerActivity.rafraichirTout();
                         }
                     })
                     .method(Request.Method.POST)

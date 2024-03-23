@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid;
+package iut.info3.betterstravadroid.activities;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -13,19 +13,12 @@ import android.content.Intent;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,14 +30,17 @@ import java.util.Locale;
 
 import java.util.HashMap;
 
-import iut.info3.betterstravadroid.api.PathApi;
+import iut.info3.betterstravadroid.R;
+import iut.info3.betterstravadroid.tools.api.RequestBuilder;
+import iut.info3.betterstravadroid.tools.ToastMaker;
+import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.databinding.InterestPointItemBinding;
 import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-import iut.info3.betterstravadroid.utils.MapHandler;
+import iut.info3.betterstravadroid.tools.MapHandler;
 
-public class PageSynthese extends AppCompatActivity {
+public class SyntheseActivity extends AppCompatActivity {
 
     public static final String KEY_PAGE = "page";
     public static final String HOME_PAGE = "home";
@@ -192,8 +188,8 @@ public class PageSynthese extends AppCompatActivity {
 
     public void toEdit() {
         Intent intent =
-                new Intent(PageSynthese.this,
-                        PageModifParcours.class);
+                new Intent(SyntheseActivity.this,
+                        ModifParcoursActivity.class);
 
         String description = binding.cardRun.tvDescription.getText().toString();
         String titre = binding.cardRun.tvTitre.getText().toString();
