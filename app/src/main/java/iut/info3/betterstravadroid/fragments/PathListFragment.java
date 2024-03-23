@@ -30,10 +30,10 @@ import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
 import iut.info3.betterstravadroid.activities.SynthesisActivity;
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.interfaces.RecyclerViewInterface;
-import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
-import iut.info3.betterstravadroid.adapters.ParcoursAdapter;
-import iut.info3.betterstravadroid.tools.parcours.ParcoursItem;
-import iut.info3.betterstravadroid.tools.parcours.PathFinder;
+import iut.info3.betterstravadroid.databinding.FragmentPathListBinding;
+import iut.info3.betterstravadroid.adapters.PathAdapter;
+import iut.info3.betterstravadroid.tools.path.ParcoursItem;
+import iut.info3.betterstravadroid.tools.path.PathFinder;
 import iut.info3.betterstravadroid.tools.DatePickerButton;
 import iut.info3.betterstravadroid.tools.SpacingItemDecorator;
 import iut.info3.betterstravadroid.tools.SwipeHelper;
@@ -41,8 +41,8 @@ import iut.info3.betterstravadroid.tools.SwipeHelper;
 public class PathListFragment extends Fragment implements RecyclerViewInterface {
 
     private List<ParcoursItem> parcoursItemList;
-    private ListeParcoursBinding binding;
-    private ParcoursAdapter parcoursAdapter;
+    private FragmentPathListBinding binding;
+    private PathAdapter pathAdapter;
 
     private Context context;
 
@@ -56,14 +56,19 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         //Require empty public constructor
     }
 
+    /**
+     *
+     * @param activity
+     * @return
+     */
     public static PathListFragment newInstance(Activity activity) {
         PathListFragment pathListFragment = new PathListFragment();
 
-        pathListFragment.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
+        pathListFragment.binding = FragmentPathListBinding.inflate(activity.getLayoutInflater());
 
         pathListFragment.parcoursItemList = new ArrayList<>();
-        pathListFragment.parcoursAdapter =
-                new ParcoursAdapter(pathListFragment.parcoursItemList, pathListFragment);
+        pathListFragment.pathAdapter =
+                new PathAdapter(pathListFragment.parcoursItemList, pathListFragment);
 
 
         return pathListFragment;
@@ -80,7 +85,7 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
                              Bundle savedInstanceState) {
 
 
-        binding = ListeParcoursBinding.inflate(inflater, container, false);
+        binding = FragmentPathListBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
         context = vue.getContext();
 
@@ -89,7 +94,7 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         initRecyclerView();
 
 
-        parcoursAdapter.setOnBottomReachedListener(position -> {
+        pathAdapter.setOnBottomReachedListener(position -> {
             finder.setNbPathAlreadyLoaded(position + 1);
         });
 
@@ -100,7 +105,7 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
                 underlayButtons.add(new UnderlayButton(context, 0, Color.RED,
                         pos -> {
                             try {
-                                finder.deletePath(parcoursItemList.get(pos));
+                                finder. deletePath(parcoursItemList.get(pos));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -124,7 +129,11 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         return vue;
     }
 
-    private void initDateSelector(ListeParcoursBinding binding) {
+    /**
+     *
+     * @param binding
+     */
+    private void initDateSelector(FragmentPathListBinding binding) {
         datePickerFrom = new DatePickerButton(context, binding.btnDepuis);
         datePickerTo = new DatePickerButton(context, binding.btnJusqua);
         datePickerFrom.setDateChangeListener((date) -> finder.setDateInf(date));
@@ -136,7 +145,11 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         datePickerTo.setDate(formatter.format(LocalDate.now().plus(1, ChronoUnit.DAYS)));
     }
 
-    private void initTextSelector(ListeParcoursBinding binding) {
+    /**
+     *
+     * @param binding
+     */
+    private void initTextSelector(FragmentPathListBinding binding) {
         binding.searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -154,7 +167,11 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         });
     }
 
-    private void initLengthSelector(ListeParcoursBinding binding) {
+    /**
+     *
+     * @param binding
+     */
+    private void initLengthSelector(FragmentPathListBinding binding) {
 
         binding.lenghtMax.setOnClickListener(v -> {
             String text = binding.lenghtMax.getText().toString();
@@ -175,12 +192,12 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
                 finder.setLengthMin(0);
             }
         });
-
-
-
-
     }
 
+    /**
+     *
+     * @param parcoursItem
+     */
     @Override
     public void onItemClick(ParcoursItem parcoursItem) {
         // création d'une intention
@@ -192,6 +209,10 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         launcher.launch(intention);
     }
 
+    /**
+     *
+     * @param result
+     */
     private void goToPage(ActivityResult result) {
         Intent intent = result.getData();
         FragmentContainerActivity fragmentContainerActivity = (FragmentContainerActivity) getActivity();
@@ -205,14 +226,16 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
                 fragmentContainerActivity.goToPathList(getView());
             }
 
-
             if (intent.getBooleanExtra(SynthesisActivity.KEY_FORCE_REFRESH, false)) {
-                fragmentContainerActivity.rafraichirTout();
+                fragmentContainerActivity.refreshAll();
             }
         }
 
     }
 
+    /**
+     *
+     */
     private void onClickShowMenuButton() {
         Drawable closeMenu = AppCompatResources.getDrawable(context, R.drawable.menu_close);
         Drawable openMenu  = AppCompatResources.getDrawable(context, R.drawable.menu_open);
@@ -228,18 +251,20 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
         });
     }
 
-
+    /**
+     *
+     */
     private void initRecyclerView() {
         SpacingItemDecorator spacingItemDecorator = new SpacingItemDecorator(40);
 
-        binding.recyclerView.setAdapter(parcoursAdapter);
+        binding.recyclerView.setAdapter(pathAdapter);
         binding.recyclerView.addItemDecoration(spacingItemDecorator);
         binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dy > 0) {
-                    parcoursAdapter.resetBottomReached();
+                    pathAdapter.resetBottomReached();
                 }
             }
         });
@@ -247,12 +272,15 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
 
     }
 
+    /**
+     *
+     */
     private void initPathFinder() {
         finder = new PathFinder(context, binding);
         finder.setOnPathsUpdate(parcoursItemList -> {
             this.parcoursItemList.clear();
             this.parcoursItemList.addAll(parcoursItemList);
-            parcoursAdapter.notifyDataSetChanged();
+            pathAdapter.notifyDataSetChanged();
         });
 
         finder.setOnError(error -> {
@@ -261,6 +289,9 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
 
     }
 
+    /**
+     *
+     */
     public void rafraichir() {
         finder.findPaths();
     }

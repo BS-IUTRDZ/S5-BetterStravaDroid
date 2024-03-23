@@ -10,10 +10,14 @@ import iut.info3.betterstravadroid.adapters.PageAdapter;
 import iut.info3.betterstravadroid.databinding.ActivityMainBinding;
 import iut.info3.betterstravadroid.fragments.HomeFragment;
 import iut.info3.betterstravadroid.fragments.PathListFragment;
-import iut.info3.betterstravadroid.fragments.ParcoursFragment;
+import iut.info3.betterstravadroid.fragments.PathFragment;
 
+/**
+ * Main class, associated with the application fragment.
+ */
 public class FragmentContainerActivity extends AppCompatActivity {
 
+    /** Object in charge of linking this class to the layout */
     public ActivityMainBinding binding;
 
     @Override
@@ -24,8 +28,8 @@ public class FragmentContainerActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         /*
-         * on associe au ViewPager un adaptateur (c'est lui qui organise le défilement
-         * entre les fragments à afficher)
+         * the ViewPager is associated with an adapter
+         * (it organizes the scrolling between the fragments to display)
          */
         binding.activityMainViewpager.setAdapter(new PageAdapter(this));
         binding.activityMainViewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -37,39 +41,41 @@ public class FragmentContainerActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sets the navbar icons according to the fragment displayed on the phone.
+     * @param position fragment number displayed on the interface
+     */
     private void setNavbarIcon(int position) {
 
         switch(position) {
-            case 0 :
-                // Gestion des boutons sur la page d'accueil
+            case 0 : // Managing Home Page Buttons
+
                 binding.navbar.homeButtonInactive.setVisibility(View.INVISIBLE);
                 binding.navbar.homeButtonActive.setVisibility(View.VISIBLE);
 
-                setParcoursButton();
+                setPauseButton();
 
                 binding.navbar.pathButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.pathButtonActive.setVisibility(View.INVISIBLE);
 
                 binding.activityMainViewpager.setUserInputEnabled(true);
                 break;
-            case 1 :
-                // Gestion des boutons sur la page d'accueil
+            case 1 : // Managing Path Page Buttons
                 binding.navbar.homeButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.homeButtonActive.setVisibility(View.INVISIBLE);
 
-                setParcoursButton();
+                setPauseButton();
 
                 binding.navbar.pathButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.pathButtonActive.setVisibility(View.INVISIBLE);
 
                 binding.activityMainViewpager.setUserInputEnabled(false);
                 break;
-            case 2 :
-                // Gestion des boutons de la page liste parcours
+            case 2 : // Manage the buttons of the page list route
                 binding.navbar.homeButtonInactive.setVisibility(View.VISIBLE);
                 binding.navbar.homeButtonActive.setVisibility(View.INVISIBLE);
 
-                setParcoursButton();
+                setPauseButton();
 
                 binding.navbar.pathButtonInactive.setVisibility(View.INVISIBLE);
                 binding.navbar.pathButtonActive.setVisibility(View.VISIBLE);
@@ -82,8 +88,11 @@ public class FragmentContainerActivity extends AppCompatActivity {
         }
     }
 
-    private void setParcoursButton() {
-        if (!ParcoursFragment.play) {
+    /**
+     * Managing the pause button of the navbar.
+     */
+    private void setPauseButton() {
+        if (!PathFragment.play) {
             binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
             binding.navbar.playButton.setVisibility(View.VISIBLE);
         } else {
@@ -92,47 +101,58 @@ public class FragmentContainerActivity extends AppCompatActivity {
         }
     }
 
-    /* Appui sur le bouton accueil de la navbar */
+    /**
+     * Press the home button of the navbar
+     */
     public void goToHome(View view) {
-        binding.activityMainViewpager.setCurrentItem(PageAdapter.PAGE_ACCUEIL);
+        binding.activityMainViewpager.setCurrentItem(PageAdapter.HOME_PAGE);
     }
 
-    /* Appui sur le bouton parcours de la navbar */
+    /**
+     * Press the navigation button on the navbar
+     */
     public void goToPathList(View view) {
-        binding.activityMainViewpager.setCurrentItem(PageAdapter.PAGE_LISTE_PARCOURS);
+        binding.activityMainViewpager.setCurrentItem(PageAdapter.PATH_LIST_PAGE);
     }
 
+    /**
+     * Allows you to update the pause button.
+     * If a course is in progress, pause it.
+     * @param view the button
+     */
     public void pauseButton(View view){
 
         //Si parcours pause du parcours
-        ParcoursFragment.play = false;
+        PathFragment.play = false;
         view.setVisibility(View.INVISIBLE);
         binding.navbar.playButton.setVisibility(View.VISIBLE);
 
     }
 
+    /**
+     * Allows you to update the pause button.
+     * If a course is in progress, it is resumed.
+     * Otherwise, the user is redirected to the registration page.
+     * @param view the button
+     */
     public void playButton(View view){
-        //Si pas de parcours tp sur page parcours
-        //Si parcours reprise du parcours
-
-        if (ParcoursFragment.parcours) {
+        if (PathFragment.parcours) {
             view.setVisibility(View.INVISIBLE);
             binding.navbar.pauseButton.setVisibility(View.VISIBLE);
-            ParcoursFragment.play = true;
+            PathFragment.play = true;
         }
 
-        binding.activityMainViewpager.setCurrentItem(PageAdapter.PAGE_PARCOURS);
+        binding.activityMainViewpager.setCurrentItem(PageAdapter.PATH_PAGE);
     }
 
-    public void showMenu() {
-
-    }
-
-    public void rafraichirTout() {
+    /**
+     * Refresh of all fragments
+     */
+    public void refreshAll() {
         HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag("f0");
         if (homeFragment != null) {
-            homeFragment.afficherParcours();
-            homeFragment.afficherUserInfos();
+            homeFragment.showLastPath();
+            homeFragment.showUserInfos();
         }
 
         PathListFragment pathListFragment = (PathListFragment) getSupportFragmentManager().findFragmentByTag("f2");

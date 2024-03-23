@@ -33,17 +33,24 @@ import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.tools.api.UserApi;
-import iut.info3.betterstravadroid.databinding.PageAccueilBinding;
+import iut.info3.betterstravadroid.databinding.FragmentHomepageBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 import iut.info3.betterstravadroid.tools.MapHandler;
 
 public class HomeFragment extends Fragment {
 
-    private PageAccueilBinding binding;
+    /** Object responsible for linking this class to the home page layout */
+    private FragmentHomepageBinding binding;
+
     private Context context;
+
+    /** the preferences of the application */
     private SharedPreferences preferences;
+
+    /** API request builder */
     private RequestBuilder helper;
 
+    /** The synthesis activity launcher associated with the last course */
     private ActivityResultLauncher<Intent> launcher;
 
     public HomeFragment() {
@@ -63,101 +70,102 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        binding = PageAccueilBinding.inflate(inflater, container, false);
+        binding = FragmentHomepageBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
         context = vue.getContext();
 
         binding.cardLastRun.map.setDestroyMode(false);
 
-        //Gestion des preferences
         preferences = this.getActivity().getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         helper = new RequestBuilder(vue.getContext());
 
         launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                this::retourSynthese);
+                this::backFromSynthesis);
 
-        afficherUserInfos();
-        afficherParcours();
+        showUserInfos();
+        showLastPath();
 
         return vue;
     }
 
-    private void retourSynthese(ActivityResult result) {
-
+    /**
+     * In charge of the return of the synthesis page for the last course.
+     * @param result result from intention
+     */
+    private void backFromSynthesis(ActivityResult result) {
+        //Does nothing, necessary for compilation
     }
 
-    public void lancementSynthese(JSONObject result) throws JSONException {
-        // création d'une intention
+    /**
+     * Redirects the user to the summary page of his last journey.
+     * @param result the last route, retrieved by the API
+     */
+    public void goToSynthesis(JSONObject result) throws JSONException {
+        // creating an intention
         Intent intention = new Intent(getActivity(), SynthesisActivity.class);
 
-        // transmission de l'id du parcours
+        // transmission of the route id
         intention.putExtra("pathId", result.getString("id"));
-        // lancement de l'activité fille
+        // launch of the daughter activity
         launcher.launch(intention);
 
     }
 
     /**
-     * Accès au serveur API pour récupérer et mettre à jour
-     * le dernier parcours de l'utilisateur
+     * Access to the API server to retrieve and display the user’s last journey.
      */
-    public void afficherParcours() {
+    public void showLastPath() {
         Map<String, String> header = new HashMap<>();
         header.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
-        // On envoie la requête de recupération du dernier parcours de l'utilisateur
+        // Sending the request to retrieve the user’s last journey
         helper.onSucces(this::setViewParcours)
                 .onError(this::handleError)
                 .withHeader(header)
-                .newJSONObjectRequest(PathApi.PATH_API_LAST)
+                .newJSONObjectRequest(PathApi.API_PATH_LAST)
                 .send();
     }
 
     /**
-     * Accès au serveur API pour récupérer et mettre à jour
-     * les informations de l'utilisateur
+     * Access to the API server to retrieve and display user information.
      */
-    public void afficherUserInfos() {
+    public void showUserInfos() {
         JSONObject body = new JSONObject();
         try {
             body.put(UserPreferences.USER_KEY_TOKEN, preferences.getString(UserPreferences.USER_KEY_TOKEN, "None"));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        // On envoie la requête de recupération des infos de l'utilisateur
+        // Sending the request to retrieve user information
         helper.onSucces(this::setViewContent)
                 .onError(this::handleError)
                 .withBody(body)
-                .newJSONObjectRequest(UserApi.USER_API_INFOS)
+                .newJSONObjectRequest(UserApi.API_USER_INFO)
                 .send();
     }
 
     /**
-     * En cas de réponse positive de la route "/user/getInfo"
-     * Positionne sur l'UI:
-     * <ul>
-     *     <li>le dernier parcours de l'utilisateur</li>
-     *     <li>stats de l'utilisateur sur 30 jours</li>
-     *     <li>stats de l'utilisateur depuis la création de son compte</li>
-     * </ul>
-     *
-     * @param object réponse de l'API
+     * If the route "/user/getInfo" responds positively, position on the UI:
+     * <li>the last user journey</li>
+     * <li>30-day user stats</li>
+     * <li>user stats since account creation</li>
+     * @param object API response
      */
     private void setViewContent(Object object) {
         JSONObject response = (JSONObject) object;
         try {
-            // Date du jour
+            // Current date
             binding.tvDateDuJour.setText(LocalDate.now().format(
                     DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy", Locale.FRANCE)));
 
-            // Infos de l'utilisateur
+            // User info
             JSONObject infoUser = (JSONObject) response.get("user");
 
             binding.tvBonjourUtilisateur.setText(
                     String.format(getString(R.string.tv_bonjour_utilisateur), infoUser.getString(UserPreferences.USER_KEY_SURNAME)));
 
-            // Stats 30 derniers jours
+            // Stats last 30 days
             JSONObject stats30Jours = (JSONObject) response.get("30jours");
 
             binding.tvDistance30J.setText(stats30Jours.getString(UserPreferences.STAT_KEY_DISTANCE));
@@ -170,7 +178,7 @@ public class HomeFragment extends Fragment {
 
             binding.tvParcoursCrees30J.setText(stats30Jours.getString(UserPreferences.STAT_KEY_NB_PATH));
 
-            // Stats globales
+            // Overall stats
             JSONObject statsGlobales = (JSONObject) response.get("global");
             binding.tvDistanceGlob.setText(statsGlobales.getString(UserPreferences.STAT_KEY_DISTANCE));
 
@@ -188,20 +196,16 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * En cas de réponse positive de la route "/path/lastPath"
-     * Positionne sur l'UI:
-     * <ul>
-     *     <li>la carte du dernier parcours</li>
-     *     <li>le titre du dernier parcours</li>
-     *     <li>la description du dernier parcours</li>
-     * </ul>
-     *
-     * @param object réponse de l'API
+     * If the route "/path/lastPath" responds positively, position on the UI:
+     * <li>last route map</li>
+     * <li>the last course title</li>
+     * <li>description of last route</li>
+     * @param object API response
      */
     private void setViewParcours(Object object) {
         JSONObject response = (JSONObject) object;
         try {
-            // Dernier parcours
+            // Last run information
             binding.cardLastRun.titreDernierParcours.setText(
                     response.getString(UserPreferences.PATH_KEY_NAME)
             );
@@ -209,20 +213,18 @@ public class HomeFragment extends Fragment {
                     response.getString(UserPreferences.PATH_KEY_DESCRIPTION)
             );
 
-            // Création du trajet
+            // route creation
             JSONArray points = response.getJSONArray("points");
             MapHandler.setMapViewContent(points, binding.cardLastRun.map, context, false);
 
-            // mise en place du Onclick sur la cardview
+            // setting up the Onclick on the cardview
             binding.cardLastRun.cadre.setOnClickListener(v -> {
                 try {
-                    lancementSynthese(response);
+                    goToSynthesis(response);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             });
-
-
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -230,9 +232,8 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Affichage d'un toast en cas d'erreur de l'API
-     *
-     * @param error erreur envoyée par l'API
+     * Display a toast in case of API error.
+     * @param error error sent by the API
      */
     public void handleError(VolleyError error) {
         if (error.networkResponse != null) {

@@ -4,8 +4,6 @@ import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.view.MotionEvent;
-import android.view.View;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,25 +18,29 @@ import java.util.List;
 
 import iut.info3.betterstravadroid.R;
 
+/**
+ * Class in charge of managing mapview widget.
+ * Allows display on the widget of routes and points of interest.
+ */
 public class MapHandler {
 
     /**
-     * Affiche sur un widget mapview les points qui constituent un parcours
-     * @param points les points du parcours obtenus par l'API
-     * @param map le widget mapview
-     * @param context le context courant
-     * @param isSynthese boolean pour indiquer si on provient de la page synthese
-     *                   si true alors on enleve l'espace supplémentaire qui sureleve la carte
+     * Displays on a mapview widget the points that constitute a route.
+     * @param points the points of the route obtained by the API
+     * @param map the mapview widget
+     * @param context the current context
+     * @param isSynthesis boolean to indicate if we come from the synthesis page
+     *                   if true then we remove the additional space that overraises the map
      */
-    public static void setMapViewContent(JSONArray points, MapView map, Context context, boolean isSynthese) {
-        //Suppression du contenu de la carte dans le cas d'un raffraichissement
+    public static void setMapViewContent(JSONArray points, MapView map, Context context, boolean isSynthesis) {
+        //Deletion of the content of the card in the case of a refresh
         map.getOverlayManager().clear();
 
-        // Gestion de la carte en arrière plan
+        // Map management
         Polyline line = new Polyline(map);
         List<GeoPoint> trajet = new ArrayList<>();
 
-        // Création du trajet
+        // Path creation
         try {
             for (int i = 0; i < points.length(); i++) {
                 JSONObject point = points.getJSONObject(i);
@@ -56,31 +58,25 @@ public class MapHandler {
         line.setGeodesic(true);
         line.setInfoWindow(null);
 
-        // Ajout de l'overlay du trajet sur la carte
+        // Added route overlay on map
         map.getOverlayManager().add(line);
 
-        // Centrage de la carte
+        // Map centering
         map.getController().setCenter(line.getBounds().getCenterWithDateLine());
         map.zoomToBoundingBox(line.getBounds(), false);
         map.getController().setZoom(map.getZoomLevelDouble() - 2.0);
 
-        // On laisse de la place vers le bas pour que le trajet ne soit pas caché par la
-        // cardview qui contient les infos du trajet
-        if (!isSynthese) {
+        /* We leave room down so that the route is not hidden
+           by the cardview that contains the route information */
+        if (!isSynthesis) {
             map.scrollBy(0, 100);
         }
         map.invalidate();
 
-        // Desactivation du zoom
-        map.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        }
-        );
+        // Zoom deactivation
+        map.setOnTouchListener((v, event) -> true);
 
-        // Icônes de départ et de fin du parcours
+        // Start and end icons of the route
         if (!trajet.isEmpty()) {
             Marker startMarker = new Marker(map);
             startMarker.setPosition(trajet.get(0));
@@ -99,14 +95,14 @@ public class MapHandler {
     }
 
     /**
-     * Affiche sur un widget mapview les points d'interets d'un parcours
-     * @param points les points d'interets du parcours
-     * @param map le widget mapview
-     * @param context le context courant
+     * Displays on a mapview widget the points of interest of a route.
+     * @param points the points of interest of the route
+     * @param map the mapview widget
+     * @param context the current context
      */
     public static void setMapViewInterestPoint(JSONArray points, MapView map, Context context) {
 
-        // Création des points d'interets
+        // Creation of points of interest
         try {
             for (int i = 0; i < points.length(); i++) {
                 JSONObject point = points.getJSONObject(i);

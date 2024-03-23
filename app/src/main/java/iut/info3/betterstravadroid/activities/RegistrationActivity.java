@@ -14,19 +14,21 @@ import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.entities.UserEntity;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.tools.api.UserApi;
-import iut.info3.betterstravadroid.databinding.PageInscriptionBinding;
+import iut.info3.betterstravadroid.databinding.ActivityRegistrationBinding;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-    private PageInscriptionBinding binding;
+    /** Object responsible for linking this class to the registration page layout */
+    private ActivityRegistrationBinding binding;
 
+    /** API request builder */
     private RequestBuilder helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = PageInscriptionBinding.inflate(getLayoutInflater());
+        binding = ActivityRegistrationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         helper = new RequestBuilder(this);
     }
@@ -49,7 +51,7 @@ public class RegistrationActivity extends AppCompatActivity {
             helper.withBody(user.toJson())
                     .onError(this::handleError)
                     .onSucces(this::handleResponse)
-                    .newJSONObjectRequest(UserApi.USER_API_CREATE_ACCOUNT).send();
+                    .newJSONObjectRequest(UserApi.API_USER_CREATE_ACCOUNT).send();
         } catch (IllegalArgumentException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
@@ -57,11 +59,19 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Display a toast in case of good API response.
+     * @param object sent by the API
+     */
     public void handleResponse(Object object) {
         Toast.makeText(this, getString(R.string.registration_valid), Toast.LENGTH_LONG).show();
         this.finish();
     }
 
+    /**
+     * Display a toast in case of API error.
+     * @param error error sent by the API
+     */
     public void handleError(VolleyError error) {
         if (error.networkResponse != null) {
             Toast.makeText(this,  getString(R.string.registration_error), Toast.LENGTH_SHORT).show();

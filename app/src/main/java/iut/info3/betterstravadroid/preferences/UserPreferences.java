@@ -1,5 +1,8 @@
 package iut.info3.betterstravadroid.preferences;
 
+/**
+ * Management of the preferences file of the application.
+ */
 public class UserPreferences {
 
     public static final String PREFERENCE_FILE = "BetterStrava";

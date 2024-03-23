@@ -16,22 +16,25 @@ import org.json.JSONObject;
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.tools.api.UserApi;
-import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
+import iut.info3.betterstravadroid.databinding.ActivityConnectionBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 public class ConnectionActivity extends AppCompatActivity {
 
+    /** API request builder */
     private RequestBuilder helper;
 
+    /** the preferences of the application */
     private SharedPreferences.Editor editor;
 
-    private PageConnexionBinding binding;
+    /** Object responsible for linking this class to the login page layout */
+    private ActivityConnectionBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = PageConnexionBinding.inflate(getLayoutInflater());
+        binding = ActivityConnectionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         helper = new RequestBuilder(this);
@@ -54,12 +57,16 @@ public class ConnectionActivity extends AppCompatActivity {
             // On envoie la requête de connexion au serveur
             helper.onSucces(this::handleResponse)
                     .onError(this::handleError)
-                    .newJSONObjectRequest(UserApi.USER_API_LOGIN
+                    .newJSONObjectRequest(UserApi.API_USER_LOGIN
                             + "?email=" + email + "&password=" + mdp)
                     .send();
         }
     }
 
+    /**
+     * Insert the user token in the application preferences.
+     * @param object sent by the API
+     */
     public void handleResponse(Object object) {
         JSONObject response = (JSONObject) object;
         String token = response.optString("token");
@@ -68,6 +75,10 @@ public class ConnectionActivity extends AppCompatActivity {
         goToHome();
     }
 
+    /**
+     * Display a toast in case of API error.
+     * @param error error sent by the API
+     */
     public void handleError(VolleyError error) {
         if (error.networkResponse != null) {
             try {

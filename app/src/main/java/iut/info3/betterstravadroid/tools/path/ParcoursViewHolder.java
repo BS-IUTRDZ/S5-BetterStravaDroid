@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.tools.parcours;
+package iut.info3.betterstravadroid.tools.path;
 
 import android.view.View;
 import android.widget.TextView;

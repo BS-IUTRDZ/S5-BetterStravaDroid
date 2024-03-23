@@ -14,7 +14,7 @@ import iut.info3.betterstravadroid.interfaces.RecyclerViewInterface;
 import iut.info3.betterstravadroid.tools.path.ParcoursItem;
 import iut.info3.betterstravadroid.tools.path.ParcoursViewHolder;
 
-public class ParcoursAdapter extends RecyclerView.Adapter<ParcoursViewHolder> {
+public class PathAdapter extends RecyclerView.Adapter<ParcoursViewHolder> {
 
     private OnBottomReachedListener onBottomReachedListener;
     private final RecyclerViewInterface recyclerViewInterface;
@@ -23,7 +23,7 @@ public class ParcoursAdapter extends RecyclerView.Adapter<ParcoursViewHolder> {
 
     private List<ParcoursItem> lesParcours;
 
-    public ParcoursAdapter(List<ParcoursItem> donnees, RecyclerViewInterface recyclerViewInterface) {
+    public PathAdapter(List<ParcoursItem> donnees, RecyclerViewInterface recyclerViewInterface) {
         lesParcours = donnees;
         this.recyclerViewInterface = recyclerViewInterface;
         bottomAlreadyReached = false;

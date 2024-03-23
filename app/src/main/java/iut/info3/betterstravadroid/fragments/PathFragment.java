@@ -55,7 +55,7 @@ import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
-import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
+import iut.info3.betterstravadroid.databinding.FragmentPathBinding;
 import iut.info3.betterstravadroid.databinding.PopupInterestPointBinding;
 import iut.info3.betterstravadroid.entities.PathEntity;
 import iut.info3.betterstravadroid.entities.PointEntity;
@@ -63,7 +63,7 @@ import iut.info3.betterstravadroid.entities.PointInteretEntity;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
-public class ParcoursFragment extends Fragment {
+public class PathFragment extends Fragment {
     private MyLocationNewOverlay myLocationOverlay;
     private boolean isOnMap = false;
     LocationManager locationManager = null;
@@ -78,7 +78,7 @@ public class ParcoursFragment extends Fragment {
     ArrayList<OverlayItem> items = new ArrayList<>();
     private AlertDialog popup;
 
-    private PageParcoursBinding binding;
+    private FragmentPathBinding binding;
     private Context context;
     private RequestBuilder helper;
     public static final String API_REQUEST_CREATE_PATH = ApiConfiguration.API_BASE_URL + "path/createPath";
@@ -95,7 +95,7 @@ public class ParcoursFragment extends Fragment {
                 if (result) {
                     // PERMISSION GRANTED
 
-                    // Configuration de la couche de localisation de l'utilisateur
+                    // User Location Layer Configuration
                     GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
                     myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
                     myLocationOverlay.enableFollowLocation();
@@ -116,17 +116,17 @@ public class ParcoursFragment extends Fragment {
         @Override
         public void onLocationChanged(@NonNull Location localisation) {
             if (play) {
-                parcoursAjouterPoint(localisation);
+                addWaypointToPath(localisation);
             }
         }
     };
 
-    public ParcoursFragment() {
+    public PathFragment() {
         //Require empty public constructor
     }
 
-    public static ParcoursFragment newInstance() {
-        return new ParcoursFragment();
+    public static PathFragment newInstance() {
+        return new PathFragment();
     }
 
     @Override
@@ -138,7 +138,7 @@ public class ParcoursFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        binding = PageParcoursBinding.inflate(inflater, container, false);
+        binding = FragmentPathBinding.inflate(inflater, container, false);
         View vue = binding.getRoot();
         context = vue.getContext();
 
@@ -152,18 +152,18 @@ public class ParcoursFragment extends Fragment {
                 PreferenceManager.getDefaultSharedPreferences(context));
 
 
-        //Dezoome avec doigt et pas avec boutons
+        //Zoom out with fingers and not with button
         binding.mapview.setBuiltInZoomControls(false);
         binding.mapview.setMultiTouchControls(true);
         binding.mapview.setDestroyMode(false);
 
         centerMapOnUser();
 
-        initialiserLocalisation();
+        initLocalisation();
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            // Configuration de la couche de localisation de l'utilisateur
+            // User Location Layer Configuration
             GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(context);
             myLocationOverlay = new MyLocationNewOverlay(locationProvider, binding.mapview);
             myLocationOverlay.enableFollowLocation();
@@ -172,7 +172,7 @@ public class ParcoursFragment extends Fragment {
             binding.mapview.getOverlays().add(myLocationOverlay);
         }
 
-        /* Listener bouton page */
+        /* Listener button page */
         binding.btnAjout.setOnClickListener(v -> {
             if (play) {
                 showPopupPoint(false);
@@ -197,21 +197,24 @@ public class ParcoursFragment extends Fragment {
         return vue;
     }
 
+    /**
+     * If the geolocation of the user is allowed, center the map on it.
+     */
     private void centerMapOnUser() {
         if (binding.mapview != null && binding.mapview.getController() != null) {
-            // Vérifier si la permission d'accès à la localisation est accordée
+            // Check if location access permission is granted
             Location lastKnownLocation = getCurrentUserLocation();
 
             if (lastKnownLocation != null) {
                 double latitude = lastKnownLocation.getLatitude();
                 double longitude = lastKnownLocation.getLongitude();
 
-                // Créer un GeoPoint avec les coordonnées
+                // Create a GeoPoint with coordinates
                 GeoPoint userLocation = new GeoPoint(latitude, longitude);
 
                 trajet.add(userLocation);
 
-                // Centrer la carte sur la position de l'utilisateur
+                // Center the map on the user position
                 binding.mapview.getController().setCenter(userLocation);
                 binding.mapview.getController().setZoom(18.0);
 
@@ -240,18 +243,18 @@ public class ParcoursFragment extends Fragment {
                 PreferenceManager.getDefaultSharedPreferences(context));
         if (binding.mapview != null) {
             binding.mapview.onPause();
-            isOnMap = false; // L'utilisateur n'est plus sur la carte, désactive le suivi
+            isOnMap = false; // User is no longer on the map, disable tracking
         }
 
         if (myLocationOverlay != null) {
-            myLocationOverlay.disableMyLocation(); // Désactive le suivi de la localisation
+            myLocationOverlay.disableMyLocation(); // Disables location tracking
         }
     }
 
     /**
-     * Méthode pour initialiser la localisation. Appelée lors de l'init du fragment.
+     * Method to initialize localization. Called during fragment init.
      */
-    private void initialiserLocalisation()
+    private void initLocalisation()
     {
         if (locationManager == null)
         {
@@ -263,7 +266,7 @@ public class ParcoursFragment extends Fragment {
 
         if (fournisseur != null)
         {
-            // dernière position connue
+            // last known position
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             {
                 return;
@@ -272,17 +275,19 @@ public class ParcoursFragment extends Fragment {
             Location localisation = locationManager.getLastKnownLocation(fournisseur);
             if(localisation != null)
             {
-                // on notifie la localisation
+                // the location is notified
                 ecouteurGPS.onLocationChanged(localisation);
             }
 
-            // on configure la mise à jour automatique : au moins 10 mètres et 15 secondes
+            // automatic update is configured: at least 10 meters and 15 seconds
             locationManager.requestLocationUpdates(fournisseur, 5000, 2, ecouteurGPS);
         }
     }
 
     /**
-     * Méthode appelée lors du clic sur le bouton "Start"
+     * Method called when clicking on the "Start" button,
+     * centers the map on the user, triggers the recording
+     * and starting of the indicator calculations.
      */
     private void buttonStartPressed() {
         parcours = true;
@@ -296,11 +301,11 @@ public class ParcoursFragment extends Fragment {
         trajet.clear();
         centerMapOnUser();
         startThreadTimer();
-        parcoursAjouterPoint(getCurrentUserLocation());
+        addWaypointToPath(getCurrentUserLocation());
     }
 
     /**
-     * Méthode appelée lors du clic sur le bouton "Stop"
+     * Method called when clicking the "Stop" button.
      */
     private void buttonStopPressed() {
         parcours = false;
@@ -315,25 +320,24 @@ public class ParcoursFragment extends Fragment {
         line.setPoints(trajet);
         binding.mapview.getOverlays().removeAll(mapPointsInterets);
         mapPointsInterets.clear();
-        //items.clear();
 
-        // On stoppe le thread du chrono
+        // We stop the thread of the chronometer
         if (threadTimer != null) {
             threadTimer.interrupt();
-            //On reinitialise l'indicateur visuel du chrono
+            //We reinitialize the visual indicator of the clock
             binding.tvTpsParcoursHeure.setText("00");
             binding.tvTpsParcoursMinute.setText("00");
         }
-        //On reinitialise l'indicateur visuel de vitesse
+        //Reset the visual speed indicator
         binding.tvVitesseMoyenne.setText(String.format(Locale.FRANCE, "%.2f", 0.00));
 
-        // On envoie le parcours à l'API
+        //We send the route to the API
         sendPathToApi();
     }
 
     /**
-     * Méthode appelée lors du clic sur le bouton "Ajouter un point d'intérêt" et lors de
-     * la création d'un nouveau parcours.
+     * Method called when clicking on the "Add a point of interest" button
+     * and when creating a new route.
      */
     private void showPopupPoint(final boolean nouveauParcours) {
 
@@ -341,11 +345,11 @@ public class ParcoursFragment extends Fragment {
         AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
         popup_builder.setView(alertBinding.getRoot());
 
-        /* Listener boutons popup*/
+        /* Listener buttons popup*/
         alertBinding.btnCancel.setOnClickListener(v -> popup.dismiss());
         alertBinding.btnConfirm.setOnClickListener(v -> {
             if (nouveauParcours) {
-                // La popup est utilisée pour créer un nouveau parcours
+                // The popup is used to create a new route
                 if(!alertBinding.etTitre.getText().toString().isEmpty()) {
                     parcoursEnCours = new PathEntity(alertBinding.etTitre.getText().toString(),
                             alertBinding.etDescription.getText().toString(),
@@ -354,7 +358,7 @@ public class ParcoursFragment extends Fragment {
                     buttonStartPressed();
                 }
             } else {
-                // La popup est utilisée pour ajouter un point d'intérêt
+                // The popup is used to add a point of interest
                 if(!alertBinding.etTitre.getText().toString().isEmpty()) {
                     pointInteretConfirmTitleDescription(
                             alertBinding.etTitre.getText().toString(),
@@ -369,7 +373,7 @@ public class ParcoursFragment extends Fragment {
     }
 
     /**
-     * Méthode appelée lors de la confirmation du titre et de la description du point d'intérêt
+     * Method called when confirming title and point of interest description.
      */
     public void pointInteretConfirmTitleDescription(final String title, final String description) {
 
@@ -377,11 +381,11 @@ public class ParcoursFragment extends Fragment {
         if (lastPosition == null) {
             Toast.makeText(context, "Impossible de créer le point d'intéret", Toast.LENGTH_LONG).show();
         } else {
-            // On ajoute le point d'intérêt sur l'overlay
+            // We add the point of interest on the overlay
             items.add(new OverlayItem(title, description,
                     new GeoPoint(lastPosition.getLat(), lastPosition.getLon())));
 
-            // On mets en place le listener lors du clic sur le point d'intérêt
+            // Set up the listener when clicking on the point of interest
             ItemizedOverlayWithFocus<OverlayItem> mOverlay =
                     new ItemizedOverlayWithFocus<OverlayItem>(items,
                             getDrawable(context, R.drawable.pin),
@@ -403,7 +407,7 @@ public class ParcoursFragment extends Fragment {
                             },
                             context);
 
-            // On ajoute le point d'intéret au parcours
+            // We add the point of interest to the course
             parcoursEnCours.addPointInteret(new PointInteretEntity(
                     lastPosition, title, description));
 
@@ -415,25 +419,25 @@ public class ParcoursFragment extends Fragment {
     }
 
     /**
-     * Thread pour créer le timer de la durée du parcours
+     * Thread to create the timer of the duration of the course
      */
     private void startThreadTimer() {
         threadTimer = new Thread() {
             @Override
             public void run() {
                 try {
-                    // On réinitialise le temps
+                    // Reset the time
                     dureeParcours = 0;
                     long currentTime;
 
-                    // On démarre le timer
+                    // Start the timer
                     while (!isInterrupted()) {
                         currentTime = System.currentTimeMillis();
                         if (play) {
                             dureeParcours += 1;
                         }
 
-                        // On met à jour le temps si on est à plus d'une minute de différence
+                        // We update the time if we are more than a minute apart
                         if (dureeParcours % 60 == 0) {
                             long finalTimeInSeconds = dureeParcours;
                             ((FragmentContainerActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
@@ -442,7 +446,7 @@ public class ParcoursFragment extends Fragment {
                             });
                         }
 
-                        // On attend le reste de la seconde qui n'a pas été utilisée pendant le traitement
+                        // Waiting for the rest of the second that was not used during treatment
                         Thread.sleep(1000 - (System.currentTimeMillis() - currentTime));
                     }
                 } catch (InterruptedException e) {
@@ -453,24 +457,27 @@ public class ParcoursFragment extends Fragment {
         threadTimer.start();
     }
 
+    /**
+     * Average Speed Calculation Thread Declaration
+     */
     private void calculVitesseMoyenne() {
 
         if (threadVitesseMoyenne != null && threadVitesseMoyenne.isAlive()) { return; }
 
-        // On définit le système de calcul de la vitesse moyenne
+        // The average speed calculation system is defined
         threadVitesseMoyenne = new Thread(() -> {
             try {
                 double distance = 0;
 
-                // On calcule la distance parcourue
+                // Calculate the distance travelled
                 for (int i = 0; i < trajet.size() - 1; i++) {
                     distance += trajet.get(i).distanceToAsDouble(trajet.get(i + 1));
                 }
 
-                // On calcule la vitesse moyenne
+                // The average speed is calculated
                 double vitesseMoyenne = distance / dureeParcours;
 
-                // On met à jour l'affichage
+                // The display is updated
                 ((FragmentContainerActivity) getLayoutInflater().getContext()).runOnUiThread(() -> {
                     binding.tvVitesseMoyenne.setText(String.format(Locale.FRANCE, "%.2f", vitesseMoyenne));
                 });
@@ -483,12 +490,15 @@ public class ParcoursFragment extends Fragment {
         threadVitesseMoyenne.start();
     }
 
+    /**
+     * Method of sending the path to the API to save it.
+     */
     private void sendPathToApi() {
 
-        // On mets la durée définitive du parcours
+        // We put the final duration of the course
         parcoursEnCours.setDuree(dureeParcours);
 
-        // On prépare le JSON du parcours
+        // Preparing the course JSON
         JSONObject parcoursJson = null;
         try {
             parcoursJson = parcoursEnCours.toJson();
@@ -496,7 +506,7 @@ public class ParcoursFragment extends Fragment {
             Toast.makeText(context, "Impossible d'enregistrer le parcours", Toast.LENGTH_LONG).show();
         }
 
-        // On envoie le parcours à l'API
+        // We send the route to the API
         if (parcoursJson != null) {
             HashMap<String, String> token = new HashMap<>();
             token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE, Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
@@ -521,15 +531,15 @@ public class ParcoursFragment extends Fragment {
     }
 
     /**
-     * Méthode permettant d'obtenir la position actuelle de l'utilisateur
-     * @return la position actuelle de l'utilisateur
+     * Method to obtain the current position of the user
+     * @return the current position of the user
      */
     public Location getCurrentUserLocation() {
         Location lastKnownLocation = null;
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
-            // Obtenir la position actuelle de l'utilisateur
+            // Get the current position of the user
             LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
@@ -538,9 +548,9 @@ public class ParcoursFragment extends Fragment {
     }
 
     /**
-     * Méthode permettant l'ajout d'un point de passage au parcours.
+     * Method for adding a waypoint to the route.
      */
-    public void parcoursAjouterPoint(Location point) {
+    public void addWaypointToPath(Location point) {
         if (point != null) {
             trajet.add(new GeoPoint(point.getLatitude(), point.getLongitude()));
             line.getOutlinePaint().setColor(Color.RED);

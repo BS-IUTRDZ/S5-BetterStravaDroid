@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.tools.parcours;
+package iut.info3.betterstravadroid.tools.path;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -6,8 +6,6 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
-import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
 
 /**
  * Un item de la liste des parcours

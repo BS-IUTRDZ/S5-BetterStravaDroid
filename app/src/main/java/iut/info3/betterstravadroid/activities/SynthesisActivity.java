@@ -33,8 +33,8 @@ import java.util.HashMap;
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.tools.api.PathApi;
-import iut.info3.betterstravadroid.databinding.InterestPointItemBinding;
-import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
+import iut.info3.betterstravadroid.databinding.ComponentInterestPointItemBinding;
+import iut.info3.betterstravadroid.databinding.ActivitySynthesisBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 import iut.info3.betterstravadroid.tools.MapHandler;
@@ -46,55 +46,69 @@ public class SynthesisActivity extends AppCompatActivity {
     public static final String PATH_PAGE = "path";
     public static final String KEY_FORCE_REFRESH = "refresh";
 
-    private PageSyntheseBinding binding;
+    /** Object responsible for linking this class to the synthesis page layout */
+    private ActivitySynthesisBinding binding;
+
+    /** the preferences of the application */
     private SharedPreferences preferences;
+
+    /** API request builder */
     private RequestBuilder requestBuilder;
 
+    /** Current Route Id */
     private String pathId;
 
     private Context context;
 
+    /** The route deletion popup */
     private AlertDialog popup;
 
-    private ActivityResultLauncher<Intent> lanceur;
+    /** The change activity launcher associated with the course */
+    private ActivityResultLauncher<Intent> launcher;
+
+    /** Indicates if a refresh is needed after closing the synthesis */
     private boolean forceRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        binding = PageSyntheseBinding.inflate(getLayoutInflater());
+        binding = ActivitySynthesisBinding.inflate(getLayoutInflater());
         View vue = binding.getRoot();
         context = vue.getContext();
         setContentView(vue);
 
-        lanceur = registerForActivityResult(
+        launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                this::retourModif);
+                this::backFromEdit);
 
         Intent intention = getIntent();
         pathId  = intention.getStringExtra("pathId");
 
-        //Gestion des preferences
+        // Preferences management
         preferences = getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         requestBuilder = new RequestBuilder(vue.getContext());
 
         binding.topbar.ivBackIcon.setOnClickListener(view -> clickNavbar(PATH_PAGE));
         binding.topbar.ivEditIcon.setOnClickListener(view -> {toEdit();});
+        binding.topbar.ivTrashIcon.setOnClickListener(this::showDeletePopUp);
 
+        // Hide the pause button
         binding.navbar.playButton.setVisibility(View.INVISIBLE);
         binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
 
         binding.navbar.homeButtonInactive.setOnClickListener(v -> clickNavbar(HOME_PAGE));
         binding.navbar.pathButtonInactive.setOnClickListener(v -> clickNavbar(PATH_PAGE));
-        binding.topbar.ivTrashIcon.setOnClickListener(this::affichPopUpSupr);
 
         forceRefresh = false;
         getPath(pathId);
     }
 
-
+    /**
+     * Navbar manager.
+     * @param pageName the name of the page corresponding to the button pressed
+     */
     private void clickNavbar(String pageName) {
         Intent intent = new Intent();
         intent.putExtra(KEY_PAGE, pageName);
@@ -104,26 +118,24 @@ public class SynthesisActivity extends AppCompatActivity {
     }
 
     /**
-     * Accès au serveur API pour récupérer le parcours
+     * Access to the API server to retrieve the route.
+     * @param pathId the id of the path to collect
      */
     private void getPath(String pathId) {
         String token = preferences.getString(UserPreferences.USER_KEY_TOKEN, "None");
         requestBuilder.onSucces(this::setViewContent)
                 .onError(this::handleError)
                 .addHeader(UserPreferences.USER_KEY_TOKEN, token)
-                .newJSONObjectRequest(PathApi.PATH_API_ID + pathId)
+                .newJSONObjectRequest(PathApi.API_PATH_ID + pathId)
                 .send();
     }
 
     /**
-     * En cas de réponse positive de la route "/path/id"
-     * Positionne sur l'UI:
-     * <ul>
-     *     <li>le parcours correspondant à l'id</li>
-     *     <li>stats de du parcours </li>
-     *     <li>liste des points d'interets</li>
-     * </ul>
-     * @param object réponse de l'API
+     * If the route "/path/id" responds positively. Position on UI:
+     * <li>the path corresponding to the id</li>
+     * <li>course stats </li>
+     * <li>list of points of interest</li>
+     * @param object API response
      */
     private void setViewContent(Object object) {
         JSONObject response = (JSONObject) object;
@@ -162,7 +174,7 @@ public class SynthesisActivity extends AppCompatActivity {
                 String titre = (String) pointInt.get("nom");
                 String description = (String) pointInt.get("description");
 
-                InterestPointItemBinding bindingPi = InterestPointItemBinding.inflate(getLayoutInflater(), null, false);
+                ComponentInterestPointItemBinding bindingPi = ComponentInterestPointItemBinding.inflate(getLayoutInflater(), null, false);
                 CardView card = bindingPi.getRoot();
 
                 bindingPi.piTitre.setText(titre);
@@ -183,6 +195,9 @@ public class SynthesisActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Viewing the route edit page.
+     */
     public void toEdit() {
         Intent intent =
                 new Intent(SynthesisActivity.this,
@@ -195,11 +210,15 @@ public class SynthesisActivity extends AppCompatActivity {
         intent.putExtra("description",description );
         intent.putExtra("id",pathId);
 
-        lanceur.launch(intent);
-
+        launcher.launch(intent);
     }
 
-    public void retourModif(ActivityResult result){
+    /**
+     * When returning from the modification page, forces the refresh
+     * of the course if a change in the description took place.
+     * @param result the result of the modification activity
+     */
+    public void backFromEdit(ActivityResult result){
         Intent intent = result.getData();
 
         if (result.getResultCode() == Activity.RESULT_OK) {
@@ -208,12 +227,17 @@ public class SynthesisActivity extends AppCompatActivity {
         }
     }
 
-    public void affichPopUpSupr(View view){
+    /**
+     * Displays the route deletion popup.
+     * @param view the current view
+     */
+    public void showDeletePopUp(View view){
         AlertDialog.Builder popup_builder = new AlertDialog.Builder(context);
 
-        View customLayout = getLayoutInflater().inflate(R.layout.popup_supression_parcours, null);
+        View customLayout = getLayoutInflater().inflate(R.layout.popup_delete_path, null);
 
-        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(view1 -> {confirmSupr(view1);});
+        customLayout.findViewById(R.id.btn_confirm).setOnClickListener(view1 -> {
+            confirmDelete(view1);});
         customLayout.findViewById(R.id.btn_cancel).setOnClickListener(view1 -> {popup.dismiss();});
 
         popup_builder.setView(customLayout);
@@ -223,7 +247,12 @@ public class SynthesisActivity extends AppCompatActivity {
 
     }
 
-    public void confirmSupr(View view){
+    /**
+     * If the route removal is validated by the user,
+     * send a request to the API server to delete the route.
+     * @param view the current view
+     */
+    public void confirmDelete(View view){
 
         JSONObject body = new JSONObject();
         HashMap<String,String> header = new HashMap<>();
@@ -245,15 +274,15 @@ public class SynthesisActivity extends AppCompatActivity {
                 })
                 .withBody(body)
                 .method(Request.Method.PUT)
-                .newJSONObjectRequest(PathApi.PATH_API_SUPR)
+                .newJSONObjectRequest(PathApi.API_PATH_DELETE)
                 .send();
 
         popup.dismiss();
     }
 
     /**
-     * Affichage d'un toast en cas d'erreur de l'API
-     * @param error erreur envoyée par l'API
+     * Display a toast in case of API error.
+     * @param error error sent by the API
      */
     public void handleError(VolleyError error) {
         if (error.networkResponse != null) {

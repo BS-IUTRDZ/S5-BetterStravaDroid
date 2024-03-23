@@ -94,6 +94,9 @@
     <!--                home toast text                        -->
     <string name="home_error">Erreur lors de la récupération des informations</string>
 
+    <!--                path toast text                        -->
+    <string name="path_error">Erreur lors de la récupération des informations</string>
+
     <!--                synthesis toast text                        -->
     <string name="synthesis_error">Erreur lors de la récupération du parcours</string>
 

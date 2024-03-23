@@ -105,7 +105,7 @@
                 android:id="@+id/card_last_run"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                layout="@layout/last_run"
+                layout="@layout/component_last_run"
                 android:layout_marginTop="15dp"/>
 
             <!-- - - - - HSep - - - - -->
