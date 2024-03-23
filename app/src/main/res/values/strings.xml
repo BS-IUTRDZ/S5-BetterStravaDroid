@@ -91,4 +91,13 @@
     <string name="registration_valid">Inscription réussie</string>
     <string name="registration_error">Erreur lors de l\'inscription</string>
 
+    <!--                home toast text                        -->
+    <string name="home_error">Erreur lors de la récupération des informations</string>
+
+    <!--                synthesis toast text                        -->
+    <string name="synthesis_error">Erreur lors de la récupération du parcours</string>
+
+    <!--                update path toast text                        -->
+    <string name="update_path_error">Erreur lors de la modification de la description</string>
+
 </resources>

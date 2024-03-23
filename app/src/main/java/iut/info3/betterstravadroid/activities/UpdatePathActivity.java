@@ -21,12 +21,11 @@ import java.util.HashMap;
 
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
-import iut.info3.betterstravadroid.tools.ToastMaker;
 import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.databinding.PageModificationParcoursBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-public class ModifParcoursActivity extends AppCompatActivity {
+public class UpdatePathActivity extends AppCompatActivity {
 
     PageModificationParcoursBinding binding;
 
@@ -37,8 +36,6 @@ public class ModifParcoursActivity extends AppCompatActivity {
     private String idParcours;
 
     private SharedPreferences preferences;
-
-    private ToastMaker toastMaker;
 
     @Override
     public void onCreate (Bundle savedInstance) {
@@ -61,8 +58,6 @@ public class ModifParcoursActivity extends AppCompatActivity {
         binding.navbar.pauseButton.setVisibility(View.INVISIBLE);
 
         binding.topbar.ivBackIcon.setOnClickListener(view -> this.finish());
-
-        toastMaker = new ToastMaker();
 
         binding.btnAnnuler.setOnClickListener(view -> {onClickAnnuler();});
         binding.btnValider.setOnClickListener(view -> {onClickValider();});
@@ -116,15 +111,19 @@ public class ModifParcoursActivity extends AppCompatActivity {
     }
 
     public void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-            toastMaker.makeText(context,
-                            "Erreur lors de la modification de la description",
-                            Toast.LENGTH_LONG)
-                    .show();
+        if (error.networkResponse != null){
+            try {
+                JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                String message = reponse.optString("erreur");
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                Toast.makeText(context,
+                                getString(R.string.update_path_error),
+                                Toast.LENGTH_LONG)
+                        .show();
+            }
+        } else {
+            Toast.makeText(this, getString(R.string.api_network_error), Toast.LENGTH_LONG).show();
         }
     }
 }

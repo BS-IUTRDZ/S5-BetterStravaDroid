@@ -32,7 +32,6 @@ import java.util.HashMap;
 
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
-import iut.info3.betterstravadroid.tools.ToastMaker;
 import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.databinding.InterestPointItemBinding;
 import iut.info3.betterstravadroid.databinding.PageSyntheseBinding;
@@ -40,7 +39,7 @@ import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 import iut.info3.betterstravadroid.tools.MapHandler;
 
-public class SyntheseActivity extends AppCompatActivity {
+public class SynthesisActivity extends AppCompatActivity {
 
     public static final String KEY_PAGE = "page";
     public static final String HOME_PAGE = "home";
@@ -50,7 +49,6 @@ public class SyntheseActivity extends AppCompatActivity {
     private PageSyntheseBinding binding;
     private SharedPreferences preferences;
     private RequestBuilder requestBuilder;
-    private ToastMaker toastMaker;
 
     private String pathId;
 
@@ -81,7 +79,6 @@ public class SyntheseActivity extends AppCompatActivity {
         preferences = getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         requestBuilder = new RequestBuilder(vue.getContext());
-        toastMaker = new ToastMaker();
 
         binding.topbar.ivBackIcon.setOnClickListener(view -> clickNavbar(PATH_PAGE));
         binding.topbar.ivEditIcon.setOnClickListener(view -> {toEdit();});
@@ -91,7 +88,7 @@ public class SyntheseActivity extends AppCompatActivity {
 
         binding.navbar.homeButtonInactive.setOnClickListener(v -> clickNavbar(HOME_PAGE));
         binding.navbar.pathButtonInactive.setOnClickListener(v -> clickNavbar(PATH_PAGE));
-        binding.topbar.ivTrashIcon.setOnClickListener(view -> {affichPopUpSupr(view);});
+        binding.topbar.ivTrashIcon.setOnClickListener(this::affichPopUpSupr);
 
         forceRefresh = false;
         getPath(pathId);
@@ -188,8 +185,8 @@ public class SyntheseActivity extends AppCompatActivity {
 
     public void toEdit() {
         Intent intent =
-                new Intent(SyntheseActivity.this,
-                        ModifParcoursActivity.class);
+                new Intent(SynthesisActivity.this,
+                        UpdatePathActivity.class);
 
         String description = binding.cardRun.tvDescription.getText().toString();
         String titre = binding.cardRun.tvTitre.getText().toString();
@@ -259,15 +256,17 @@ public class SyntheseActivity extends AppCompatActivity {
      * @param error erreur envoyée par l'API
      */
     public void handleError(VolleyError error) {
-        try {
-            JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
-            String message = reponse.optString("erreur");
-            toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
-        } catch (JSONException e) {
-            toastMaker.makeText(context,
-                            "Erreur lors de la modification de la description",
-                            Toast.LENGTH_LONG)
-                    .show();
+        if (error.networkResponse != null) {
+            try {
+                JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
+                String message = reponse.optString("erreur");
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, getString(R.string.synthesis_error), Toast.LENGTH_LONG)
+                        .show();
+            }
+        } else {
+        Toast.makeText(this, getString(R.string.api_network_error), Toast.LENGTH_LONG).show();
         }
     }
 

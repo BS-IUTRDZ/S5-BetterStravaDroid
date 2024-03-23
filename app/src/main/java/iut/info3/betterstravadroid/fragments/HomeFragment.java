@@ -28,32 +28,30 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import iut.info3.betterstravadroid.activities.SyntheseActivity;
+import iut.info3.betterstravadroid.activities.SynthesisActivity;
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
-import iut.info3.betterstravadroid.tools.ToastMaker;
 import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.tools.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageAccueilBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 import iut.info3.betterstravadroid.tools.MapHandler;
 
-public class AccueilFragment extends Fragment {
+public class HomeFragment extends Fragment {
 
     private PageAccueilBinding binding;
     private Context context;
     private SharedPreferences preferences;
     private RequestBuilder helper;
-    private ToastMaker toastMaker;
 
     private ActivityResultLauncher<Intent> launcher;
 
-    public AccueilFragment() {
+    public HomeFragment() {
         //Require empty public constructor
     }
 
-    public static AccueilFragment newInstance() {
-        return new AccueilFragment();
+    public static HomeFragment newInstance() {
+        return new HomeFragment();
     }
 
     @Override
@@ -69,14 +67,12 @@ public class AccueilFragment extends Fragment {
         View vue = binding.getRoot();
         context = vue.getContext();
 
-        toastMaker = new ToastMaker();
         binding.cardLastRun.map.setDestroyMode(false);
 
         //Gestion des preferences
         preferences = this.getActivity().getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE);
 
         helper = new RequestBuilder(vue.getContext());
-        toastMaker = new ToastMaker();
 
         launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -94,7 +90,7 @@ public class AccueilFragment extends Fragment {
 
     public void lancementSynthese(JSONObject result) throws JSONException {
         // création d'une intention
-        Intent intention = new Intent(getActivity(), SyntheseActivity.class);
+        Intent intention = new Intent(getActivity(), SynthesisActivity.class);
 
         // transmission de l'id du parcours
         intention.putExtra("pathId", result.getString("id"));
@@ -243,13 +239,15 @@ public class AccueilFragment extends Fragment {
             try {
                 JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
                 String message = reponse.optString("erreur");
-                toastMaker.makeText(context, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             } catch (JSONException e) {
-                toastMaker.makeText(context,
-                                "Erreur lors de la récupération des informations",
+                Toast.makeText(context,
+                                getString(R.string.home_error),
                                 Toast.LENGTH_LONG)
                         .show();
             }
+        } else {
+            Toast.makeText(context, getString(R.string.api_network_error), Toast.LENGTH_LONG).show();
         }
     }
 

@@ -3,7 +3,6 @@ package iut.info3.betterstravadroid.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -28,10 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
-import iut.info3.betterstravadroid.activities.SyntheseActivity;
+import iut.info3.betterstravadroid.activities.SynthesisActivity;
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.interfaces.RecyclerViewInterface;
-import iut.info3.betterstravadroid.tools.ToastMaker;
 import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.adapters.ParcoursAdapter;
 import iut.info3.betterstravadroid.tools.parcours.ParcoursItem;
@@ -40,20 +38,13 @@ import iut.info3.betterstravadroid.tools.DatePickerButton;
 import iut.info3.betterstravadroid.tools.SpacingItemDecorator;
 import iut.info3.betterstravadroid.tools.SwipeHelper;
 
-public class ListeParcoursFragment extends Fragment implements RecyclerViewInterface {
+public class PathListFragment extends Fragment implements RecyclerViewInterface {
 
     private List<ParcoursItem> parcoursItemList;
-
-    private static final String TAG = "PageListeParcours";
-
     private ListeParcoursBinding binding;
     private ParcoursAdapter parcoursAdapter;
 
-    private SharedPreferences preferences;
-
     private Context context;
-
-    private ToastMaker toastMaker;
 
     private DatePickerButton datePickerFrom;
     private DatePickerButton datePickerTo;
@@ -61,23 +52,21 @@ public class ListeParcoursFragment extends Fragment implements RecyclerViewInter
     private PathFinder finder;
     private ActivityResultLauncher<Intent> launcher;
 
-    public ListeParcoursFragment() {
+    public PathListFragment() {
         //Require empty public constructor
     }
 
-    public static ListeParcoursFragment newInstance(Activity activity) {
-        ListeParcoursFragment listeParcoursFragment = new ListeParcoursFragment();
-        listeParcoursFragment.preferences =
-                activity.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE);
-        listeParcoursFragment.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
+    public static PathListFragment newInstance(Activity activity) {
+        PathListFragment pathListFragment = new PathListFragment();
 
-        listeParcoursFragment.toastMaker = new ToastMaker();
-        listeParcoursFragment.parcoursItemList = new ArrayList<>();
-        listeParcoursFragment.parcoursAdapter =
-                new ParcoursAdapter(listeParcoursFragment.parcoursItemList, listeParcoursFragment);
+        pathListFragment.binding = ListeParcoursBinding.inflate(activity.getLayoutInflater());
+
+        pathListFragment.parcoursItemList = new ArrayList<>();
+        pathListFragment.parcoursAdapter =
+                new ParcoursAdapter(pathListFragment.parcoursItemList, pathListFragment);
 
 
-        return listeParcoursFragment;
+        return pathListFragment;
     }
 
     @Override
@@ -195,7 +184,7 @@ public class ListeParcoursFragment extends Fragment implements RecyclerViewInter
     @Override
     public void onItemClick(ParcoursItem parcoursItem) {
         // création d'une intention
-        Intent intention = new Intent(getActivity(), SyntheseActivity.class);
+        Intent intention = new Intent(getActivity(), SynthesisActivity.class);
 
         // transmission de l'id du parcours
         intention.putExtra("pathId", parcoursItem.getId());
@@ -208,16 +197,16 @@ public class ListeParcoursFragment extends Fragment implements RecyclerViewInter
         FragmentContainerActivity fragmentContainerActivity = (FragmentContainerActivity) getActivity();
 
         if (intent != null && fragmentContainerActivity != null) {
-            String page = intent.getStringExtra(SyntheseActivity.KEY_PAGE);
+            String page = intent.getStringExtra(SynthesisActivity.KEY_PAGE);
 
-            if (page != null && page.equals(SyntheseActivity.HOME_PAGE)) {
+            if (page != null && page.equals(SynthesisActivity.HOME_PAGE)) {
                 fragmentContainerActivity.goToHome(getView());
-            } else if (page != null && page.equals(SyntheseActivity.PATH_PAGE)) {
+            } else if (page != null && page.equals(SynthesisActivity.PATH_PAGE)) {
                 fragmentContainerActivity.goToPathList(getView());
             }
 
 
-            if (intent.getBooleanExtra(SyntheseActivity.KEY_FORCE_REFRESH, false)) {
+            if (intent.getBooleanExtra(SynthesisActivity.KEY_FORCE_REFRESH, false)) {
                 fragmentContainerActivity.rafraichirTout();
             }
         }
@@ -267,7 +256,7 @@ public class ListeParcoursFragment extends Fragment implements RecyclerViewInter
         });
 
         finder.setOnError(error -> {
-            toastMaker.makeText(context,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT);
+            Toast.makeText(context,"Erreur lors du chargement des parcours", Toast.LENGTH_SHORT).show();
         });
 
     }

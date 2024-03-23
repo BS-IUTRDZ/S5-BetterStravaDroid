@@ -8,8 +8,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import iut.info3.betterstravadroid.adapters.PageAdapter;
 import iut.info3.betterstravadroid.databinding.ActivityMainBinding;
-import iut.info3.betterstravadroid.fragments.AccueilFragment;
-import iut.info3.betterstravadroid.fragments.ListeParcoursFragment;
+import iut.info3.betterstravadroid.fragments.HomeFragment;
+import iut.info3.betterstravadroid.fragments.PathListFragment;
 import iut.info3.betterstravadroid.fragments.ParcoursFragment;
 
 public class FragmentContainerActivity extends AppCompatActivity {
@@ -129,15 +129,15 @@ public class FragmentContainerActivity extends AppCompatActivity {
     }
 
     public void rafraichirTout() {
-        AccueilFragment accueilFragment = (AccueilFragment) getSupportFragmentManager().findFragmentByTag("f0");
-        if (accueilFragment != null) {
-            accueilFragment.afficherParcours();
-            accueilFragment.afficherUserInfos();
+        HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag("f0");
+        if (homeFragment != null) {
+            homeFragment.afficherParcours();
+            homeFragment.afficherUserInfos();
         }
 
-        ListeParcoursFragment listeParcoursFragment = (ListeParcoursFragment) getSupportFragmentManager().findFragmentByTag("f2");
-        if (listeParcoursFragment != null) {
-            listeParcoursFragment.rafraichir();
+        PathListFragment pathListFragment = (PathListFragment) getSupportFragmentManager().findFragmentByTag("f2");
+        if (pathListFragment != null) {
+            pathListFragment.rafraichir();
         }
 
     }

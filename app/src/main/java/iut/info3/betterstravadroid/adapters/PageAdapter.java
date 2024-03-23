@@ -5,8 +5,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
-import iut.info3.betterstravadroid.fragments.AccueilFragment;
-import iut.info3.betterstravadroid.fragments.ListeParcoursFragment;
+import iut.info3.betterstravadroid.fragments.HomeFragment;
+import iut.info3.betterstravadroid.fragments.PathListFragment;
 import iut.info3.betterstravadroid.fragments.ParcoursFragment;
 
 public class PageAdapter extends FragmentStateAdapter {
@@ -34,11 +34,11 @@ public class PageAdapter extends FragmentStateAdapter {
 
         switch(position) {
             case PAGE_ACCUEIL:
-                return AccueilFragment.newInstance();
+                return HomeFragment.newInstance();
             case PAGE_PARCOURS:
                 return ParcoursFragment.newInstance();
             case PAGE_LISTE_PARCOURS:
-                return ListeParcoursFragment.newInstance(activity);
+                return PathListFragment.newInstance(activity);
             default :
                 return null;
         }
