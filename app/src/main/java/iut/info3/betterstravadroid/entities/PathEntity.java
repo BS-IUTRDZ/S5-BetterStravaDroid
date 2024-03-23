@@ -1,4 +1,4 @@
-package iut.info3.betterstravadroid.entity;
+package iut.info3.betterstravadroid.entities;
 
 import org.json.JSONArray;
 import org.json.JSONException;

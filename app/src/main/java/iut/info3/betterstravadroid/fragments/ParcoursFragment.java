@@ -57,9 +57,9 @@ import iut.info3.betterstravadroid.tools.api.RequestBuilder;
 import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.PageParcoursBinding;
 import iut.info3.betterstravadroid.databinding.PopupInterestPointBinding;
-import iut.info3.betterstravadroid.entity.PathEntity;
-import iut.info3.betterstravadroid.entity.PointEntity;
-import iut.info3.betterstravadroid.entity.PointInteretEntity;
+import iut.info3.betterstravadroid.entities.PathEntity;
+import iut.info3.betterstravadroid.entities.PointEntity;
+import iut.info3.betterstravadroid.entities.PointInteretEntity;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 

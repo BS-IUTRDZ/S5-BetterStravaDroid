@@ -79,4 +79,16 @@
     <string name="longueurMin">Longueur minimale</string>
     <string name="longueurMax">Longueur maximale</string>
     <string name="aucunResultat">Oups !\nAucun parcours correspond à vos filtres...</string>
+
+    <!--                api toast text                        -->
+    <string name="api_network_error">Connexion avec le serveur distant impossible. Réessayer ultérieurement.</string>
+
+    <!--                connexion toast text                        -->
+    <string name="connection_invalid_field">Veuillez saisir votre courriel et votre mot de passe</string>
+    <string name="connection_error">Erreur lors de la connexion</string>
+
+    <!--                registration toast text                        -->
+    <string name="registration_valid">Inscription réussie</string>
+    <string name="registration_error">Erreur lors de l\'inscription</string>
+
 </resources>

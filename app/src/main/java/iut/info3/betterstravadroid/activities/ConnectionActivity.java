@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -14,38 +13,19 @@ import com.android.volley.VolleyError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
-import iut.info3.betterstravadroid.tools.ToastMaker;
 import iut.info3.betterstravadroid.tools.api.UserApi;
 import iut.info3.betterstravadroid.databinding.PageConnexionBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
-public class ConnexionActivity extends AppCompatActivity {
+public class ConnectionActivity extends AppCompatActivity {
 
     private RequestBuilder helper;
 
-    private ToastMaker toastMaker;
-    private EditText courriel, motDePasse;
-
     private SharedPreferences.Editor editor;
 
-
-    public static ConnexionActivity instance;
-
-    public static ConnexionActivity getInstance() {
-        return instance;
-    }
-
-    public ConnexionActivity() {
-
-    }
-
     private PageConnexionBinding binding;
-
-    public ConnexionActivity(EditText courriel, EditText motDePasse) {
-        this.courriel = courriel;
-        this.motDePasse = motDePasse;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,15 +34,12 @@ public class ConnexionActivity extends AppCompatActivity {
         binding = PageConnexionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setHelper(new RequestBuilder(this));
-        toastMaker = new ToastMaker();
-
         helper = new RequestBuilder(this);
         editor = getSharedPreferences(UserPreferences.PREFERENCE_FILE, MODE_PRIVATE).edit();
     }
 
     public void goToInscription(View view) {
-        Intent intent = new Intent(this, InscriptionActivity.class);
+        Intent intent = new Intent(this, RegistrationActivity.class);
         startActivity(intent);
     }
 
@@ -71,7 +48,7 @@ public class ConnexionActivity extends AppCompatActivity {
         String mdp = binding.etMotDePasse.getText().toString();
 
         if (email.isEmpty() || mdp.isEmpty()) {
-            toastMaker.makeText(this, "Veuillez saisir votre courriel et votre mot de passe", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.connection_invalid_field), Toast.LENGTH_LONG).show();
         } else {
 
             // On envoie la requête de connexion au serveur
@@ -91,32 +68,19 @@ public class ConnexionActivity extends AppCompatActivity {
         goToHome();
     }
 
-
     public void handleError(VolleyError error) {
         if (error.networkResponse != null) {
             try {
                 JSONObject reponse = new JSONObject(new String(error.networkResponse.data));
                 String message = reponse.optString("erreur");
-                toastMaker.makeText(this, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             } catch (JSONException e) {
-                toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
             }
         } else {
-            toastMaker.makeText(this, "Erreur lors de la connexion", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.api_network_error), Toast.LENGTH_LONG).show();
         }
 
-    }
-
-    public void setHelper(RequestBuilder helper) {
-        this.helper = helper;
-    }
-
-    public void setToastMaker(ToastMaker toastMaker) {
-        this.toastMaker = toastMaker;
-    }
-
-    public void setEditor(SharedPreferences.Editor editor) {
-        this.editor = editor;
     }
 
     private void goToHome() {
