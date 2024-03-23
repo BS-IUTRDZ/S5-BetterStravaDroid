@@ -11,12 +11,10 @@ import java.util.List;
 
 import iut.info3.betterstravadroid.R;
 import iut.info3.betterstravadroid.interfaces.RecyclerViewInterface;
-import iut.info3.betterstravadroid.tools.parcours.ParcoursItem;
-import iut.info3.betterstravadroid.tools.parcours.ParcoursViewHolder;
+import iut.info3.betterstravadroid.tools.path.ParcoursItem;
+import iut.info3.betterstravadroid.tools.path.ParcoursViewHolder;
 
 public class ParcoursAdapter extends RecyclerView.Adapter<ParcoursViewHolder> {
-
-
 
     private OnBottomReachedListener onBottomReachedListener;
     private final RecyclerViewInterface recyclerViewInterface;
@@ -34,7 +32,7 @@ public class ParcoursAdapter extends RecyclerView.Adapter<ParcoursViewHolder> {
     @NonNull
     @Override
     public ParcoursViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.parcour_item,
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.component_path_item,
                                         parent,false);
         return new ParcoursViewHolder(view);
     }

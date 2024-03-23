@@ -14,17 +14,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import iut.info3.betterstravadroid.databinding.FragmentPathListBinding;
+import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
-import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
-import iut.info3.betterstravadroid.databinding.ListeParcoursBinding;
 import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 public class PathFinder {
 
-    public static final String GET_ALL_PARCOUR = ApiConfiguration.API_BASE_URL + "path/findPath";
-    public static final String DELETE_PARCOUR = ApiConfiguration.API_BASE_URL + "path/archivingPath";
-
-    private final ListeParcoursBinding binding;
+    private final FragmentPathListBinding binding;
 
     private String dateSup;
     private String dateInf;
@@ -44,7 +41,7 @@ public class PathFinder {
 
     private int nbPathAlreadyLoaded;
 
-    public PathFinder(Context context, ListeParcoursBinding binding) {
+    public PathFinder(Context context, FragmentPathListBinding binding) {
         token = context.getSharedPreferences("BetterStrava", Context.MODE_PRIVATE)
                 .getString(UserPreferences.USER_KEY_TOKEN,"None");
         this.builder = new RequestBuilder(context);
@@ -54,7 +51,7 @@ public class PathFinder {
 
     public void findPaths() {
 
-        String query = GET_ALL_PARCOUR + "?";
+        String query = PathApi.API_PATH_ALL + "?";
         if (textSearch == null) textSearch = "";
 
 
@@ -67,8 +64,6 @@ public class PathFinder {
         } else {
             query += "&distanceMax=" + lengthMax;
         }
-
-
 
         builder.addHeader("token", token)
                 .addHeader("nbPathAlreadyLoaded", nbPathAlreadyLoaded + "")
@@ -85,7 +80,7 @@ public class PathFinder {
                     .onSucces(d -> findPaths())
                     .withBody(jsonObject)
                     .method(Request.Method.PUT)
-                    .newJSONObjectRequest(DELETE_PARCOUR).send();
+                    .newJSONObjectRequest(PathApi.API_PATH_DELETE).send();
         } catch (JSONException e) {
         }
 

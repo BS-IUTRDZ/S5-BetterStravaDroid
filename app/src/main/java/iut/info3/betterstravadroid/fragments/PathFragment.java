@@ -511,7 +511,7 @@ public class ParcoursFragment extends Fragment {
                         Toast.makeText(context, "Parcours enregistré", Toast.LENGTH_LONG).show();
                         FragmentContainerActivity fragmentContainerActivity = (FragmentContainerActivity) getActivity();
                         if (fragmentContainerActivity != null) {
-                            fragmentContainerActivity.rafraichirTout();
+                            fragmentContainerActivity.refreshAll();
                         }
                     })
                     .method(Request.Method.POST)
