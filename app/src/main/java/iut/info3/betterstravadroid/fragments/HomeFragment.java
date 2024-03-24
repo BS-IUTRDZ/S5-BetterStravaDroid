@@ -168,25 +168,27 @@ public class HomeFragment extends Fragment {
             // Stats last 30 days
             JSONObject stats30Jours = (JSONObject) response.get("30jours");
 
-            binding.tvDistance30J.setText(stats30Jours.getString(UserPreferences.STAT_KEY_DISTANCE));
+            binding.tvDistance30J.setText(String.format(Locale.FRANCE, "%.2f",
+                    stats30Jours.getDouble(UserPreferences.STAT_KEY_DISTANCE)));
 
             float dureeParcours30Jours = Float.parseFloat(stats30Jours.getString(UserPreferences.STAT_KEY_TIME));
             float heureParcours30Jours = dureeParcours30Jours / 3600;
             float minParcours30Jours = dureeParcours30Jours % 3600 / 60;
-            binding.tvTpsParcoursHeure30J.setText(Integer.toString(Math.round(heureParcours30Jours)));
-            binding.tvTpsParcoursMinute30J.setText(Integer.toString(Math.round(minParcours30Jours)));
+            binding.tvTpsParcoursHeure30J.setText(String.format(Locale.FRANCE, "%.0f", heureParcours30Jours));
+            binding.tvTpsParcoursMinute30J.setText(String.format(Locale.FRANCE, "%.0f", minParcours30Jours));
 
             binding.tvParcoursCrees30J.setText(stats30Jours.getString(UserPreferences.STAT_KEY_NB_PATH));
 
             // Overall stats
             JSONObject statsGlobales = (JSONObject) response.get("global");
-            binding.tvDistanceGlob.setText(statsGlobales.getString(UserPreferences.STAT_KEY_DISTANCE));
+            binding.tvDistanceGlob.setText(String.format(Locale.FRANCE, "%.2f",
+                    statsGlobales.getDouble(UserPreferences.STAT_KEY_DISTANCE)));
 
             float dureeParcoursGlobal = Float.parseFloat(statsGlobales.getString(UserPreferences.STAT_KEY_TIME));
             float heureParcoursGlobal = dureeParcoursGlobal / 3600;
             float minParcoursGlobal = dureeParcoursGlobal % 3600 / 60;
-            binding.tvTpsParcoursHeureGlob.setText(Integer.toString(Math.round(heureParcoursGlobal)));
-            binding.tvTpsParcoursMinuteGlob.setText(Integer.toString(Math.round(minParcoursGlobal)));
+            binding.tvTpsParcoursHeureGlob.setText(String.format(Locale.FRANCE, "%.0f", heureParcoursGlobal));
+            binding.tvTpsParcoursMinuteGlob.setText(String.format(Locale.FRANCE, "%.0f", minParcoursGlobal));
 
             binding.tvParcoursCreesGlob.setText(statsGlobales.getString(UserPreferences.STAT_KEY_NB_PATH));
 

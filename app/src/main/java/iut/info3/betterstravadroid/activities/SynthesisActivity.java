@@ -149,17 +149,23 @@ public class SynthesisActivity extends AppCompatActivity {
             binding.cardRun.tvDescription.setText((String) response.get("description"));
 
             JSONObject stats = response.getJSONObject("statistiques");
-            binding.speedStat.tvSyntheseStat.setText(Double.toString((Double) stats.get("vitesseMoyenne")));
+//            binding.speedStat.tvSyntheseStat.setText(Double.toString((Double) stats.get("vitesseMoyenne")));
+            binding.speedStat.tvSyntheseStat.setText(String.format(Locale.FRANCE, "%.2f",
+                    stats.getDouble("vitesseMoyenne")));
+
 
             float heureParcours = (int) stats.get("duree") / 3600;
             float minParcours = (float) (((int) stats.get("duree")) % 3600) / 60;
             String duree = String.valueOf((int) heureParcours) + ':' + String.valueOf((int) minParcours);
             binding.timeStat.tvSyntheseStat.setText(duree);
 
-            binding.distanceStat.tvSyntheseStat.setText(Double.toString((Double) stats.get("distance")));
-            String denivPos = "+ " + stats.get("denivPos");
+//            binding.distanceStat.tvSyntheseStat.setText(Double.toString((Double) stats.get("distance")));
+            binding.distanceStat.tvSyntheseStat.setText(String.format(Locale.FRANCE, "%.2f",
+                    stats.getDouble("distance")));
+
+            String denivPos = "+ " + String.format(Locale.FRANCE, "%.2f", stats.getDouble("denivPos"));
             binding.altitudeStat.tvLeftSyntheseStat.setText(denivPos);
-            String denivNeg = "- " + stats.get("denivNeg");
+            String denivNeg = "- " + String.format(Locale.FRANCE, "%.2f", stats.getDouble("denivNeg"));;
             binding.altitudeStat.tvRightSyntheseStat.setText(denivNeg);
 
             JSONArray points = response.getJSONArray("points");
