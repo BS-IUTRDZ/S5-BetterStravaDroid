@@ -9,14 +9,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import iut.info3.betterstravadroid.R;
 
-public class ParcoursViewHolder extends RecyclerView.ViewHolder {
+public class PathViewHolder extends RecyclerView.ViewHolder {
 
     TextView dateTextView;
     TextView titreTextView;
     TextView descriptionTextView;
     public CardView cardView;
 
-    public ParcoursViewHolder(@NonNull View itemView) {
+    public PathViewHolder(@NonNull View itemView) {
         super(itemView);
         dateTextView = itemView.findViewById(R.id.parcour_date);
         titreTextView = itemView.findViewById(R.id.tv_titre);
@@ -24,9 +24,9 @@ public class ParcoursViewHolder extends RecyclerView.ViewHolder {
         cardView = itemView.findViewById(R.id.item_container);
     }
 
-    public void bind(ParcoursItem parcoursItem) { 
-        dateTextView.setText(parcoursItem.getDate());
-        titreTextView.setText(parcoursItem.getTitre());
-        descriptionTextView.setText(parcoursItem.getDescription());
+    public void bind(PathItem pathItem) {
+        dateTextView.setText(pathItem.getDate());
+        titreTextView.setText(pathItem.getTitre());
+        descriptionTextView.setText(pathItem.getDescription());
     }
 }

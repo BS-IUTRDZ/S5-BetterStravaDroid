@@ -8,9 +8,9 @@ import java.util.Calendar;
 import java.util.Locale;
 
 /**
- * Un item de la liste des parcours
+ * An item from the list of courses
  */
-public class ParcoursItem {
+public class PathItem {
 
     private long date;
 
@@ -20,7 +20,7 @@ public class ParcoursItem {
 
     private String id;
 
-    public ParcoursItem(JSONObject jsonObject) throws JSONException {
+    public PathItem(JSONObject jsonObject) throws JSONException {
         this(jsonObject.getLong("date"),
              jsonObject.getString("nom"),
              jsonObject.getString("description"),
@@ -28,7 +28,7 @@ public class ParcoursItem {
     }
 
 
-    public ParcoursItem(long date, String title, String description, String id) {
+    public PathItem(long date, String title, String description, String id) {
         this.date = date;
         this.title = title;
         this.description = description;

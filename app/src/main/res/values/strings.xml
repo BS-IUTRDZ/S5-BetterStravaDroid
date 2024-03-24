@@ -95,7 +95,15 @@
     <string name="home_error">Erreur lors de la récupération des informations</string>
 
     <!--                path toast text                        -->
-    <string name="path_error">Erreur lors de la récupération des informations</string>
+    <string name="path_infos_error">Erreur lors de la récupération des informations</string>
+    <string name="path_point_error">Impossible de créer le point d\'intéret</string>
+    <string name="path_permission_refused">Permission non accordée</string>
+    <string name="path_no_position">Aucune position trouvée</string>
+    <string name="path_save_complete">Parcours enregistré</string>
+    <string name="path_save_error">Impossible d\'enregistrer le parcours</string>
+
+    <!--                path list toast text                        -->
+    <string name="path_list_error">Erreur lors du chargement des parcours</string>
 
     <!--                synthesis toast text                        -->
     <string name="synthesis_error">Erreur lors de la récupération du parcours</string>

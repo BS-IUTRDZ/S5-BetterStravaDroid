@@ -23,7 +23,6 @@ public class UserEntity {
     private String prenom;
     private String courriel;
     private String password;
-    private String confirmPassword;
 
     public UserEntity (String nom, String prenom, String courriel,
                        String password, String confirmPassword) {
@@ -47,7 +46,6 @@ public class UserEntity {
 
         this.prenom = prenom;
         this.nom = nom;
-        this.confirmPassword = confirmPassword;
         this.password = password;
         this.courriel = courriel;
     }

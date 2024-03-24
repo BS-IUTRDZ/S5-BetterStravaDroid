@@ -12,7 +12,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,8 +52,8 @@ import com.android.volley.Request;
 
 import iut.info3.betterstravadroid.activities.FragmentContainerActivity;
 import iut.info3.betterstravadroid.R;
+import iut.info3.betterstravadroid.tools.api.PathApi;
 import iut.info3.betterstravadroid.tools.api.RequestBuilder;
-import iut.info3.betterstravadroid.tools.api.ApiConfiguration;
 import iut.info3.betterstravadroid.databinding.FragmentPathBinding;
 import iut.info3.betterstravadroid.databinding.PopupInterestPointBinding;
 import iut.info3.betterstravadroid.entities.PathEntity;
@@ -64,31 +63,57 @@ import iut.info3.betterstravadroid.preferences.UserPreferences;
 
 
 public class PathFragment extends Fragment {
+
+    /** Visual indicator positioned on the person’s position map */
     private MyLocationNewOverlay myLocationOverlay;
-    private boolean isOnMap = false;
-    LocationManager locationManager = null;
 
-    ArrayList<GeoPoint> trajet;
-    Polyline line;
+    /**  Location manager through the phone sensors */
+    private LocationManager locationManager = null;
 
+    /** List of crossing points of the route */
+    private ArrayList<GeoPoint> trajet;
+
+    /** Drawing of the course on the map */
+    private Polyline line;
+
+    /** Boolean pause/ playback of the course recording */
     public static Boolean play = false;
 
+    /** Indicates whether a recording takes place */
     public static Boolean parcours = false;
+
     private String fournisseur;
-    ArrayList<OverlayItem> items = new ArrayList<>();
+
+    /** List of items on the overlay */
+    private ArrayList<OverlayItem> items = new ArrayList<>();
+
+    /**  Popup manager for starting recording or positioning point of interest */
     private AlertDialog popup;
 
+    /** Object responsible for linking this class to the path page layout */
     private FragmentPathBinding binding;
+
     private Context context;
+
+    /** API request builder */
     private RequestBuilder helper;
-    public static final String API_REQUEST_CREATE_PATH = ApiConfiguration.API_BASE_URL + "path/createPath";
+
+    /** Thread in charge of calculating the duration of the journey */
     private Thread threadTimer;
+
+    /** Thread in charge of calculating the average speed */
     private Thread threadVitesseMoyenne;
-    private static final String TAG = "PageParcours";
+
+    /** Duration of current journey */
     private int dureeParcours;
+
+    /** Entity representing the current journey */
     private PathEntity parcoursEnCours;
+
+    /** List of points of interest positioned on the map, only the display */
     private List<ItemizedOverlayWithFocus<OverlayItem>> mapPointsInterets = new ArrayList<>();
 
+    /** Geolocation request component */
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
             result -> {
@@ -107,17 +132,14 @@ public class PathFragment extends Fragment {
                 } else {
                     // PERMISSION NOT GRANTED
                     Toast.makeText( context,
-                            "Permission non accordée", Toast.LENGTH_LONG).show();
+                            getString(R.string.path_permission_refused), Toast.LENGTH_LONG).show();
                 }
             }
     );
 
-    LocationListener ecouteurGPS = new LocationListener() {
-        @Override
-        public void onLocationChanged(@NonNull Location localisation) {
-            if (play) {
-                addWaypointToPath(localisation);
-            }
+    LocationListener ecouteurGPS = localisation -> {
+        if (play) {
+            addWaypointToPath(localisation);
         }
     };
 
@@ -220,7 +242,7 @@ public class PathFragment extends Fragment {
 
             } else {
                 Toast.makeText(context,
-                        "Aucune position trouvée", Toast.LENGTH_LONG).show();
+                        getString(R.string.path_no_position), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -232,7 +254,6 @@ public class PathFragment extends Fragment {
                 PreferenceManager.getDefaultSharedPreferences(context));
         if (binding.mapview != null) {
             binding.mapview.onResume();
-            isOnMap = true;
         }
     }
 
@@ -243,7 +264,6 @@ public class PathFragment extends Fragment {
                 PreferenceManager.getDefaultSharedPreferences(context));
         if (binding.mapview != null) {
             binding.mapview.onPause();
-            isOnMap = false; // User is no longer on the map, disable tracking
         }
 
         if (myLocationOverlay != null) {
@@ -379,7 +399,7 @@ public class PathFragment extends Fragment {
 
         PointEntity lastPosition = parcoursEnCours.getLastPosition();
         if (lastPosition == null) {
-            Toast.makeText(context, "Impossible de créer le point d'intéret", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, getString(R.string.path_point_error), Toast.LENGTH_LONG).show();
         } else {
             // We add the point of interest on the overlay
             items.add(new OverlayItem(title, description,
@@ -460,7 +480,7 @@ public class PathFragment extends Fragment {
     /**
      * Average Speed Calculation Thread Declaration
      */
-    private void calculVitesseMoyenne() {
+    private void averageSpeedCalculation() {
 
         if (threadVitesseMoyenne != null && threadVitesseMoyenne.isAlive()) { return; }
 
@@ -503,29 +523,29 @@ public class PathFragment extends Fragment {
         try {
             parcoursJson = parcoursEnCours.toJson();
         } catch (JSONException e) {
-            Toast.makeText(context, "Impossible d'enregistrer le parcours", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, getString(R.string.path_save_error), Toast.LENGTH_LONG).show();
         }
 
         // We send the route to the API
         if (parcoursJson != null) {
             HashMap<String, String> token = new HashMap<>();
-            token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE, Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
+            token.put("token", context.getSharedPreferences(UserPreferences.PREFERENCE_FILE,
+                    Context.MODE_PRIVATE).getString(UserPreferences.USER_KEY_TOKEN, null));
 
-            Log.d(TAG, "sendPathToApi: " + parcoursJson.toString());
             helper.withBody(parcoursJson)
                     .withHeader(token)
                     .onError((error) -> {
-                        Toast.makeText(context, "Impossible d'enregistrer le parcours", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, getString(R.string.path_save_error), Toast.LENGTH_LONG).show();
                     })
                     .onSucces((response) -> {
-                        Toast.makeText(context, "Parcours enregistré", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, getString(R.string.path_save_complete), Toast.LENGTH_LONG).show();
                         FragmentContainerActivity fragmentContainerActivity = (FragmentContainerActivity) getActivity();
                         if (fragmentContainerActivity != null) {
                             fragmentContainerActivity.refreshAll();
                         }
                     })
                     .method(Request.Method.POST)
-                    .newJSONObjectRequest(API_REQUEST_CREATE_PATH)
+                    .newJSONObjectRequest(PathApi.API_PATH_CREATE)
                     .send();
         }
     }
@@ -562,7 +582,7 @@ public class PathFragment extends Fragment {
                                                      point.getLongitude(),
                                                      point.getAltitude()));
 
-            calculVitesseMoyenne();
+            averageSpeedCalculation();
         }
     }
 }

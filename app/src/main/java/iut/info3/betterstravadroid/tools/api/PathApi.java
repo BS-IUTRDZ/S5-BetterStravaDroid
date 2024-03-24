@@ -14,4 +14,5 @@ public class PathApi {
     public static final String API_PATH_ALL = ApiConfiguration.API_BASE_URL + "path/findPath";
     public static final String API_PATH_UPDATE = ApiConfiguration.API_BASE_URL + "path/modifyDescription";
     public static final String API_PATH_DELETE = ApiConfiguration.API_BASE_URL + "path/archivingPath";
+    public static final String API_PATH_CREATE = ApiConfiguration.API_BASE_URL + "path/createPath";
 }

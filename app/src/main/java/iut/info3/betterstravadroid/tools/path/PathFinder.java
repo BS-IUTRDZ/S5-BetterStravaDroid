@@ -72,7 +72,7 @@ public class PathFinder {
                 .newJSONArrayRequest(query).send();
     }
 
-    public void deletePath(ParcoursItem itemToDelete) {
+    public void deletePath(PathItem itemToDelete) {
         try {
             JSONObject jsonObject = itemToDelete.toJson();
             builder.addHeader("token", token)
@@ -86,24 +86,22 @@ public class PathFinder {
 
     }
 
-
-
     public void updatePaths(Object object) {
-        List<ParcoursItem> parcoursItemList = new ArrayList<>();
+        List<PathItem> pathItemList = new ArrayList<>();
 
         JSONArray array = (JSONArray) object;
         try {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jsonObject = array.getJSONObject(i);
-                parcoursItemList.add(new ParcoursItem(jsonObject));
+                pathItemList.add(new PathItem(jsonObject));
             }
-            if (parcoursItemList.isEmpty()) {
+            if (pathItemList.isEmpty()) {
                 binding.aucunResultat.setVisibility(View.VISIBLE);
             } else {
                 binding.aucunResultat.setVisibility(View.GONE);
             }
             if (updateListener != null) {
-                updateListener.onUpdate(parcoursItemList);
+                updateListener.onUpdate(pathItemList);
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -157,7 +155,7 @@ public class PathFinder {
 
     public interface PathsUpdateListener {
 
-        void onUpdate(List<ParcoursItem> parcoursItemList);
+        void onUpdate(List<PathItem> pathItemList);
 
     }
 

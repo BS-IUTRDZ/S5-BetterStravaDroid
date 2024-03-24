@@ -157,7 +157,7 @@ public class FragmentContainerActivity extends AppCompatActivity {
 
         PathListFragment pathListFragment = (PathListFragment) getSupportFragmentManager().findFragmentByTag("f2");
         if (pathListFragment != null) {
-            pathListFragment.rafraichir();
+            pathListFragment.refresh();
         }
 
     }
