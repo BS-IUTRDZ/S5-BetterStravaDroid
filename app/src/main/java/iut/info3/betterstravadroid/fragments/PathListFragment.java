@@ -283,11 +283,16 @@ public class PathListFragment extends Fragment implements RecyclerViewInterface 
      * Initializes the scan service when the fragment is first displayed.
      */
     private void initPathFinder() {
-        finder = new PathFinder(context, binding);
+        finder = new PathFinder(context);
         finder.setOnPathsUpdate(parcoursItemList -> {
             this.pathItemList.clear();
             this.pathItemList.addAll(parcoursItemList);
             pathAdapter.notifyDataSetChanged();
+            if (parcoursItemList.isEmpty()) {
+                binding.aucunResultat.setVisibility(View.VISIBLE);
+            } else {
+                binding.aucunResultat.setVisibility(View.GONE);
+            }
         });
 
         finder.setOnError(error -> {
