@@ -79,4 +79,36 @@
     <string name="longueurMin">Longueur minimale</string>
     <string name="longueurMax">Longueur maximale</string>
     <string name="aucunResultat">Oups !\nAucun parcours correspond à vos filtres...</string>
+
+    <!--                api toast text                        -->
+    <string name="api_network_error">Connexion avec le serveur distant impossible. Réessayer ultérieurement.</string>
+
+    <!--                connexion toast text                        -->
+    <string name="connection_invalid_field">Veuillez saisir votre courriel et votre mot de passe</string>
+    <string name="connection_error">Erreur lors de la connexion</string>
+
+    <!--                registration toast text                        -->
+    <string name="registration_valid">Inscription réussie</string>
+    <string name="registration_error">Erreur lors de l\'inscription</string>
+
+    <!--                home toast text                        -->
+    <string name="home_error">Erreur lors de la récupération des informations</string>
+
+    <!--                path toast text                        -->
+    <string name="path_infos_error">Erreur lors de la récupération des informations</string>
+    <string name="path_point_error">Impossible de créer le point d\'intéret</string>
+    <string name="path_permission_refused">Permission non accordée</string>
+    <string name="path_no_position">Aucune position trouvée</string>
+    <string name="path_save_complete">Parcours enregistré</string>
+    <string name="path_save_error">Impossible d\'enregistrer le parcours</string>
+
+    <!--                path list toast text                        -->
+    <string name="path_list_error">Erreur lors du chargement des parcours</string>
+
+    <!--                synthesis toast text                        -->
+    <string name="synthesis_error">Erreur lors de la récupération du parcours</string>
+
+    <!--                update path toast text                        -->
+    <string name="update_path_error">Erreur lors de la modification de la description</string>
+
 </resources>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include
+            android:id="@+id/topbar"
+            layout="@layout/component_topbar"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/topbar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="60dp"
+            android:layout_marginTop="15dp">
+
+            <LinearLayout
+                android:id="@+id/synthese_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="12dp">
+
+                <include
+                    android:id="@+id/card_run"
+                    layout="@layout/component_path_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="13dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="20dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp">
+
+                    <org.osmdroid.views.MapView
+                        android:id="@+id/mapview"
+                        android:layout_width="match_parent"
+                        android:layout_height="380dp"
+                        android:background="@color/black"/>
+                </androidx.cardview.widget.CardView>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="120dp"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <include
+                        android:id="@+id/speed_stat"
+                        layout="@layout/component_synthesis_item_small"
+                        app:statIcon="@{@drawable/rabbit}"
+                        app:statIconDescription="@{@string/icone_lapin}"
+                        app:statValue="@{`15`}"
+                        app:title="@{@string/vitesse_moyenne}"
+                        app:titleIcon="@{@drawable/vit_moyenne}"
+                        app:titleIconDescription="@{@string/icone_compteur}"
+                        app:unit="@{@string/kmh}" />
+
+                    <include
+                        android:id="@+id/time_stat"
+                        layout="@layout/component_synthesis_item_small"
+                        app:statIcon="@{null}"
+                        app:statIconDescription="@{@string/icone_null}"
+                        app:statValue="@{`01:05`}"
+                        app:title="@{@string/duree_du_parcours}"
+                        app:titleIcon="@{@drawable/timer}"
+                        app:titleIconDescription="@{@string/icone_chronometre}"
+                        app:unit="@{@string/h}" />
+
+                    <include
+                        android:id="@+id/distance_stat"
+                        layout="@layout/component_synthesis_item_small"
+                        app:statIcon="@{null}"
+                        app:statIconDescription="@{@string/icone_null}"
+                        app:statValue="@{`150`}"
+                        app:title="@{@string/distance_parcourue}"
+                        app:titleIcon="@{@drawable/distance}"
+                        app:titleIconDescription="@{@string/icone_course}"
+                        app:unit="@{@string/km}" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <include
+                        android:id="@+id/interest_stat"
+                        layout="@layout/component_synthesis_item_small"
+                        app:titleIcon="@{@drawable/location}"
+                        app:titleIconDescription="@{@string/icone_localisation}"
+                        app:title="@{@string/points_interets}"
+                        app:statIcon="@{null}"
+                        app:statIconDescription="@{@string/icone_null}"
+                        app:statValue="@{`150`}"
+                        app:unit="@{null}"/>
+
+                    <include
+                        android:id="@+id/altitude_stat"
+                        layout="@layout/component_synthesis_item_big"
+                        app:leftTitleIcon="@{@drawable/elevation_positive}"
+                        app:leftTitleIconDescription="@{@string/icone_denivele_positif}"
+                        app:leftTitle="@{@string/denivele_positif}"
+                        app:leftStatIcon="@{null}"
+                        app:leftStatIconDescription="@{@string/icone_null}"
+                        app:leftStatValue="@{`+ 150`}"
+                        app:leftUnit="@{@string/m}"
+
+                        app:rightTitleIcon="@{@drawable/elevation_negative}"
+                        app:rightTitleIconDescription="@{@string/icone_denivele_negatif}"
+                        app:rightTitle="@{@string/denivele_negatif}"
+                        app:rightStatIcon="@{null}"
+                        app:rightStatIconDescription="@{@string/icone_null}"
+                        app:rightStatValue="@{` - 300`}"
+                        app:rightUnit="@{@string/m}"
+
+                        />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </ScrollView>
+
+        <include
+            android:id="@+id/navbar"
+            layout="@layout/component_navbar"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

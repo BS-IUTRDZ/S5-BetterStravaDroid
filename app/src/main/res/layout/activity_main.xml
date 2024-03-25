@@ -13,7 +13,7 @@
 
     <include
         android:id="@+id/navbar"
-        layout="@layout/navbar"
+        layout="@layout/component_navbar"
         android:layout_width="match_parent"
         android:layout_height="75dp"
         app:layout_constraintBottom_toBottomOf="parent" />
