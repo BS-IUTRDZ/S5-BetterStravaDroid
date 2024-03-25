@@ -24,7 +24,9 @@ import java.util.Map;
 import java.util.Queue;
 
 import iut.info3.betterstravadroid.R;
-
+/**
+ * An abstract class to provide swipe functionality for RecyclerView items.
+ */
 public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
 
     public static final int BUTTON_WIDTH = 500;
@@ -35,8 +37,16 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     private float swipeThreshold = 0.5f;
     private Map<Integer, List<UnderlayButton>> buttonsBuffer;
     private Queue<Integer> recoverQueue;
-
+    /**
+     * Listener for detecting gestures on the RecyclerView item.
+     */
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+        /**
+         * Called when a single tap is confirmed on the view.
+         *
+         * @param e The motion event for the tap.
+         * @return True if the tap is consumed, false otherwise.
+         */
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             for (UnderlayButton button : buttons) {
@@ -47,8 +57,17 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             return true;
         }
     };
-
+    /**
+     * Touch listener for handling touch events on the RecyclerView item.
+     */
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+        /**
+         * Called when a touch event is dispatched to the view.
+         *
+         * @param view The view that received the touch event.
+         * @param e    The motion event.
+         * @return True if the touch event is consumed, false otherwise.
+         */
         @Override
         public boolean onTouch(View view, MotionEvent e) {
             if (swipedPos < 0) return false;
@@ -60,7 +79,8 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
                 Rect rect = new Rect();
                 swipedItem.getGlobalVisibleRect(rect);
 
-                if (e.getAction() == MotionEvent.ACTION_DOWN || e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_MOVE) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN || e.getAction() == MotionEvent.ACTION_UP
+                        || e.getAction() == MotionEvent.ACTION_MOVE) {
                     if (rect.top < point.y && rect.bottom > point.y)
                         gestureDetector.onTouchEvent(e);
                     else {
@@ -76,6 +96,11 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         }
     };
 
+    /**
+     * Constructor for SwipeHelper.
+     * @param context The context.
+     * @param recyclerView The RecyclerView associated with this SwipeHelper.
+     */
     public SwipeHelper(Context context, RecyclerView recyclerView) {
         super(0, ItemTouchHelper.LEFT);
         this.recyclerView = recyclerView;
@@ -102,6 +127,13 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         return false;
     }
 
+
+    /**
+     * Overrides the onSwiped method of ItemTouchHelper.Callback to handle RecyclerView item swiping.
+     *
+     * @param viewHolder The ViewHolder of the swiped item.
+     * @param direction  The direction of the swipe action.
+     */
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int pos = viewHolder.getAdapterPosition();
@@ -136,6 +168,18 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         return 5.0f * defaultValue;
     }
 
+
+    /**
+     * Overrides the onChildDraw method of ItemTouchHelper.Callback to customize the drawing of RecyclerView item while swiping.
+     *
+     * @param c                 The canvas on which to draw the item.
+     * @param recyclerView      The RecyclerView associated with this swipe action.
+     * @param viewHolder        The ViewHolder of the swiped item.
+     * @param dX                The horizontal displacement caused by the swipe action.
+     * @param dY                The vertical displacement caused by the swipe action.
+     * @param actionState       The current action state of the swipe action.
+     * @param isCurrentlyActive True if the swiped item is currently active, false otherwise.
+     */
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         int pos = viewHolder.getAdapterPosition();
@@ -165,7 +209,10 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
 
         super.onChildDraw(c, recyclerView, viewHolder, translationX, dY, actionState, isCurrentlyActive);
     }
-
+    /**
+     * Recovers the swiped RecyclerView item by notifying the adapter of item changes.
+     * This method is synchronized to ensure thread safety.
+     */
     private synchronized void recoverSwipedItem() {
         while (!recoverQueue.isEmpty()) {
             int pos = recoverQueue.poll();
@@ -175,6 +222,15 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         }
     }
 
+    /**
+     * Draws the underlay buttons on the canvas when a RecyclerView item is swiped.
+     *
+     * @param c         The canvas on which to draw the buttons.
+     * @param itemView  The view representing the RecyclerView item.
+     * @param buffer    The list of underlay buttons to be drawn.
+     * @param pos       The position of the RecyclerView item.
+     * @param dX        The horizontal displacement caused by the swipe action.
+     */
     private void drawButtons(Canvas c, View itemView, List<UnderlayButton> buffer, int pos, float dX) {
         float right = itemView.getRight();
         float dButtonWidth = (-1) * dX / buffer.size();
@@ -196,14 +252,23 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             right = left;
         }
     }
-
+    /**
+     * Attaches swipe functionality to the RecyclerView.
+     */
     public void attachSwipe() {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(this);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
+    /**
+     * Abstract method to instantiate underlay buttons for a particular RecyclerView item.
+     * @param viewHolder The ViewHolder for the RecyclerView item.
+     * @param underlayButtons List to store the underlay buttons.
+     */
     public abstract void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons);
-
+    /**
+     * Class representing an underlay button for swiping.
+     */
     public static class UnderlayButton {
         private int imageResId;
         private int color;
@@ -220,6 +285,12 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             this.context = context;
         }
 
+        /**
+         * Checks if the button is clicked.
+         * @param x The x-coordinate of the click.
+         * @param y The y-coordinate of the click.
+         * @return True if the click is within the button's region, false otherwise.
+         */
         public boolean onClick(float x, float y) {
             if (clickRegion != null && clickRegion.contains(x, y)) {
                 clickListener.onClick(pos);
@@ -229,6 +300,12 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             return false;
         }
 
+        /**
+         * Draws the underlay button on the canvas.
+         * @param c The canvas to draw on.
+         * @param rect The bounding rectangle of the button.
+         * @param pos The position of the button.
+         */
         public void onDraw(Canvas c, RectF rect, int pos) {
             Paint p = new Paint();
 
@@ -253,10 +330,24 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         }
     }
 
+    /**
+     * Listener triggered when a underlay button is clicked.
+     */
     public interface UnderlayButtonClickListener {
+        /**
+         * Called when an underlay button is clicked.
+         * @param pos The position of the button.
+         */
         void onClick(int pos);
     }
 
+    /**
+     * Switch one color of a bitmap to another color.
+     * @param bitmap bitmap that has color to change.
+     * @param oldColor color to replace
+     * @param newColor new color that replace the oldColor
+     * @return the bitmap with the switched color
+     */
     public static Bitmap changeColor(Bitmap bitmap, int oldColor,
                                      int newColor) {
         if (bitmap == null) {
